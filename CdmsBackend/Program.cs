@@ -31,6 +31,7 @@ static WebApplication CreateWebApplication(string[] args)
 static void ConfigureWebApplication(WebApplicationBuilder builder)
 {
    builder.Configuration.AddEnvironmentVariables();
+   builder.Configuration.AddIniFile("Properties/local.env", true);
 
    var logger = ConfigureLogging(builder);
 
