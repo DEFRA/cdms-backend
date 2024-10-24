@@ -1,8 +1,11 @@
+using CdmsBackend.Cli.Features.GenerateModels.DescriptorModel;
+
 namespace CdmsBackend.Cli.Features.GenerateModels.ClassMaps
 {
     internal class GeneratorClassMap
     {
-        private static readonly Dictionary<string, GeneratorClassMap> classMaps = new Dictionary<string, GeneratorClassMap>();
+        private static readonly Dictionary<string, GeneratorClassMap> classMaps =
+            new Dictionary<string, GeneratorClassMap>();
 
         public GeneratorClassMap(string className, Action<GeneratorClassMap> classMapInitializer)
         {
@@ -21,6 +24,8 @@ namespace CdmsBackend.Cli.Features.GenerateModels.ClassMaps
         public bool IgnoreInternalClass { get; private set; }
 
         public List<PropertyMap> Properties { get; private set; } = new List<PropertyMap>();
+
+        public List<PropertyDescriptor> NewProperties { get; private set; } = new List<PropertyDescriptor>();
 
         public GeneratorClassMap SetClassName(string className)
         {
@@ -57,12 +62,23 @@ namespace CdmsBackend.Cli.Features.GenerateModels.ClassMaps
             return this;
         }
 
+        public void AddProperty(PropertyDescriptor property)
+        {
+            if (property == null)
+            {
+                throw new ArgumentNullException("property");
+            }
+
+            NewProperties.Add(property);
+        }
+
         public PropertyMap MapProperty(string propertyName)
         {
             if (propertyName == null)
             {
                 throw new ArgumentNullException("propertyName");
             }
+
             var propertyMap = new PropertyMap(propertyName);
             Properties.Add(propertyMap);
             return propertyMap;
@@ -82,5 +98,3 @@ namespace CdmsBackend.Cli.Features.GenerateModels.ClassMaps
         }
     }
 }
-
-

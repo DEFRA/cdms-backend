@@ -39,7 +39,10 @@ to.UniqueComplementId = from.UniqueComplementId;
             to.SpeciesFamily = from.SpeciesFamily;
             to.SpeciesCommonName = from.SpeciesCommonName;
             to.IsCdsMatched = from.IsCdsMatched;
-            	return to;
+            to.AdditionalData = from.AdditionalData;
+            to.RiskAssesment = IpaffsCommodityRiskResultMapper.Map(from?.RiskAssesment);
+                to.Checks = from?.Checks?.Select(x => IpaffsInspectionCheckMapper.Map(x)).ToArray();
+                	return to;
 	}
 }
 

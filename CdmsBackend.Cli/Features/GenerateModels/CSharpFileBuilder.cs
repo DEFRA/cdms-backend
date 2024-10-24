@@ -6,10 +6,12 @@ namespace CdmsBackend.Cli.Features.GenerateModels
 {
     class CSharpFileBuilder
     {
-        public static async Task Build(CSharpDescriptor descriptor, string sourceOutputPath, string internalOutputPath, string mappingOutputPath, CancellationToken cancellationToken = default)
+        public static async Task Build(CSharpDescriptor descriptor, string sourceOutputPath, string internalOutputPath,
+            string mappingOutputPath, CancellationToken cancellationToken = default)
         {
             var engine = new RazorLightEngineBuilder()
-                .UseEmbeddedResourcesProject(typeof(Program).Assembly, "CdmsBackend.Cli.Features.GenerateModels.Templates")
+                .UseEmbeddedResourcesProject(typeof(Program).Assembly,
+                    "CdmsBackend.Cli.Features.GenerateModels.Templates")
                 .UseMemoryCachingProvider()
                 .Build();
 
@@ -20,7 +22,8 @@ namespace CdmsBackend.Cli.Features.GenerateModels
                 //create source 
 
                 var contents = await engine.CompileRenderAsync("ClassTemplate", @class);
-                await File.WriteAllTextAsync(Path.Combine(sourceOutputPath, $"{@class.GetClassName()}.g.cs"), contents, cancellationToken);
+                await File.WriteAllTextAsync(Path.Combine(sourceOutputPath, $"{@class.GetClassName()}.g.cs"), contents,
+                    cancellationToken);
                 Console.WriteLine($"Created file: {@class.GetClassName()}.cs");
 
                 //create internal 
@@ -33,29 +36,31 @@ namespace CdmsBackend.Cli.Features.GenerateModels
                     Console.WriteLine($"Created file: {@class.GetClassName()}.cs");
 
                     contents = await engine.CompileRenderAsync("MapperTemplate", @class);
-                    await File.WriteAllTextAsync(Path.Combine(mappingOutputPath, $"{@class.GetClassName()}Mapper.g.cs"), contents, cancellationToken);
+                    await File.WriteAllTextAsync(Path.Combine(mappingOutputPath, $"{@class.GetClassName()}Mapper.g.cs"),
+                        contents, cancellationToken);
                     Console.WriteLine($"Created file: {@class.GetClassName()}.cs");
                 }
-
-               
             }
-            
+
             foreach (var @enum in descriptor.Enums.OrderBy(x => x.Name))
             {
                 ApplyEnumMapOverrides(@enum);
 
                 var contents = await engine.CompileRenderAsync("EnumTemplate", @enum);
-                await File.WriteAllTextAsync(Path.Combine(sourceOutputPath, $"{@enum.GetEnumName()}.g.cs"), contents, cancellationToken);
+                await File.WriteAllTextAsync(Path.Combine(sourceOutputPath, $"{@enum.GetEnumName()}.g.cs"), contents,
+                    cancellationToken);
                 // File.WriteAllText($"../../../Model/{@enum.GetEnumName()}.cs", contents);
                 Console.WriteLine($"Created file: {@enum.GetEnumName()}.cs");
 
                 contents = await engine.CompileRenderAsync("InternalEnumTemplate", @enum);
-                await File.WriteAllTextAsync(Path.Combine(internalOutputPath, $"{@enum.GetEnumName()}.g.cs"), contents, cancellationToken);
+                await File.WriteAllTextAsync(Path.Combine(internalOutputPath, $"{@enum.GetEnumName()}.g.cs"), contents,
+                    cancellationToken);
                 // File.WriteAllText($"../../../Model/{@enum.GetEnumName()}.cs", contents);
                 Console.WriteLine($"Created file: {@enum.GetEnumName()}.cs");
 
                 contents = await engine.CompileRenderAsync("EnumMapperTemplate", @enum);
-                await File.WriteAllTextAsync(Path.Combine(mappingOutputPath, $"{@enum.GetEnumName()}Mapper.g.cs"), contents, cancellationToken);
+                await File.WriteAllTextAsync(Path.Combine(mappingOutputPath, $"{@enum.GetEnumName()}Mapper.g.cs"),
+                    contents, cancellationToken);
                 // File.WriteAllText($"../../../Model/{@enum.GetEnumName()}.cs", contents);
                 Console.WriteLine($"Created file: {@enum.GetEnumName()}.cs");
             }
@@ -72,7 +77,8 @@ namespace CdmsBackend.Cli.Features.GenerateModels
 
                 foreach (var propertyMap in classMap.Properties)
                 {
-                    var propertyDescriptor = @class.Properties.FirstOrDefault(x => x.SourceName.Equals(propertyMap.Name, StringComparison.InvariantCultureIgnoreCase));
+                    var propertyDescriptor = @class.Properties.FirstOrDefault(x =>
+                        x.SourceName.Equals(propertyMap.Name, StringComparison.InvariantCultureIgnoreCase));
 
                     if (propertyDescriptor is not null)
                     {
@@ -103,7 +109,6 @@ namespace CdmsBackend.Cli.Features.GenerateModels
                                 propertyDescriptor.SourceAttributes.AddRange(propertyMap.SourceAttributes);
                                 propertyDescriptor.InternalAttributes.AddRange(propertyMap.InternalAttributes);
                             }
-                                
                         }
 
                         propertyDescriptor.ExcludedFromInternal = propertyMap.ExcludedFromInternal;
@@ -113,6 +118,11 @@ namespace CdmsBackend.Cli.Features.GenerateModels
                             propertyDescriptor.Mapper = propertyMap.Mapper;
                         }
                     }
+                }
+
+                foreach (var propertyMap in classMap.NewProperties)
+                {
+                    @class.AddPropertyDescriptor(propertyMap);
                 }
             }
         }
@@ -136,6 +146,7 @@ namespace CdmsBackend.Cli.Features.GenerateModels
                         item.OverriddenValue = v.NewValue;
                     }
                 }
+
                 @enum.Values.AddRange(classMap.EnumValues);
             }
         }

@@ -165,6 +165,30 @@ public partial class IpaffsCommodityComplement  //
     [System.ComponentModel.Description("Has commodity been matched with corresponding CDS declaration")]
     public bool? IsCdsMatched { get; set; }
 
+	
+    /// <summary>
+    /// 
+    /// </summary
+    [Attr]
+    [System.ComponentModel.Description("")]
+    public IDictionary<string, object>? AdditionalData { get; set; }
+
+	
+    /// <summary>
+    /// 
+    /// </summary
+    [Attr]
+    [System.ComponentModel.Description("")]
+    public IpaffsCommodityRiskResult? RiskAssesment { get; set; }
+
+	
+    /// <summary>
+    /// 
+    /// </summary
+    [Attr]
+    [System.ComponentModel.Description("")]
+    public IpaffsInspectionCheck[]? Checks { get; set; }
+
 	}
 
 

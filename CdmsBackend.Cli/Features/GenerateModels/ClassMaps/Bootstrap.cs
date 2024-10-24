@@ -1,3 +1,6 @@
+using CdmsBackend.Cli.Features.GenerateModels.DescriptorModel;
+using CdmsBackend.Cli.Features.GenerateModels.GenerateIpaffsModel.Builders;
+
 namespace CdmsBackend.Cli.Features.GenerateModels.ClassMaps;
 
 static class Bootstrap
@@ -104,6 +107,20 @@ static class Bootstrap
             map.MapProperty("decisionDate").IsDateTime();
             map.MapProperty("lastUpdated").IsDateTime();
             map.MapProperty("referenceNumber").SetBsonIgnore();
+        });
+
+        GeneratorClassMap.RegisterClassMap("CommodityComplement", map =>
+        {
+            map.AddProperty(new PropertyDescriptor("additionalData", "additionalData", "IDictionary<string, object>",
+                "", false, false,
+                IpaffsDescriptorBuilder.ClassNamePrefix));
+
+            map.AddProperty(new PropertyDescriptor("riskAssesment", "riskAssesment", "IpaffsCommodityRiskResult", "",
+                true, false,
+                IpaffsDescriptorBuilder.ClassNamePrefix));
+
+            map.AddProperty(new PropertyDescriptor("checks", "checks", "IpaffsInspectionCheck", "", true, true,
+                IpaffsDescriptorBuilder.ClassNamePrefix));
         });
 
         GeneratorClassMap.RegisterClassMap("Commodities", map =>

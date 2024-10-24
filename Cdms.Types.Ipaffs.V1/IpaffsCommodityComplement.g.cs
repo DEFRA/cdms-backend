@@ -146,6 +146,27 @@ public partial class IpaffsCommodityComplement  //
     [JsonPropertyName("isCdsMatched")]
     public bool? IsCdsMatched { get; set; }
 
+	
+    /// <summary>
+    /// 
+    /// </summary
+    [JsonPropertyName("AdditionalData")]
+    public IDictionary<string, object>? AdditionalData { get; set; }
+
+	
+    /// <summary>
+    /// 
+    /// </summary
+    [JsonPropertyName("RiskAssesment")]
+    public IpaffsCommodityRiskResult? RiskAssesment { get; set; }
+
+	
+    /// <summary>
+    /// 
+    /// </summary
+    [JsonPropertyName("checks")]
+    public IpaffsInspectionCheck[]? Checks { get; set; }
+
 	}
 
 
