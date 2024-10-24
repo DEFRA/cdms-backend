@@ -1,14 +1,13 @@
-//using JsonApiDotNetCore.Resources.Annotations;
+using JsonApiDotNetCore.Resources.Annotations;
 
-//namespace Cdms.Model.Relationships;
+namespace Cdms.Model.Relationships;
 
-//public class MovementTdmRelationships : ITdmRelationships
-//{
-//    [Attr]
-//    public TdmRelationshipObject Notifications { get; set; } = TdmRelationshipObject.CreateDefault();
+public class MovementTdmRelationships : ITdmRelationships
+{
+    [Attr] public TdmRelationshipObject Notifications { get; set; } = TdmRelationshipObject.CreateDefault();
 
-//    public (string, TdmRelationshipObject) GetRelationshipObject()
-//    {
-//        return ("notifications", Notifications);
-//    }
-//}
+    public (string, TdmRelationshipObject) GetRelationshipObject()
+    {
+        return ("notifications", Notifications);
+    }
+}

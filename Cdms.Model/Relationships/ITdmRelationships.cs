@@ -1,6 +1,6 @@
-//namespace Cdms.Model.Relationships;
+namespace Cdms.Model.Relationships;
 
-//public interface ITdmRelationships
-//{
-//    public (string, TdmRelationshipObject) GetRelationshipObject();
-//}
+public interface ITdmRelationships
+{
+    public (string, TdmRelationshipObject) GetRelationshipObject();
+}

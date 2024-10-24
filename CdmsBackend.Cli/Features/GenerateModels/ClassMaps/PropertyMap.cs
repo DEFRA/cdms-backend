@@ -96,7 +96,7 @@ internal class PropertyMap(string name)
 
     public PropertyMap IsSensitive()
     {
-        AddAttribute("[Tdm.SensitiveData.SensitiveData.SensitiveData]", Model.Source);
+        AddAttribute("[Cdms.SensitiveData.SensitiveData]", Model.Source);
         return this;
     }
 
@@ -162,6 +162,7 @@ internal class PropertyMap(string name)
             default:
                 throw new ArgumentOutOfRangeException(nameof(model), model, null);
         }
+
         AttributesOverwritten = true;
         NoAttributes = true;
         return this;

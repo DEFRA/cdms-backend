@@ -14,9 +14,10 @@
     // </auto-generated>
 //------------------------------------------------------------------------------
 #nullable enable
-
-
-namespace @Model.SourceNamespace;
+@{
+    var ns = $"{@Model.SourceNamespace}.Mapping;";
+}
+namespace @ns
 
 public static class @Model.GetEnumName()Mapper
 {

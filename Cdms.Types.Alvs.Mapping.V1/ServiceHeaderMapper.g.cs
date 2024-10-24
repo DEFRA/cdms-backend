@@ -10,7 +10,7 @@
 #nullable enable
 
 
-namespace Cdms.Types.Alvs;
+namespace Cdms.Types.Alvs.Mapping;
 
 public static class ServiceHeaderMapper
 {

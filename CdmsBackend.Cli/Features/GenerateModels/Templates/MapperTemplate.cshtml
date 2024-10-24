@@ -16,8 +16,11 @@
 //------------------------------------------------------------------------------
 #nullable enable
 
+@{
+	var ns = $"{@Model.SourceNamespace}.Mapping;";
+}
 
-namespace @Model.SourceNamespace;
+namespace @ns
 
 public static class @Model.GetClassName()Mapper
 {

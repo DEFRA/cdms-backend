@@ -7,4 +7,12 @@
     <AssemblyName>Cdms.Types.Ipaffs</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cdms.SensitiveData\Cdms.SensitiveData.csproj" />
+  </ItemGroup>
+
 </Project>

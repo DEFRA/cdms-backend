@@ -10,7 +10,7 @@
 #nullable enable
 
 
-namespace Cdms.Types.Alvs;
+namespace Cdms.Types.Alvs.Mapping;
 
 public static class CheckMapper
 {
@@ -22,7 +22,7 @@ public static class CheckMapper
 	}
 		var to = new Cdms.Model.Alvs.Check ();
 to.CheckCode = from.CheckCode;
-            to.DepartmentCode = from.DepartmentCode; 
+            to.DepartmentCode = from.DepartmentCode;
             	return to;
 	}
 }
