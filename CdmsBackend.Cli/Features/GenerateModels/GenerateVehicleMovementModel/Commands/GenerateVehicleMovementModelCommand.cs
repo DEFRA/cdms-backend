@@ -7,20 +7,31 @@ using Microsoft.OpenApi.Readers;
 
 namespace CdmsBackend.Cli.Features.GenerateModels.GenerateVehicleMovementModel.Commands
 {
-
-    [Verb("generate-vehicle-movement-model", isDefault: false, HelpText = "Generates Csharp Ipaffs classes from Json Schema.")]
+    [Verb("generate-vehicle-movement-model", isDefault: false,
+        HelpText = "Generates Csharp Ipaffs classes from Json Schema.")]
     class GenerateVehicleMovementModelCommand : IRequest
     {
-        public const string Namespace = "TdmPrototypeBackend.Types.VehicleMovement";
+        public const string SourceNamespace = "Cdms.Types.Gmr";
+        public const string InternalNamespace = "Cdms.Model.VehicleMovement";
         public const string ClassNamePrefix = "";
 
-        public string OutputPath { get; set; } = "D:\\repos\\esynergy\\tdm-prototype-backend\\TdmPrototypeBackend.Types\\VehicleMovement\\";
+        public string SourceOutputPath { get; set; } = "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Types.Gmr.V1\\";
+
+        public string InternalOutputPath { get; set; } =
+            "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Model\\VehicleMovement\\";
+
+        public string MappingOutputPath { get; set; } =
+            "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Types.Gmr.Mapping.V1\\";
+
+        // public string OutputPath { get; set; } = "D:\\repos\\esynergy\\cdms-backend\\TdmPrototypeBackend.Types\\VehicleMovement\\";
         public class Handler : AsyncRequestHandler<GenerateVehicleMovementModelCommand>
         {
-           
-            protected override async Task Handle(GenerateVehicleMovementModelCommand request, CancellationToken cancellationToken)
+            protected override async Task Handle(GenerateVehicleMovementModelCommand request,
+                CancellationToken cancellationToken)
             {
-                using var streamReader = new StreamReader("D:\\repos\\esynergy\\tdm-prototype-backend\\TdmPrototypeBackend.Cli\\Features\\GenerateModels\\GenerateVehicleMovementModel\\Goods-Vehicle-Movement-Search-1.0-Open-API-Spec.yaml");
+                using var streamReader =
+                    new StreamReader(
+                        "D:\\repos\\esynergy\\cdms-backend\\cdmsBackend.Cli\\Features\\GenerateModels\\GenerateVehicleMovementModel\\Goods-Vehicle-Movement-Search-1.0-Open-API-Spec.yaml");
                 var reader = new OpenApiStreamReader();
                 var document = reader.Read(streamReader.BaseStream, out var diagnostic);
 
@@ -35,12 +46,13 @@ namespace CdmsBackend.Cli.Features.GenerateModels.GenerateVehicleMovementModel.C
                         BuildClass(csharpDescriptor, schemas.Key, schemas.Value);
                 }
 
-                await CSharpFileBuilder.Build(csharpDescriptor, request.OutputPath, request.OutputPath, request.OutputPath);
+                await CSharpFileBuilder.Build(csharpDescriptor, request.SourceOutputPath, request.InternalOutputPath,
+                    request.MappingOutputPath);
             }
 
             private void BuildClass(CSharpDescriptor cSharpDescriptor, string name, OpenApiSchema schema)
             {
-                var classDescriptor = new ClassDescriptor(name, Namespace, Namespace, ClassNamePrefix);
+                var classDescriptor = new ClassDescriptor(name, SourceNamespace, InternalNamespace, ClassNamePrefix);
 
                 classDescriptor.Description = schema.Description;
                 cSharpDescriptor.AddClassDescriptor(classDescriptor);
@@ -57,7 +69,7 @@ namespace CdmsBackend.Cli.Features.GenerateModels.GenerateVehicleMovementModel.C
                                 sourceName: property.Key,
                                 type: ClassDescriptor.BuildClassName(property.Key, null),
                                 description: property.Value.Description,
-                                isReferenceType: false,
+                                isReferenceType: true,
                                 isArray: true,
                                 classNamePrefix: ClassNamePrefix);
                             classDescriptor.Properties.Add(propertyDescriptor);
@@ -72,7 +84,7 @@ namespace CdmsBackend.Cli.Features.GenerateModels.GenerateVehicleMovementModel.C
                             sourceName: property.Key,
                             type: ClassDescriptor.BuildClassName(property.Key, null),
                             description: property.Value.Description,
-                            isReferenceType: false,
+                            isReferenceType: true,
                             isArray: false,
                             classNamePrefix: ClassNamePrefix);
                         classDescriptor.Properties.Add(propertyDescriptor);
@@ -81,23 +93,24 @@ namespace CdmsBackend.Cli.Features.GenerateModels.GenerateVehicleMovementModel.C
                     }
                     else if (property.Value.OneOf.Any())
                     {
-                        var enumDescriptor = new EnumDescriptor(property.Key, null, Namespace, Namespace, ClassNamePrefix);
+                        var enumDescriptor = new EnumDescriptor(property.Key, null, SourceNamespace, InternalNamespace,
+                            ClassNamePrefix);
                         cSharpDescriptor.AddEnumDescriptor(enumDescriptor);
                         foreach (var oneOfSchema in property.Value.OneOf)
                         {
                             var values = oneOfSchema.Enum.Select(x => ((OpenApiString)x).Value).ToList();
-                            enumDescriptor.AddValues(values.Select(x => new EnumDescriptor.EnumValueDescriptor(x)).ToList());
+                            enumDescriptor.AddValues(values.Select(x => new EnumDescriptor.EnumValueDescriptor(x))
+                                .ToList());
                         }
 
                         var propertyDescriptor = new PropertyDescriptor(
                             sourceName: property.Key,
                             type: EnumDescriptor.BuildEnumName(property.Key, null, null),
                             description: property.Value.Description,
-                            isReferenceType: false,
+                            isReferenceType: true,
                             isArray: false,
                             classNamePrefix: ClassNamePrefix);
                         classDescriptor.Properties.Add(propertyDescriptor);
-
                     }
                     else
                     {

@@ -7,4 +7,8 @@
     <AssemblyName>Cdms.Types.Gmr</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
+  </ItemGroup>
+
 </Project>

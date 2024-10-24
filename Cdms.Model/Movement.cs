@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Cdms.Model.Alvs;
 using Cdms.Model.Auditing;
+using Cdms.Model.Data;
 using Cdms.Model.Extensions;
 using Cdms.Model.Relationships;
 using JsonApiDotNetCore.MongoDb.Resources;
@@ -16,7 +17,7 @@ namespace Cdms.Model;
 // https://eaflood.atlassian.net/wiki/spaces/TRADE/pages/5104664583/PHA+Port+Health+Authority+Integration+Data+Schema
 
 [Resource]
-public class Movement : IMongoIdentifiable
+public class Movement : IMongoIdentifiable, IDataEntity
 {
     private List<int> matchReferences;
 
@@ -158,4 +159,5 @@ public class Movement : IMongoIdentifiable
     public string? StringId { get; set; }
     public string? LocalId { get; set; }
     public string? Id { get; set; }
+    public string _Etag { get; set; }
 }

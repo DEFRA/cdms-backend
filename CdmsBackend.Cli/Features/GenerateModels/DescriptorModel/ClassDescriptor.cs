@@ -45,11 +45,11 @@ public class ClassDescriptor(string name, string sourceNamespace, string interna
 
     public static string BuildClassName(string name, string classNamePrefix, bool isResource = false)
     {
-        if (name.StartsWith(classNamePrefix))
+        if (classNamePrefix != null && name.StartsWith(classNamePrefix))
         {
             return name.Dehumanize();
         }
+
         return isResource ? name.Dehumanize() : $"{classNamePrefix}{name.Dehumanize()}";
     }
-
 }

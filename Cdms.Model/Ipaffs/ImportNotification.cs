@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Cdms.Model.Auditing;
+using Cdms.Model.Data;
 using Cdms.Model.Relationships;
 using JsonApiDotNetCore.MongoDb.Resources;
 using JsonApiDotNetCore.Resources.Annotations;
@@ -8,7 +9,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cdms.Model.Ipaffs;
 
-public partial class ImportNotification : IMongoIdentifiable
+public partial class ImportNotification : IMongoIdentifiable, IDataEntity
 {
     private int? matchReference;
 
@@ -22,6 +23,8 @@ public partial class ImportNotification : IMongoIdentifiable
         get => ReferenceNumber;
         set => ReferenceNumber = value;
     }
+
+    public string _Etag { get; set; }
 
     // TODO : this is currently being written on the wire by the json api client
     /// <inheritdoc />
