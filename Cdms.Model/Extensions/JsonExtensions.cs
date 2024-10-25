@@ -5,7 +5,7 @@ namespace Cdms.Model.Extensions
 {
     public static class JsonExtensions
     {
-        public static JsonSerializerOptions Default = new ()
+        public static readonly JsonSerializerOptions Default = new()
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };

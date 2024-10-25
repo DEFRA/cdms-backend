@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+using Amazon.Auth.AccessControlPolicy;
+using MongoDB.Driver;
 
 namespace Cdms.Backend.Data;
 
@@ -18,6 +19,15 @@ public class MongoDbTransaction(IClientSessionHandle session) : IDisposable
 
     public void Dispose()
     {
-        session.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            if (session != null) session.Dispose();
+        }
     }
 }
