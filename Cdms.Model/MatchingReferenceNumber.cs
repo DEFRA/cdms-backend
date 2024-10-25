@@ -4,7 +4,7 @@ namespace Cdms.Model;
 
 public class MatchingReferenceNumber
 {
-    private MatchingReferenceNumber(string countryCode, IpaffsImportNotificationTypeEnum chedType, string licenceType,
+    private MatchingReferenceNumber(string countryCode, ImportNotificationTypeEnum chedType, string licenceType,
         int year, int identifier, char? splitIdentifier)
     {
         CountryCode = countryCode;
@@ -20,7 +20,7 @@ public class MatchingReferenceNumber
      */
     public string CountryCode { get; }
 
-    public IpaffsImportNotificationTypeEnum ChedType { get; }
+    public ImportNotificationTypeEnum ChedType { get; }
 
     public string LicenceType { get; }
 
@@ -79,7 +79,7 @@ public class MatchingReferenceNumber
             splitIdentifier);
     }
 
-    public static MatchingReferenceNumber FromIpaffs(string reference, IpaffsImportNotificationTypeEnum type)
+    public static MatchingReferenceNumber FromIpaffs(string reference, ImportNotificationTypeEnum type)
     {
         if (reference == null)
         {
@@ -113,14 +113,14 @@ public class MatchingReferenceNumber
         return "CHD";
     }
 
-    private static IpaffsImportNotificationTypeEnum MapToChedType(string documentCode)
+    private static ImportNotificationTypeEnum MapToChedType(string documentCode)
     {
         return documentCode switch
         {
-            "N002" or "N851" or "9115" => IpaffsImportNotificationTypeEnum.Chedpp,
-            "N852" or "C678" => IpaffsImportNotificationTypeEnum.Ced,
-            "C640" => IpaffsImportNotificationTypeEnum.Cveda,
-            "C641" or "C673" => IpaffsImportNotificationTypeEnum.Cvedp
+            "N002" or "N851" or "9115" => ImportNotificationTypeEnum.Chedpp,
+            "N852" or "C678" => ImportNotificationTypeEnum.Ced,
+            "C640" => ImportNotificationTypeEnum.Cveda,
+            "C641" or "C673" => ImportNotificationTypeEnum.Cvedp
         };
     }
 }

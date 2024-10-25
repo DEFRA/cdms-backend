@@ -44,14 +44,27 @@ static class Bootstrap
 
     public static void RegisterIpaffsEnumMaps()
     {
-        GeneratorEnumMap.RegisterEnumMap("IpaffsImportNotificationStatusEnum",
+        GeneratorEnumMap.RegisterEnumMap("ImportNotificationStatusEnum",
             map => { map.RemoveEnumValue("SUBMITTED,IN_PROGRESS,MODIFY"); });
+
+        GeneratorEnumMap.RegisterEnumMap("purposeGroup",
+            map => { map.AddEnumValue("For Import Non-Internal Market"); });
     }
 
     public static void RegisterIpaffsClassMaps()
     {
-        GeneratorEnumMap.RegisterEnumMap("purposeGroup",
-            map => { map.AddEnumValue("For Import Non-Internal Market"); });
+        GeneratorClassMap.RegisterClassMap("Decision",
+            map =>
+            {
+                map.MapProperty("decision").SetName("DecisionEnum");
+                map.MapProperty("notAcceptableActionByDate").IsDate();
+            });
+
+        GeneratorClassMap.RegisterClassMap("ImportNotification", map =>
+        {
+            map.MapProperty("Id").SetName("IpaffsId");
+            map.MapProperty("Type").SetName("ImportNotificationType");
+        });
 
         GeneratorClassMap.RegisterClassMap("Purpose", map =>
         {
@@ -115,11 +128,11 @@ static class Bootstrap
                 "", false, false,
                 IpaffsDescriptorBuilder.ClassNamePrefix));
 
-            map.AddProperty(new PropertyDescriptor("riskAssesment", "riskAssesment", "IpaffsCommodityRiskResult", "",
+            map.AddProperty(new PropertyDescriptor("riskAssesment", "riskAssesment", "CommodityRiskResult", "",
                 true, false,
                 IpaffsDescriptorBuilder.ClassNamePrefix));
 
-            map.AddProperty(new PropertyDescriptor("checks", "checks", "IpaffsInspectionCheck", "", true, true,
+            map.AddProperty(new PropertyDescriptor("checks", "checks", "InspectionCheck", "", true, true,
                 IpaffsDescriptorBuilder.ClassNamePrefix));
         });
 
@@ -129,8 +142,6 @@ static class Bootstrap
             map.MapProperty("commodityComplement").SetBsonIgnore();
         });
 
-        GeneratorClassMap.RegisterClassMap("Decision",
-            map => { map.MapProperty("notAcceptableActionByDate").IsDate(); });
 
         GeneratorClassMap.RegisterClassMap("PartOne", map =>
         {

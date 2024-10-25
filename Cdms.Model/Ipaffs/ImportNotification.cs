@@ -51,9 +51,9 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     [JsonPropertyName("relationships")]
     public NotificationTdmRelationships Relationships { get; set; } = new NotificationTdmRelationships();
 
-    [Attr] public IpaffsCommodities CommoditiesSummary { get; set; }
+    [Attr] public Commodities CommoditiesSummary { get; set; }
 
-    [Attr] public IpaffsCommodityComplement[] Commodities { get; set; }
+    [Attr] public CommodityComplement[] Commodities { get; set; }
 
     // Filter fields...
     // These fields are added to the model solely for use by the filtering
@@ -104,7 +104,8 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
         {
             if (matchReference is null)
             {
-                matchReference = MatchingReferenceNumber.FromIpaffs(ReferenceNumber, IpaffsType.Value).Identifier;
+                matchReference = MatchingReferenceNumber.FromIpaffs(ReferenceNumber, ImportNotificationType.Value)
+                    .Identifier;
             }
 
             return matchReference.Value;

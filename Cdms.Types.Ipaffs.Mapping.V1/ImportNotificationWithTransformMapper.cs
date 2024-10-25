@@ -53,9 +53,9 @@ public static class ImportNotificationWithTransformMapper
         }
         else
         {
-            var complementParameters = new Dictionary<int, IpaffsComplementParameterSet>();
-            var complementRiskAssesments = new Dictionary<string, IpaffsCommodityRiskResult>();
-            var commodityChecks = new Dictionary<string, IpaffsInspectionCheck[]>();
+            var complementParameters = new Dictionary<int, ComplementParameterSet>();
+            var complementRiskAssesments = new Dictionary<string, CommodityRiskResult>();
+            var commodityChecks = new Dictionary<string, InspectionCheck[]>();
 
             foreach (var commoditiesCommodityComplement in commodities!.ComplementParameterSets!)
             {
@@ -100,7 +100,7 @@ public static class ImportNotificationWithTransformMapper
             }
         }
 
-        to.CommoditiesSummary = IpaffsCommoditiesMapper.Map(commodities);
-        to.Commodities = commodities.CommodityComplements.Select(x => IpaffsCommodityComplementMapper.Map(x)).ToArray();
+        to.CommoditiesSummary = CommoditiesMapper.Map(commodities);
+        to.Commodities = commodities.CommodityComplements.Select(x => CommodityComplementMapper.Map(x)).ToArray();
     }
 }

@@ -7,7 +7,7 @@ public class IpaffsDescriptorBuilder(List<ISchemaVisitor> visitors)
 {
     public const string SourceNamespace = "Cdms.Types.Ipaffs";
     public const string InternalNamespace = "Cdms.Model.Ipaffs";
-    public const string ClassNamePrefix = "Ipaffs";
+    public const string ClassNamePrefix = "";
 
     public CSharpDescriptor Build(string jsonSchema)
     {

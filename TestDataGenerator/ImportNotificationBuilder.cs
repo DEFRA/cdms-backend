@@ -20,7 +20,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
     public ImportNotificationBuilder() : base()
     {
     }
-    
+
     public ImportNotificationBuilder(string file) : base(file)
     {
     }
@@ -29,15 +29,15 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
     {
         return new ImportNotificationBuilder<T>(file);
     }
-    
-    public ImportNotificationBuilder<T> WithReferenceNumber(IpaffsImportNotificationTypeEnum chedType, int item)
+
+    public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType, int item)
     {
         var prefix = chedType switch
         {
-            IpaffsImportNotificationTypeEnum.Cveda => "CHEDA",
-            IpaffsImportNotificationTypeEnum.Cvedp => "CHEDP",
-            IpaffsImportNotificationTypeEnum.Chedpp => "CHEDPP",
-            IpaffsImportNotificationTypeEnum.Ced => "CHEDD",
+            ImportNotificationTypeEnum.Cveda => "CHEDA",
+            ImportNotificationTypeEnum.Cvedp => "CHEDP",
+            ImportNotificationTypeEnum.Chedpp => "CHEDPP",
+            ImportNotificationTypeEnum.Ced => "CHEDD",
             _ => throw new ArgumentOutOfRangeException(nameof(chedType), chedType, null),
         };
 
