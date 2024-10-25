@@ -27,7 +27,7 @@ public partial class LaboratoryTests  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Date of tests")]
-    public DateTime? TestDate { get; set; }
+    public DateTime? TestedOn { get; set; }
 
 	
         /// <summary>

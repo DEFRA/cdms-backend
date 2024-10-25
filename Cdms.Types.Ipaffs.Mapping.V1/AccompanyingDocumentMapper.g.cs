@@ -23,7 +23,7 @@ public static class AccompanyingDocumentMapper
 		var to = new Cdms.Model.Ipaffs.AccompanyingDocument ();
 to.DocumentType = AccompanyingDocumentDocumentTypeEnumMapper.Map(from?.DocumentType);
                 to.DocumentReference = from.DocumentReference;
-            to.DocumentIssueDate = from.DocumentIssueDate;
+            to.DocumentIssuedOn = from.DocumentIssueDate;
             to.AttachmentId = from.AttachmentId;
             to.AttachmentFilename = from.AttachmentFilename;
             to.AttachmentContentType = from.AttachmentContentType;

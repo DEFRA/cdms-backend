@@ -44,7 +44,7 @@ public partial class AccompanyingDocument  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Additional document issue date")]
-    public DateTime? DocumentIssueDate { get; set; }
+    public DateTime? DocumentIssuedOn { get; set; }
 
 	
         /// <summary>

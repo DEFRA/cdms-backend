@@ -24,7 +24,7 @@ public static class VeterinaryInformationMapper
 to.EstablishmentsOfOriginExternalReference = ExternalReferenceMapper.Map(from?.EstablishmentsOfOriginExternalReference);
                 to.EstablishmentsOfOrigins = from?.EstablishmentsOfOrigins?.Select(x => ApprovedEstablishmentMapper.Map(x)).ToArray();
                 to.VeterinaryDocument = from.VeterinaryDocument;
-            to.VeterinaryDocumentIssueDate = from.VeterinaryDocumentIssueDate;
+            to.VeterinaryDocumentIssuedOn = from.VeterinaryDocumentIssueDate;
             to.AccompanyingDocumentNumbers = from.AccompanyingDocumentNumbers;
             to.AccompanyingDocuments = from?.AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x)).ToArray();
                 to.CatchCertificateAttachments = from?.CatchCertificateAttachments?.Select(x => CatchCertificateAttachmentMapper.Map(x)).ToArray();

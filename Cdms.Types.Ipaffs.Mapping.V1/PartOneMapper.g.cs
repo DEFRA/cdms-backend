@@ -43,15 +43,11 @@ to.TypeOfImp = PartOneTypeOfImpEnumMapper.Map(from?.TypeOfImp);
             to.Purpose = PurposeMapper.Map(from?.Purpose);
                 to.PointOfEntry = from.PointOfEntry;
             to.PointOfEntryControlPoint = from.PointOfEntryControlPoint;
-            to.ArrivalDate = from.ArrivalDate;
-            to.ArrivalTime = from.ArrivalTime;
             to.MeansOfTransport = MeansOfTransportMapper.Map(from?.MeansOfTransport);
                 to.Transporter = EconomicOperatorMapper.Map(from?.Transporter);
                 to.TransporterDetailsRequired = from.TransporterDetailsRequired;
             to.MeansOfTransportFromEntryPoint = MeansOfTransportMapper.Map(from?.MeansOfTransportFromEntryPoint);
-                to.DepartureDate = from.DepartureDate;
-            to.DepartureTime = from.DepartureTime;
-            to.EstimatedJourneyTimeInMinutes = from.EstimatedJourneyTimeInMinutes;
+                to.EstimatedJourneyTimeInMinutes = from.EstimatedJourneyTimeInMinutes;
             to.ResponsibleForTransport = from.ResponsibleForTransport;
             to.VeterinaryInformation = VeterinaryInformationMapper.Map(from?.VeterinaryInformation);
                 to.ImporterLocalReferenceNumber = from.ImporterLocalReferenceNumber;
@@ -63,7 +59,7 @@ to.TypeOfImp = PartOneTypeOfImpEnumMapper.Map(from?.TypeOfImp);
                 to.ComplexCommoditySelected = from.ComplexCommoditySelected;
             to.PortOfEntry = from.PortOfEntry;
             to.PortOfExit = from.PortOfExit;
-            to.PortOfExitDate = from.PortOfExitDate;
+            to.ExitedPortOfOn = from.PortOfExitDate;
             to.ContactDetails = ContactDetailsMapper.Map(from?.ContactDetails);
                 to.NominatedContacts = from?.NominatedContacts?.Select(x => NominatedContactMapper.Map(x)).ToArray();
                 to.OriginalEstimatedDateTime = from.OriginalEstimatedDateTime;
@@ -72,7 +68,9 @@ to.TypeOfImp = PartOneTypeOfImpEnumMapper.Map(from?.TypeOfImp);
             to.WasChargeable = from.WasChargeable;
             to.CommonUserCharge = CommonUserChargeMapper.Map(from?.CommonUserCharge);
                 to.ProvideCtcMrn = PartOneProvideCtcMrnEnumMapper.Map(from?.ProvideCtcMrn);
-                	return to;
+                to.ArrivedOn = DateTimeMapper.Map(from?.ArrivalDate, from?.ArrivalTime);
+            to.DepartedOn = DateTimeMapper.Map(from?.DepartureDate, from?.DepartureTime);
+            	return to;
 	}
 }
 

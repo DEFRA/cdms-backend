@@ -139,7 +139,7 @@ public partial class PartTwo  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("User entered date when the checks were completed")]
-    public DateOnly? CheckDate { get; set; }
+    public DateOnly? CheckedOn { get; set; }
 
 	
         /// <summary>
@@ -187,7 +187,7 @@ public partial class PartTwo  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Date of autoclearance")]
-    public DateTime? AutoClearedDateTime { get; set; }
+    public DateTime? AutoClearedOn { get; set; }
 
 	}
 

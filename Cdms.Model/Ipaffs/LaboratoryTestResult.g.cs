@@ -35,7 +35,7 @@ public partial class LaboratoryTestResult  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("When it was released")]
-    public DateTime? ReleasedDate { get; set; }
+    public DateTime? ReleasedOn { get; set; }
 
 	
         /// <summary>
@@ -68,7 +68,7 @@ public partial class LaboratoryTestResult  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Date of lab test created in IPAFFS")]
-    public DateTime? LabTestCreatedDate { get; set; }
+    public DateTime? LabTestCreatedOn { get; set; }
 
 	}
 

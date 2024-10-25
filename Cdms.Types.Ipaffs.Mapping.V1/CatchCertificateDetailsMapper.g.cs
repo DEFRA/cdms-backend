@@ -23,7 +23,7 @@ public static class CatchCertificateDetailsMapper
 		var to = new Cdms.Model.Ipaffs.CatchCertificateDetails ();
 to.CatchCertificateId = from.CatchCertificateId;
             to.CatchCertificateReference = from.CatchCertificateReference;
-            to.DateOfIssue = from.DateOfIssue;
+            to.IssuedOn = from.DateOfIssue;
             to.FlagState = from.FlagState;
             to.Species = from.Species;
             	return to;

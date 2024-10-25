@@ -51,7 +51,7 @@ public partial class VeterinaryInformation  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Veterinary document issue date")]
-    public DateOnly? VeterinaryDocumentIssueDate { get; set; }
+    public DateOnly? VeterinaryDocumentIssuedOn { get; set; }
 
 	
         /// <summary>

@@ -51,7 +51,7 @@ public partial class SealCheck  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("date and time of seal check")]
-    public DateTime? DateTimeOfCheck { get; set; }
+    public DateTime? CheckedOn { get; set; }
 
 	}
 

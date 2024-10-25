@@ -24,7 +24,7 @@ public static class SealCheckMapper
 to.Satisfactory = from.Satisfactory;
             to.Reason = from.Reason;
             to.OfficialInspector = OfficialInspectorMapper.Map(from?.OfficialInspector);
-                to.DateTimeOfCheck = from.DateTimeOfCheck;
+                to.CheckedOn = from.DateTimeOfCheck;
             	return to;
 	}
 }

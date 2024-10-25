@@ -43,7 +43,7 @@ public partial class CatchCertificateDetails  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Catch certificate date of issue")]
-    public DateTime? DateOfIssue { get; set; }
+    public DateTime? IssuedOn { get; set; }
 
 	
         /// <summary>

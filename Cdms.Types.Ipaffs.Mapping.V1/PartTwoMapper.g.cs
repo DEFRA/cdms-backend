@@ -35,13 +35,13 @@ to.Decision = DecisionMapper.Map(from?.Decision);
             to.SignedOnBehalfOf = from.SignedOnBehalfOf;
             to.OnwardTransportation = from.OnwardTransportation;
             to.ConsignmentValidations = from?.ConsignmentValidations?.Select(x => ValidationMessageCodeMapper.Map(x)).ToArray();
-                to.CheckDate = from.CheckDate;
+                to.CheckedOn = from.CheckDate;
             to.AccompanyingDocuments = from?.AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x)).ToArray();
                 to.PhsiAutoCleared = from.PhsiAutoCleared;
             to.HmiAutoCleared = from.HmiAutoCleared;
             to.InspectionRequired = from.InspectionRequired;
             to.InspectionOverride = InspectionOverrideMapper.Map(from?.InspectionOverride);
-                to.AutoClearedDateTime = from.AutoClearedDateTime;
+                to.AutoClearedOn = from.AutoClearedDateTime;
             	return to;
 	}
 }

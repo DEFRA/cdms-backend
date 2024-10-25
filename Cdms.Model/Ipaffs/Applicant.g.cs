@@ -113,19 +113,11 @@ public partial class Applicant  //
 
 	
         /// <summary>
-        /// Date the sample is taken
+        /// DateTime
         /// </summary>
     [Attr]
-    [System.ComponentModel.Description("Date the sample is taken")]
-    public DateOnly? SampleDate { get; set; }
-
-	
-        /// <summary>
-        /// Time the sample is taken
-        /// </summary>
-    [Attr]
-    [System.ComponentModel.Description("Time the sample is taken")]
-    public TimeOnly? SampleTime { get; set; }
+    [System.ComponentModel.Description("DateTime")]
+    public DateTime? SampledOn { get; set; }
 
 	}
 

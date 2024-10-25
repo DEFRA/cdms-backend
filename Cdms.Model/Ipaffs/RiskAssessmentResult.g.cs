@@ -35,7 +35,7 @@ public partial class RiskAssessmentResult  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Date and time of assessment")]
-    public DateTime? AssessmentDateTime { get; set; }
+    public DateTime? AssessedOn { get; set; }
 
 	}
 

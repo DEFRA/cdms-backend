@@ -32,8 +32,7 @@ to.Laboratory = from.Laboratory;
             to.SampleType = from.SampleType;
             to.ConservationOfSample = ApplicantConservationOfSampleEnumMapper.Map(from?.ConservationOfSample);
                 to.Inspector = InspectorMapper.Map(from?.Inspector);
-                to.SampleDate = from.SampleDate;
-            to.SampleTime = from.SampleTime;
+                to.SampledOn = DateTimeMapper.Map(from?.SampleDate, from?.SampleTime);
             	return to;
 	}
 }

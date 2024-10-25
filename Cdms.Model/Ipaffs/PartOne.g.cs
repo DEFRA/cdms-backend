@@ -200,22 +200,6 @@ public partial class PartOne  //
 
 	
         /// <summary>
-        /// Date when consignment arrives
-        /// </summary>
-    [Attr]
-    [System.ComponentModel.Description("Date when consignment arrives")]
-    public DateOnly? ArrivalDate { get; set; }
-
-	
-        /// <summary>
-        /// Time (HH:MM) when consignment arrives
-        /// </summary>
-    [Attr]
-    [System.ComponentModel.Description("Time (HH:MM) when consignment arrives")]
-    public TimeOnly? ArrivalTime { get; set; }
-
-	
-        /// <summary>
         /// How consignment is transported after BIP
         /// </summary>
     [Attr]
@@ -245,22 +229,6 @@ public partial class PartOne  //
     [Attr]
     [System.ComponentModel.Description("Transport to BIP")]
     public MeansOfTransport? MeansOfTransportFromEntryPoint { get; set; }
-
-	
-        /// <summary>
-        /// Date of consignment departure
-        /// </summary>
-    [Attr]
-    [System.ComponentModel.Description("Date of consignment departure")]
-    public DateOnly? DepartureDate { get; set; }
-
-	
-        /// <summary>
-        /// Time (HH:MM) of consignment departure
-        /// </summary>
-    [Attr]
-    [System.ComponentModel.Description("Time (HH:MM) of consignment departure")]
-    public TimeOnly? DepartureTime { get; set; }
 
 	
         /// <summary>
@@ -364,7 +332,7 @@ public partial class PartOne  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Date of Port Exit for EU Import Notification.")]
-    public DateTime? PortOfExitDate { get; set; }
+    public DateTime? ExitedPortOfOn { get; set; }
 
 	
         /// <summary>
@@ -430,6 +398,22 @@ public partial class PartOne  //
     [System.ComponentModel.Description("When the NCTS MRN will be added for the Common Transit Convention (CTC)")]
     [MongoDB.Bson.Serialization.Attributes.BsonRepresentation(MongoDB.Bson.BsonType.String)]
     public PartOneProvideCtcMrnEnum? ProvideCtcMrn { get; set; }
+
+	
+        /// <summary>
+        /// DateTime
+        /// </summary>
+    [Attr]
+    [System.ComponentModel.Description("DateTime")]
+    public DateTime? ArrivedOn { get; set; }
+
+	
+        /// <summary>
+        /// DateTime
+        /// </summary>
+    [Attr]
+    [System.ComponentModel.Description("DateTime")]
+    public DateTime? DepartedOn { get; set; }
 
 	}
 

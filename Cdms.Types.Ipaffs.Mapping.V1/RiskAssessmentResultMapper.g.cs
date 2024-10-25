@@ -22,7 +22,7 @@ public static class RiskAssessmentResultMapper
 	}
 		var to = new Cdms.Model.Ipaffs.RiskAssessmentResult ();
 to.CommodityResults = from?.CommodityResults?.Select(x => CommodityRiskResultMapper.Map(x)).ToArray();
-                to.AssessmentDateTime = from.AssessmentDateTime;
+                to.AssessedOn = from.AssessmentDateTime;
             	return to;
 	}
 }
