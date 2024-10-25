@@ -1,5 +1,8 @@
 using CdmsBackend.Cli.Features.GenerateModels.DescriptorModel;
 using CdmsBackend.Cli.Features.GenerateModels.GenerateIpaffsModel.Builders;
+using SharpYaml.Serialization;
+using System.Text.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace CdmsBackend.Cli.Features.GenerateModels.ClassMaps;
 
@@ -68,11 +71,16 @@ static class Bootstrap
 
         GeneratorClassMap.RegisterClassMap("Purpose", map =>
         {
-            map.MapProperty("estimatedArrivalTimeAtPortOfExit").IsTime()
-                .SetInternalName("estimatedArrivedAtPortOfExit");
+            map.MapDateOnlyAndTimeOnlyToDateTimeProperty("estimatedArrivalDateAtPortOfExit",
+                "estimatedArrivalTimeAtPortOfExit", "estimatedArrivedAtPortOfExit");
+
+
+            //.SetInternalName("estimatedArrivedAtPortOfExit");
             //map.MapProperty("estimatedArrivalDateAtPortOfExit").IsDate()
             //    .SetInternalName("estimatedArrivedAtPortOfExit").SetType(); 
             map.MapProperty("exitDate").IsDate();
+            map.MapProperty("FinalBIP").SetName("FinalBip");
+            map.MapProperty("ExitBIP").SetName("ExitBip");
         });
 
         GeneratorClassMap.RegisterClassMap("AccompanyingDocument", map =>

@@ -6,7 +6,6 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
     [DebuggerDisplay("{Name}")]
     public class PropertyDescriptor
     {
-
         private readonly bool _isReferenceType;
 
         private readonly bool _isArray;
@@ -14,12 +13,14 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
         private readonly string _classNamePrefix;
         private bool _typeOverridden;
 
-        public PropertyDescriptor(string sourceName, string type, string description, bool isReferenceType, bool isArray, string classNamePrefix)
-        :this(sourceName, sourceName, type, description, isReferenceType, isArray, classNamePrefix)
+        public PropertyDescriptor(string sourceName, string type, string description, bool isReferenceType,
+            bool isArray, string classNamePrefix)
+            : this(sourceName, sourceName, type, description, isReferenceType, isArray, classNamePrefix)
         {
         }
 
-        public PropertyDescriptor(string sourceName, string internalName, string type, string description, bool isReferenceType, bool isArray, string classNamePrefix)
+        public PropertyDescriptor(string sourceName, string internalName, string type, string description,
+            bool isReferenceType, bool isArray, string classNamePrefix)
         {
             SourceName = sourceName;
             InternalName = internalName;
@@ -31,10 +32,7 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
             Description = description;
             IsReferenceType = isReferenceType;
             IsArray = isArray;
-            SourceAttributes = new List<string>()
-            {
-                $"[JsonPropertyName(\"{sourceName}\")]"
-            };
+            SourceAttributes = new List<string>() { $"[JsonPropertyName(\"{sourceName}\")]" };
             InternalAttributes = new List<string>()
             {
                 "[Attr]", $"[System.ComponentModel.Description(\"{Description}\")]"
@@ -42,9 +40,9 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
 
             if (type.EndsWith("Enum"))
             {
-                InternalAttributes.Add("[MongoDB.Bson.Serialization.Attributes.BsonRepresentation(MongoDB.Bson.BsonType.String)]");
+                InternalAttributes.Add(
+                    "[MongoDB.Bson.Serialization.Attributes.BsonRepresentation(MongoDB.Bson.BsonType.String)]");
             }
-
         }
         // private const string prefix = "Ipaffs";
 
@@ -68,7 +66,12 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
 
         public string Mapper { get; set; }
 
+
+        public bool MappingInline { get; set; }
+
         public bool ExcludedFromInternal { get; set; } = false;
+
+        public bool ExcludedFromSource { get; set; } = false;
 
         public void OverrideType(string type)
         {
@@ -79,12 +82,14 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
         public string GetSourcePropertyName()
         {
             var n = SourceName.Dehumanize();
-            if (SourceName.Equals("type", StringComparison.InvariantCultureIgnoreCase) || SourceName.Equals("id", StringComparison.InvariantCultureIgnoreCase))
+            if (SourceName.Equals("type", StringComparison.InvariantCultureIgnoreCase) ||
+                SourceName.Equals("id", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (SourceName.StartsWith(_classNamePrefix))
                 {
                     return $"{SourceName.Dehumanize()}";
                 }
+
                 return $"{_classNamePrefix}{SourceName.Dehumanize()}";
             }
 
@@ -105,12 +110,14 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
         public string GetInternalPropertyName()
         {
             var n = InternalName.Dehumanize();
-            if (InternalName.Equals("type", StringComparison.InvariantCultureIgnoreCase) || InternalName.Equals("id", StringComparison.InvariantCultureIgnoreCase))
+            if (InternalName.Equals("type", StringComparison.InvariantCultureIgnoreCase) ||
+                InternalName.Equals("id", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (InternalName.StartsWith(_classNamePrefix))
                 {
                     return $"{InternalName.Dehumanize()}";
                 }
+
                 return $"{_classNamePrefix}{InternalName.Dehumanize()}";
             }
 
@@ -138,7 +145,8 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
             }
 
 
-            if (_isReferenceType && !Type.Equals("Result") && !Type.Equals("Unit") && !Type.Equals("string") && !Type.Equals("InspectionRequired"))
+            if (_isReferenceType && !Type.Equals("Result") && !Type.Equals("Unit") && !Type.Equals("string") &&
+                !Type.Equals("InspectionRequired"))
             {
                 t = ClassDescriptor.BuildClassName(Type, _classNamePrefix);
             }
@@ -147,6 +155,7 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
             {
                 t = $"{t}[]";
             }
+
             return t;
         }
 
@@ -154,8 +163,5 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
         {
             return GetPropertyType().Replace("[]", "");
         }
-
     }
-
-
 }

@@ -28,7 +28,6 @@ using var serviceScope = host.Services.CreateScope();
     {
         var myService = services.GetRequiredService<App>();
         await myService.Run(args);
-
     }
     catch (Exception ex)
     {

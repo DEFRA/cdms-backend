@@ -111,11 +111,13 @@ namespace CdmsBackend.Cli.Features.GenerateModels
                             }
                         }
 
+                        propertyDescriptor.ExcludedFromSource = propertyMap.ExcludedFromSource;
                         propertyDescriptor.ExcludedFromInternal = propertyMap.ExcludedFromInternal;
 
-                        if (!string.IsNullOrEmpty(propertyMap.Mapper))
+                        if (propertyMap.Mapper is not null)
                         {
-                            propertyDescriptor.Mapper = propertyMap.Mapper;
+                            propertyDescriptor.Mapper = propertyMap.Mapper.Name;
+                            propertyDescriptor.MappingInline = propertyMap.Mapper.Inline;
                         }
                     }
                 }

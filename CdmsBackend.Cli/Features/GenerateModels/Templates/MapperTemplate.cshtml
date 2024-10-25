@@ -35,9 +35,20 @@ public static class @Model.GetClassName()Mapper
 {
     if (!string.IsNullOrEmpty(property.Mapper))
 	{
-        var line = $"to.{property.GetInternalPropertyName()} = {property.Mapper}.Map(from?.{@property?.GetSourcePropertyName()});";
-        <text>@line
-        </text>
+        if (property.MappingInline)
+		{
+            var line = $"to.{property.GetInternalPropertyName()} = {property.Mapper}";
+            <text>@line
+            </text>
+		}
+		else
+        {
+            var line = $"to.{property.GetInternalPropertyName()} = {property.Mapper}.Map(from?.{@property?.GetSourcePropertyName()});";
+            <text>@line
+            </text> 
+        }
+
+        
 	}
     else
     {

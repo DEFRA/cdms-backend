@@ -37,7 +37,16 @@ internal class PropertyMap(string name)
 
     public bool ExcludedFromInternal { get; set; } = false;
 
-    public string Mapper { get; set; }
+    public bool ExcludedFromSource { get; set; } = false;
+
+    public MapperMap Mapper { get; set; }
+
+    public class MapperMap
+    {
+        public bool Inline { get; set; }
+
+        public string Name { get; set; }
+    }
 
     public PropertyMap SetInternalType(string type)
     {
@@ -112,9 +121,15 @@ internal class PropertyMap(string name)
         return this;
     }
 
-    public PropertyMap SetMapper(string mapperName)
+    public PropertyMap ExcludeFromSource()
     {
-        Mapper = mapperName;
+        ExcludedFromSource = true;
+        return this;
+    }
+
+    public PropertyMap SetMapper(string mapperName, bool inline = false)
+    {
+        Mapper = new MapperMap() { Inline = inline, Name = mapperName };
         return this;
     }
 

@@ -74,7 +74,7 @@ public partial class Purpose  //
         /// Exit Border Inspection Post
         /// </summary>
     [JsonPropertyName("exitBIP")]
-    public string? ExitBIP { get; set; }
+    public string? ExitBip { get; set; }
 
 	
         /// <summary>
@@ -109,7 +109,7 @@ public partial class Purpose  //
         /// Final Border Inspection Post
         /// </summary>
     [JsonPropertyName("finalBIP")]
-    public string? FinalBIP { get; set; }
+    public string? FinalBip { get; set; }
 
 	
         /// <summary>
@@ -123,7 +123,7 @@ public partial class Purpose  //
         /// Estimated date at port of exit
         /// </summary>
     [JsonPropertyName("estimatedArrivalDateAtPortOfExit")]
-    public string? EstimatedArrivalDateAtPortOfExit { get; set; }
+    public DateOnly? EstimatedArrivalDateAtPortOfExit { get; set; }
 
 	
         /// <summary>

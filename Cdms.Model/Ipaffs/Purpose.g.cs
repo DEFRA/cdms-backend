@@ -85,7 +85,7 @@ public partial class Purpose  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Exit Border Inspection Post")]
-    public string? ExitBIP { get; set; }
+    public string? ExitBip { get; set; }
 
 	
         /// <summary>
@@ -126,7 +126,7 @@ public partial class Purpose  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("Final Border Inspection Post")]
-    public string? FinalBIP { get; set; }
+    public string? FinalBip { get; set; }
 
 	
         /// <summary>
@@ -139,19 +139,11 @@ public partial class Purpose  //
 
 	
         /// <summary>
-        /// Estimated date at port of exit
+        /// DateTime
         /// </summary>
     [Attr]
-    [System.ComponentModel.Description("Estimated date at port of exit")]
-    public string? EstimatedArrivalDateAtPortOfExit { get; set; }
-
-	
-        /// <summary>
-        /// Estimated time at port of exit
-        /// </summary>
-    [Attr]
-    [System.ComponentModel.Description("Estimated time at port of exit")]
-    public TimeOnly? EstimatedArrivedAtPortOfExit { get; set; }
+    [System.ComponentModel.Description("DateTime")]
+    public DateTime? EstimatedArrivedAtPortOfExit { get; set; }
 
 	}
 

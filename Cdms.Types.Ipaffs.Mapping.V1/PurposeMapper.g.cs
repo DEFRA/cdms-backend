@@ -28,15 +28,14 @@ to.ConformsToEU = from.ConformsToEU;
                 to.RegNumber = from.RegNumber;
             to.ShipName = from.ShipName;
             to.ShipPort = from.ShipPort;
-            to.ExitBIP = from.ExitBIP;
+            to.ExitBip = from.ExitBip;
             to.ThirdCountry = from.ThirdCountry;
             to.TransitThirdCountries = from.TransitThirdCountries;
             to.ForImportOrAdmission = PurposeForImportOrAdmissionEnumMapper.Map(from?.ForImportOrAdmission);
                 to.ExitDate = from.ExitDate;
-            to.FinalBIP = from.FinalBIP;
+            to.FinalBip = from.FinalBip;
             to.PurposeGroup = PurposePurposeGroupEnumMapper.Map(from?.PurposeGroup);
-                to.EstimatedArrivalDateAtPortOfExit = from.EstimatedArrivalDateAtPortOfExit;
-            to.EstimatedArrivedAtPortOfExit = from.EstimatedArrivalTimeAtPortOfExit;
+                to.EstimatedArrivedAtPortOfExit = DateTimeMapper.Map(from?.EstimatedArrivalDateAtPortOfExit, from?.EstimatedArrivalTimeAtPortOfExit);
             	return to;
 	}
 }
