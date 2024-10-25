@@ -4,12 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>Cdms.Types.Gmr.Mapping</AssemblyName>
+    <AssemblyName>Cdms.Types.Gvms.Mapping</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Cdms.Model\Cdms.Model.csproj" />
-    <ProjectReference Include="..\Cdms.Types.Gmr.V1\Cdms.Types.Gmr.V1.csproj" />
+    <ProjectReference Include="..\Cdms.Types.Gvms.V1\Cdms.Types.Gvms.V1.csproj" />
   </ItemGroup>
 
 </Project>

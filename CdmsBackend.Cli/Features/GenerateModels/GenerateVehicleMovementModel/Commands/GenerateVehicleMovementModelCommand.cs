@@ -11,17 +11,17 @@ namespace CdmsBackend.Cli.Features.GenerateModels.GenerateVehicleMovementModel.C
         HelpText = "Generates Csharp Ipaffs classes from Json Schema.")]
     class GenerateVehicleMovementModelCommand : IRequest
     {
-        public const string SourceNamespace = "Cdms.Types.Gmr";
-        public const string InternalNamespace = "Cdms.Model.VehicleMovement";
+        public const string SourceNamespace = "Cdms.Types.Gvms";
+        public const string InternalNamespace = "Cdms.Model.Gvms";
         public const string ClassNamePrefix = "";
 
-        public string SourceOutputPath { get; set; } = "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Types.Gmr.V1\\";
+        public string SourceOutputPath { get; set; } = "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Types.Gvms.V1\\";
 
         public string InternalOutputPath { get; set; } =
-            "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Model\\VehicleMovement\\";
+            "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Model\\Gvms\\";
 
         public string MappingOutputPath { get; set; } =
-            "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Types.Gmr.Mapping.V1\\";
+            "D:\\repos\\esynergy\\Cdms-Backend\\Cdms.Types.Gvms.Mapping.V1\\";
 
         // public string OutputPath { get; set; } = "D:\\repos\\esynergy\\cdms-backend\\TdmPrototypeBackend.Types\\VehicleMovement\\";
         public class Handler : AsyncRequestHandler<GenerateVehicleMovementModelCommand>
