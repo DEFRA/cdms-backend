@@ -1,9 +1,5 @@
-using System.Runtime.InteropServices.JavaScript;
-using Cdms.Business.Pipelines;
-using Cdms.Business.Pipelines.Matching;
 using FluentAssertions;
 using MediatR;
-using Moq;
 using NSubstitute;
 using Xunit;
 
@@ -15,53 +11,41 @@ public class PipelineBaseTests
     public async Task Handle_SuccessfullyCompletedMatch_ExitsPipeline()
     {
         // Arrange
-        var mockNextDelegate = new Mock<RequestHandlerDelegate<PipelineTestHelpers.MockResult>>();
-        mockNextDelegate.Setup(x => x());
+        var mockNextDelegate = Substitute.For<RequestHandlerDelegate<PipelineTestHelpers.MockResult>>();
 
-        var stubService = new Mock<PipelineTestHelpers.IStubService>();
-        stubService.Setup(s => s.ProcessMatch(It.IsAny<PipelineTestHelpers.MockModel>()))
-            .Returns(new PipelineTestHelpers.MockResult()
-            {
-                Complete = true
-            });
+        var stubService = Substitute.For<PipelineTestHelpers.IStubService>();
+        stubService.ProcessMatch(Arg.Any<PipelineTestHelpers.MockModel>()).Returns(new PipelineTestHelpers.MockResult() { Complete = true });
 
-        var sut = new PipelineTestHelpers.MockPipeline(stubService.Object);
+        var sut = new PipelineTestHelpers.MockPipeline(stubService);
         var request = new PipelineTestHelpers.MockRequest(new PipelineTestHelpers.MockModel());
 
         // Act
-        var result = await sut.Handle(request, mockNextDelegate.Object, CancellationToken.None);
+        var result = await sut.Handle(request, mockNextDelegate, CancellationToken.None);
 
         // Assert
         result.Complete.Should().BeTrue();
-        mockNextDelegate.Verify(x => x.Invoke(), Times.Never);
+        await mockNextDelegate.DidNotReceive().Invoke();
     }
 
     [Fact]
     public async Task Handle_UnsuccessfulMatch_ContinuesPipeline()
     {
         // Arrange
-        var mockNextDelegate = new Mock<RequestHandlerDelegate<PipelineTestHelpers.MockResult>>();
-        mockNextDelegate.Setup(x => x())
-            .ReturnsAsync(new PipelineTestHelpers.MockResult()
-            {
-                Complete = true
-            });
-
-        var stubService = new Mock<PipelineTestHelpers.IStubService>();
-        stubService.Setup(s => s.ProcessMatch(It.IsAny<PipelineTestHelpers.MockModel>()))
-            .Returns(new PipelineTestHelpers.MockResult()
-            {
-                Complete = false
-            });
         
-        var sut = new PipelineTestHelpers.MockPipeline(stubService.Object);
+        var mockNextDelegate = Substitute.For<RequestHandlerDelegate<PipelineTestHelpers.MockResult>>();
+        mockNextDelegate.Invoke().Returns(new PipelineTestHelpers.MockResult() { Complete = true });
+        
+        var stubService = Substitute.For<PipelineTestHelpers.IStubService>();
+        stubService.ProcessMatch(Arg.Any<PipelineTestHelpers.MockModel>()).Returns(new PipelineTestHelpers.MockResult() { Complete = false });
+
+        var sut = new PipelineTestHelpers.MockPipeline(stubService);
         var request = new PipelineTestHelpers.MockRequest(new PipelineTestHelpers.MockModel());
         
         // Act
-        var result = await sut.Handle(request, mockNextDelegate.Object, CancellationToken.None);
+        var result = await sut.Handle(request, mockNextDelegate, CancellationToken.None);
         
         // Assert
         result.Complete.Should().BeTrue();
-        mockNextDelegate.Verify(x => x.Invoke(), Times.Once);
+        await mockNextDelegate.Received(1).Invoke();
     }
 }
