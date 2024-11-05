@@ -1,3 +1,4 @@
+using Cdms.Business.Pipelines;
 using Cdms.Business.Pipelines.Matching;
 using Cdms.Business.Pipelines.Matching.Rules;
 using FluentAssertions;
@@ -14,7 +15,7 @@ public class MatchPostProcessTests
         // Arrange
         var sut = new MatchPostProcess();
         var request = new MatchRequest(new MatchModel());
-        var result = new MatchResult(false);
+        var result = new PipelineResult(false);
         
         var expectedRecord = "Did Post Processing";
         

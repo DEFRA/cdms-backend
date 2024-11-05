@@ -19,7 +19,7 @@ public class Level1RuleZTests
         
         // Assert
         result.Should().NotBeNull();
-        result.Complete.Should().BeFalse();
+        result.ExitPipeline.Should().BeFalse();
         model.Record.Should().StartWith("Did rule Z");
     }
 }

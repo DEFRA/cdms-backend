@@ -1,3 +1,4 @@
+using Cdms.Business.Pipelines;
 using FluentAssertions;
 using MediatR;
 using NSubstitute;
@@ -11,7 +12,7 @@ public class TerminatePipelineBaseTests
     public async Task Handle_ValidRequest_ShouldReturnFalse()
     {
         // Arrange
-        var mockNextDelegate = Substitute.For<RequestHandlerDelegate<PipelineTestHelpers.MockResult>>();
+        var mockNextDelegate = Substitute.For<RequestHandlerDelegate<PipelineResult>>();
 
         var sut = new PipelineTestHelpers.MockTerminatePipeline();
         var request = new PipelineTestHelpers.MockRequest(new PipelineTestHelpers.MockModel());
@@ -20,7 +21,7 @@ public class TerminatePipelineBaseTests
         var result = await sut.Handle(request, mockNextDelegate, CancellationToken.None);
 
         // Assert
-        result.Complete.Should().BeFalse();
+        result.ExitPipeline.Should().BeFalse();
         await mockNextDelegate.DidNotReceive().Invoke();
     }
 }

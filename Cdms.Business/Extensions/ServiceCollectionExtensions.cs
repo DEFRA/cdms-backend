@@ -71,10 +71,10 @@ namespace Cdms.Business.Extensions
                 foreach (var rule in rules)
                 {
                     
-                    cfg.AddBehavior(typeof(IPipelineBehavior<MatchRequest, MatchResult>), rule);
+                    cfg.AddBehavior(typeof(IPipelineBehavior<MatchRequest, PipelineResult>), rule);
                 }
 
-                cfg.AddBehavior<IPipelineBehavior<MatchRequest, MatchResult>, MatchTerminatePipeline>();
+                cfg.AddBehavior<IPipelineBehavior<MatchRequest, PipelineResult>, MatchTerminatePipeline>();
             });
 
             services.AddSingleton<SyncMetrics>();

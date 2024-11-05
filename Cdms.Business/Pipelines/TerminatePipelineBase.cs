@@ -3,16 +3,15 @@ using MediatR;
 
 namespace Cdms.Business.Pipelines;
 
-public abstract class TerminatePipelineBase<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
+public abstract class TerminatePipelineBase<TRequest> : IPipelineBehavior<TRequest, PipelineResult>
     where TRequest : notnull
-    where TResult : PipelineResult
 {
-    public async Task<TResult> Handle(
+    public async Task<PipelineResult> Handle(
         TRequest request,
-        RequestHandlerDelegate<TResult> next,
+        RequestHandlerDelegate<PipelineResult> next,
         CancellationToken cancellationToken)
     {
-        var result = (TResult)Activator.CreateInstance(typeof(TResult), false)!;
+        var result = new PipelineResult(false);
         return await Task.FromResult(result);
     }
 }

@@ -5,14 +5,12 @@ namespace Cdms.Business.Tests.Pipelines;
 
 public class PipelineTestHelpers
 {
-    public delegate RequestHandlerDelegate<MockResult> NextDelegate();
-
     public interface IStubService
     {
-        MockResult ProcessMatch(MockModel model);
+        PipelineResult ProcessMatch(MockModel model);
     }
     
-    public class MockPipeline : PipelineBase<MockModel, MockRequest, MockResult>
+    public class MockPipeline : PipelineBase<MockModel, MockRequest>
     {
         private readonly IStubService _stubService;
         
@@ -21,17 +19,15 @@ public class PipelineTestHelpers
             _stubService = stubService;
         }
         
-        public override async Task<MockResult> ProcessMatch(MockModel model)
+        public override async Task<PipelineResult> ProcessMatch(MockModel model)
         {
             return await Task.FromResult(_stubService.ProcessMatch(model));
         }
     }
 
-    public class MockTerminatePipeline : TerminatePipelineBase<MockRequest, MockResult>;
+    public class MockTerminatePipeline : TerminatePipelineBase<MockRequest>;
 
-    public record MockRequest(MockModel Model) : PipelineRequest<MockModel, MockResult>(Model);
-    
-    public record MockResult() : PipelineResult(false);
-    
+    public record MockRequest(MockModel Model) : PipelineRequest<MockModel>(Model);
+
     public record MockModel;
 }

@@ -1,3 +1,3 @@
 namespace Cdms.Business.Pipelines.Matching;
 
-public class MatchTerminatePipeline : TerminatePipelineBase<MatchRequest, MatchResult>;
+public class MatchTerminatePipeline : TerminatePipelineBase<MatchRequest>;

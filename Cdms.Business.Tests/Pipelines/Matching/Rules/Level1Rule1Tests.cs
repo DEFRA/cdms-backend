@@ -19,7 +19,7 @@ public class Level1Rule1Tests
 
         // Assert
         result.Should().NotBeNull();
-        result.Complete.Should().BeFalse();
+        result.ExitPipeline.Should().BeFalse();
         model.Record.Should().StartWith("Did rule one");
     }
 }
