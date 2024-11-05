@@ -6,6 +6,6 @@ public class MatchPostProcess : IRequestPostProcessor<MatchRequest, PipelineResu
 {
     public async Task Process(MatchRequest request, PipelineResult response, CancellationToken cancellationToken)
     {
-        request.Model.Record += "Did Post Processing" + Environment.NewLine;
+        request.Context.Record += "Did Post Processing" + Environment.NewLine;
     }
 }

@@ -8,18 +8,18 @@ namespace Cdms.Business.Tests.Pipelines.Matching.Rules;
 public class Level1Rule2Tests
 {
     [Fact]
-    public async Task ProcessMatch_ValidModel_ReturnsNoMatch()
+    public async Task ProcessFilter_ValidContext_ReturnsNoMatch()
     {
         // Arrange
         var sut = new Level1Rule2();
-        var model = new MatchModel();
+        var context = new MatchContext();
         
         // Act
-        var result = await sut.ProcessMatch(model);
+        var result = await sut.ProcessFilter(context);
         
         // Assert
         result.Should().NotBeNull();
         result.ExitPipeline.Should().BeFalse();
-        model.Record.Should().StartWith("Did rule two");
+        context.Record.Should().StartWith("Did rule two");
     }
 }

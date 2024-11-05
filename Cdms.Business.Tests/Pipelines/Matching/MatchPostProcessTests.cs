@@ -14,7 +14,7 @@ public class MatchPostProcessTests
     {
         // Arrange
         var sut = new MatchPostProcess();
-        var request = new MatchRequest(new MatchModel());
+        var request = new MatchRequest(new MatchContext());
         var result = new PipelineResult(false);
         
         var expectedRecord = "Did Post Processing";
@@ -23,6 +23,6 @@ public class MatchPostProcessTests
         await sut.Process(request, result, CancellationToken.None);
         
         // Assert
-        request.Model.Record.Should().StartWith(expectedRecord);
+        request.Context.Record.Should().StartWith(expectedRecord);
     }
 }

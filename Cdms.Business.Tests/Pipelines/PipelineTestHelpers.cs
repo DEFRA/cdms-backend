@@ -7,10 +7,10 @@ public class PipelineTestHelpers
 {
     public interface IStubService
     {
-        PipelineResult ProcessMatch(MockModel model);
+        PipelineResult ProcessFilter(MockContext context);
     }
     
-    public class MockPipeline : PipelineBase<MockModel, MockRequest>
+    public class MockPipeline : PipelineBase<MockContext, MockRequest>
     {
         private readonly IStubService _stubService;
         
@@ -19,15 +19,15 @@ public class PipelineTestHelpers
             _stubService = stubService;
         }
         
-        public override async Task<PipelineResult> ProcessMatch(MockModel model)
+        public override async Task<PipelineResult> ProcessFilter(MockContext context)
         {
-            return await Task.FromResult(_stubService.ProcessMatch(model));
+            return await Task.FromResult(_stubService.ProcessFilter(context));
         }
     }
 
     public class MockTerminatePipeline : TerminatePipelineBase<MockRequest>;
 
-    public record MockRequest(MockModel Model) : PipelineRequest<MockModel>(Model);
+    public record MockRequest(MockContext Context) : PipelineRequest<MockContext>(Context);
 
-    public record MockModel;
+    public record MockContext;
 }

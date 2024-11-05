@@ -2,9 +2,9 @@ namespace Cdms.Business.Pipelines.Matching.Rules;
 
 public class Level1Rule8 : MatchPipelineBase
 {
-    public override async Task<PipelineResult> ProcessMatch(MatchModel model)
+    public override async Task<PipelineResult> ProcessFilter(MatchContext context)
     {
-        model.Record += "Did rule eight" + Environment.NewLine;
+        context.Record += "Did rule eight" + Environment.NewLine;
         
         return await Task.FromResult(new PipelineResult(false));
     }

@@ -15,10 +15,10 @@ public class PipelineBaseTests
         var mockNextDelegate = Substitute.For<RequestHandlerDelegate<PipelineResult>>();
 
         var stubService = Substitute.For<PipelineTestHelpers.IStubService>();
-        stubService.ProcessMatch(Arg.Any<PipelineTestHelpers.MockModel>()).Returns(new PipelineResult(true));
+        stubService.ProcessFilter(Arg.Any<PipelineTestHelpers.MockContext>()).Returns(new PipelineResult(true));
 
         var sut = new PipelineTestHelpers.MockPipeline(stubService);
-        var request = new PipelineTestHelpers.MockRequest(new PipelineTestHelpers.MockModel());
+        var request = new PipelineTestHelpers.MockRequest(new PipelineTestHelpers.MockContext());
 
         // Act
         var result = await sut.Handle(request, mockNextDelegate, CancellationToken.None);
@@ -37,10 +37,10 @@ public class PipelineBaseTests
         mockNextDelegate.Invoke().Returns(new PipelineResult(true));
         
         var stubService = Substitute.For<PipelineTestHelpers.IStubService>();
-        stubService.ProcessMatch(Arg.Any<PipelineTestHelpers.MockModel>()).Returns(new PipelineResult(false));
+        stubService.ProcessFilter(Arg.Any<PipelineTestHelpers.MockContext>()).Returns(new PipelineResult(false));
 
         var sut = new PipelineTestHelpers.MockPipeline(stubService);
-        var request = new PipelineTestHelpers.MockRequest(new PipelineTestHelpers.MockModel());
+        var request = new PipelineTestHelpers.MockRequest(new PipelineTestHelpers.MockContext());
         
         // Act
         var result = await sut.Handle(request, mockNextDelegate, CancellationToken.None);

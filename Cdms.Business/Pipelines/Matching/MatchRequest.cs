@@ -2,4 +2,4 @@ using MediatR;
 
 namespace Cdms.Business.Pipelines.Matching;
 
-public record MatchRequest(MatchModel Model) : PipelineRequest<MatchModel>(Model);
+public record MatchRequest(MatchContext Context) : PipelineRequest<MatchContext>(Context);
