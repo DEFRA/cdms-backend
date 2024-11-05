@@ -14,7 +14,7 @@ namespace Cdms.Consumers
         {
             foreach (var gmr in message.Gmrs)
             {
-                var internalGmr = GmrMapper.Map(gmr);
+                var internalGmr = GrmWithTransformMapper.MapWithTransform(gmr);
                 var existingGmr = await dbContext.Gmrs.Find(internalGmr.Id);
 
                 if (existingGmr is null)

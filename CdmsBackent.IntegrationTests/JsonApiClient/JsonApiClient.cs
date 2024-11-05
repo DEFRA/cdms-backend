@@ -1,9 +1,10 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using JsonApiSerializer;
 using JsonApiSerializer.JsonApi;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace CdmsBackend.IntegrationTests.JsonApiClient;
 
@@ -66,6 +67,8 @@ public class JsonApiClient(HttpClient client)
 
         if (responseMessage.IsSuccessStatusCode)
         {
+            var r = JsonSerializer.Deserialize<JsonApiDotNetCore.Serialization.Objects.Document>(s);
+
             response.DocumentRoot =
                 JsonConvert.DeserializeObject<DocumentRoot<TRequest[]>>(
                     responseMessage.Content.ReadAsStringAsync().Result, settings);

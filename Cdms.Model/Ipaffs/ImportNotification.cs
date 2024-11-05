@@ -15,7 +15,7 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     private int? matchReference;
 
     //// This field is used by the jsonapi-consumer to control the correct casing in the type field
-    [JsonIgnore] public string Type { get; set; } = "importnotifications";
+    [JsonIgnore] public string Type { get; set; } = "import-notifications";
 
     //[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
     [JsonIgnore]

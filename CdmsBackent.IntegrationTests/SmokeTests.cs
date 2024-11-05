@@ -53,7 +53,7 @@ namespace CdmsBackend.IntegrationTests
             factory.GetDbContext().Inbox.Count().Should().Be(5);
 
             // Check Api
-            var jsonClientResponse = client.AsJsonApiClient().Get<ImportNotification>("api/importnotifications");
+            var jsonClientResponse = client.AsJsonApiClient().Get<ImportNotification>("api/import-notifications");
             jsonClientResponse.IsSuccess.Should().BeTrue();
             jsonClientResponse.DocumentRoot.Data.Length.Should().Be(5);
         }
