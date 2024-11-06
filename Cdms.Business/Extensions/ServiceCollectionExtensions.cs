@@ -46,11 +46,6 @@ namespace Cdms.Business.Extensions
 
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<SyncNotificationsCommand>());
 
-            //    .AddChildBus("ASB", cbb =>
-            //{
-            //     //Consume from ASB topics, but route to same consumers
-            //});
-
             // hard code list for now, get via config -> reflection later
             List<Type> rules = new List<Type>
             {
