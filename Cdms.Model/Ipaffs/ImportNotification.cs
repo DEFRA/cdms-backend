@@ -9,7 +9,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cdms.Model.Ipaffs;
 
-[Resource]
+[Resource(PublicName = "import-notifications")]
 public partial class ImportNotification : IMongoIdentifiable, IDataEntity
 {
     private int? matchReference;
