@@ -1,6 +1,6 @@
 namespace Cdms.Business.Pipelines.Matching.Rules;
 
-public class Level1Rule2 : MatchPipelineBase
+public class Level1Rule2 : MatchRuleBase
 {
     public override async Task<PipelineResult> ProcessFilter(MatchContext context)
     {
