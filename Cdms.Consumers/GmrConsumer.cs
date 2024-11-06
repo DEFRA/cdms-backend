@@ -16,11 +16,12 @@ namespace Cdms.Consumers
             {
                 var internalGmr = GrmWithTransformMapper.MapWithTransform(gmr);
                 var existingGmr = await dbContext.Gmrs.Find(internalGmr.Id);
-
+                var auditId = Context.Headers["messageId"].ToString();
                 if (existingGmr is null)
                 {
+
                     var auditEntry =
-                        AuditEntry.CreateCreatedEntry(internalGmr, internalGmr.Id, 1, gmr.LastUpdated);
+                        AuditEntry.CreateCreatedEntry(internalGmr, auditId, 1, gmr.LastUpdated);
                     internalGmr.AuditEntries.Add(auditEntry);
                     await dbContext.Gmrs.Insert(internalGmr);
                 }
@@ -32,7 +33,7 @@ namespace Cdms.Consumers
                         var auditEntry = AuditEntry.CreateUpdated<Gmr>(
                             previous: existingGmr,
                             current: internalGmr,
-                            id: internalGmr.Id,
+                            id: auditId,
                             version: internalGmr.AuditEntries.Count + 1,
                             lastUpdated: gmr.LastUpdated);
                         internalGmr.AuditEntries.Add(auditEntry);
