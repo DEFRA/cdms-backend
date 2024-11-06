@@ -48,7 +48,7 @@ public sealed class RelationshipDataItem
 
         if (!string.IsNullOrEmpty(Links?.Self))
         {
-            meta.Add("self", Links?.Self);
+            meta.Add("self", Links.Self);
         }
 
         return meta;
