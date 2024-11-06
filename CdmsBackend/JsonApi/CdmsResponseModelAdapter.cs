@@ -47,26 +47,50 @@ public class CdmsResponseModelAdapter(
 
                 foreach (var relationship in relationships)
                 {
-                    var list = relationship.Item2.Data.Select(item => new ResourceIdentifierObject()
+                    var list = relationship.Item2.Data.Select(item =>
                         {
-                            Type = item.Type,
-                            Id = item.Id,
-                            //Lid = item.Id, 
-                            Meta = new Dictionary<string, object?>()
+                            var meta = new Dictionary<string, object?>();
+                            if (item.Matched.HasValue)
                             {
-                                { "matched", item.Matched },
-                                { "sourceItem", item.SourceItem },
-                                { "destinationItem", item.DestinationItem },
-                                { "matchingLevel", item.MatchingLevel },
-                                { "self", item.Links?.Self }
-                            },
+                                meta.Add("matched", item.Matched);
+                            }
+
+                            if (item.SourceItem.HasValue)
+                            {
+                                meta.Add("sourceItem", item.SourceItem);
+                            }
+
+                            if (item.DestinationItem.HasValue)
+                            {
+                                meta.Add("destinationItem", item.DestinationItem);
+                            }
+
+                            if (item.MatchingLevel.HasValue)
+                            {
+                                meta.Add("matchingLevel", item.MatchingLevel);
+                            }
+
+                            if (!string.IsNullOrEmpty(item.Links?.Self))
+                            {
+                                meta.Add("self", item.Links?.Self);
+                            }
+
+                            return new ResourceIdentifierObject() { Type = item.Type, Id = item.Id, Meta = meta, };
                         })
                         .ToList();
+
+
+                    var meta = new Dictionary<string, object?>();
+
+                    if (relationship.Item2.Matched.HasValue)
+                    {
+                        meta.Add("matched", relationship.Item2.Matched);
+                    }
 
                     resourceObject.Relationships.Add(relationship.Item1,
                         new RelationshipObject()
                         {
-                            Meta = new Dictionary<string, object?>() { { "matched", relationship.Item2.Matched } },
+                            Meta = meta,
                             Links = new RelationshipLinks()
                             {
                                 Self = relationship.Item2.Links?.Self,

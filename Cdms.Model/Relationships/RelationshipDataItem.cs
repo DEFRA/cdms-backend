@@ -6,7 +6,7 @@ namespace Cdms.Model.Relationships;
 
 public sealed class RelationshipDataItem
 {
-    [Attr] public bool Matched { get; set; } = default!;
+    [Attr] public bool? Matched { get; set; } = default!;
 
     [Attr] public string Type { get; set; }
 

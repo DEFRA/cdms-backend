@@ -1,6 +1,6 @@
 using EphemeralMongo;
 
-namespace Cdms.Consumers.Tests;
+namespace CdmsBackend.IntegrationTests.Helpers;
 
 internal sealed class MongoRunnerProvider
 {
@@ -24,7 +24,9 @@ internal sealed class MongoRunnerProvider
                 {
                     // Single-node replica set mode is required for transaction support in MongoDB.
                     //UseSingleNodeReplicaSet = true,
-                    KillMongoProcessesWhenCurrentProcessExits = true, AdditionalArguments = "--quiet", MongoPort = 57020
+                    KillMongoProcessesWhenCurrentProcessExits = true,
+                    AdditionalArguments = "--quiet",
+                    MongoPort = 57020
                 };
 
                 _runner = MongoRunner.Run(runnerOptions);
