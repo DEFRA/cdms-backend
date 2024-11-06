@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Cdms.Model.Relationships;
 using JsonApiDotNetCore.Configuration;
 using JsonApiDotNetCore.Middleware;
@@ -10,6 +11,9 @@ using RelationshipLinks = JsonApiDotNetCore.Serialization.Objects.RelationshipLi
 
 namespace CdmsBackend.JsonApi;
 
+[SuppressMessage("SonarLint", "S107",
+    Justification =
+        "This is to override a class which is part of JsonApi so this requires the 8 parameters")]
 public class CdmsResponseModelAdapter(
     IJsonApiRequest request,
     IJsonApiOptions options,
