@@ -35,76 +35,56 @@ public class CdmsResponseModelAdapter(
 
         var listOfResourceObjects = document.Data.ManyValue is not null
             ? document.Data.ManyValue.ToList()
-            : new List<ResourceObject>() { document.Data.SingleValue };
+            : [document.Data.SingleValue];
 
 
         foreach (var resourceObject in listOfResourceObjects)
         {
             if (resourceObject.Attributes.TryGetValue("relationships", out var value))
             {
-                var relationships = (value as ITdmRelationships).GetRelationshipObjects();
-                resourceObject.Relationships = new Dictionary<string, RelationshipObject?>();
-
-                foreach (var relationship in relationships)
-                {
-                    var list = relationship.Item2.Data.Select(item =>
-                        {
-                            var meta = new Dictionary<string, object?>();
-                            if (item.Matched.HasValue)
-                            {
-                                meta.Add("matched", item.Matched);
-                            }
-
-                            if (item.SourceItem.HasValue)
-                            {
-                                meta.Add("sourceItem", item.SourceItem);
-                            }
-
-                            if (item.DestinationItem.HasValue)
-                            {
-                                meta.Add("destinationItem", item.DestinationItem);
-                            }
-
-                            if (item.MatchingLevel.HasValue)
-                            {
-                                meta.Add("matchingLevel", item.MatchingLevel);
-                            }
-
-                            if (!string.IsNullOrEmpty(item.Links?.Self))
-                            {
-                                meta.Add("self", item.Links?.Self);
-                            }
-
-                            return new ResourceIdentifierObject() { Type = item.Type, Id = item.Id, Meta = meta, };
-                        })
-                        .ToList();
-
-
-                    var meta = new Dictionary<string, object?>();
-
-                    if (relationship.Item2.Matched.HasValue)
-                    {
-                        meta.Add("matched", relationship.Item2.Matched);
-                    }
-
-                    resourceObject.Relationships.Add(relationship.Item1,
-                        new RelationshipObject()
-                        {
-                            Meta = meta,
-                            Links = new RelationshipLinks()
-                            {
-                                Self = relationship.Item2.Links?.Self,
-                                Related = relationship.Item2?.Links?.Related
-                            },
-                            Data = new SingleOrManyData<ResourceIdentifierObject>(list)
-                        });
-                }
-
-                resourceObject.Attributes.Remove("relationships");
+                ProcessRelationships(value, resourceObject);
             }
         }
 
 
         return document;
+    }
+
+    private static void ProcessRelationships(object? value, ResourceObject resourceObject)
+    {
+        var relationships = (value as ITdmRelationships).GetRelationshipObjects();
+        resourceObject.Relationships = new Dictionary<string, RelationshipObject?>();
+
+        foreach (var relationship in relationships)
+        {
+            var list = relationship.Item2.Data.Select(item =>
+                    new ResourceIdentifierObject()
+                    {
+                        Type = item.Type, Id = item.Id, Meta = item.ToDictionary(),
+                    })
+                .ToList();
+
+
+            var meta = new Dictionary<string, object?>();
+
+            if (relationship.Item2.Matched.HasValue)
+            {
+                meta.Add("matched", relationship.Item2.Matched);
+            }
+
+            resourceObject.Relationships.Add(relationship.Item1,
+                new RelationshipObject()
+                {
+                    Meta = meta,
+                    Links = new RelationshipLinks()
+                    {
+                        Self = relationship.Item2.Links?.Self,
+                        Related = relationship.Item2?.Links?.Related
+                    },
+                    Data = new SingleOrManyData<ResourceIdentifierObject>(list)
+                });
+        }
+
+        resourceObject.Attributes.Remove("relationships");
     }
 }
