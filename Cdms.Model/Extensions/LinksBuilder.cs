@@ -4,50 +4,53 @@ public static class LinksBuilder
 {
     public static class Notification
     {
+        public const string ResourceName = "import-notifications";
         public static string BuildSelfNotificationLink(string id)
         {
-            return LinksBuilder.BuildSelfLink("import-notifications", id);
+            return LinksBuilder.BuildSelfLink(ResourceName, id);
         }
 
         public static string BuildRelatedMovementLink(string id)
         {
-            return LinksBuilder.BuildRelatedLink("import-notifications", id, "movements");
+            return LinksBuilder.BuildRelatedLink(ResourceName, id, "movements");
         }
     }
 
     public static class Movement
     {
+        public const string ResourceName = "movements";
         public static string BuildSelfMovementLink(string id)
         {
-            return LinksBuilder.BuildSelfLink("movements", id);
+            return LinksBuilder.BuildSelfLink(ResourceName, id);
         }
 
         public static string BuildRelatedMovementLink(string id)
         {
-            return LinksBuilder.BuildRelatedLink("movements", id, "import-notifications");
+            return LinksBuilder.BuildRelatedLink(ResourceName, id, Notification.ResourceName);
         }
     }
 
     public static class Gmr
     {
+        public const string ResourceName = "gmr";
         public static string BuildSelfRelationshipCustomsLink(string id)
         {
-            return LinksBuilder.BuildSelfRelationshipLink("gmr", id, "import-notifications");
+            return LinksBuilder.BuildSelfRelationshipLink(ResourceName, id, Notification.ResourceName);
         }
 
         public static string BuildSelfRelationshipTransitsLink(string id)
         {
-            return LinksBuilder.BuildSelfRelationshipLink("gmr", id, "movement");
+            return LinksBuilder.BuildSelfRelationshipLink(ResourceName, id, Movement.ResourceName);
         }
 
         public static string BuildRelatedTransitLink(string id)
         {
-            return LinksBuilder.BuildSelfLink("movements", id);
+            return LinksBuilder.BuildSelfLink(Movement.ResourceName, id);
         }
 
         public static string BuildRelatedCustomsLink(string id)
         {
-            return LinksBuilder.BuildSelfLink("import-notifications", id);
+            return LinksBuilder.BuildSelfLink(Notification.ResourceName, id);
         }
     }
 

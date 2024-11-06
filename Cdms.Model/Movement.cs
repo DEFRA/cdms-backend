@@ -109,7 +109,7 @@ public class Movement : IMongoIdentifiable, IDataEntity
         Relationships.Notifications.Matched = Items
             .Select(x => x.ItemNumber)
             .All(itemNumber =>
-                Relationships.Notifications.Data.Any(x => x.Matched.GetValueOrDefault() && x.SourceItem == itemNumber));
+                Relationships.Notifications.Data.Exists(x => x.Matched.GetValueOrDefault() && x.SourceItem == itemNumber));
     }
 
     public void Update(AuditEntry auditEntry)
