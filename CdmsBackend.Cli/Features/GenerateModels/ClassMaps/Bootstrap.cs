@@ -24,8 +24,10 @@ static class Bootstrap
             map.MapProperty("ArrivalDateTime").IsDateTime().SetInternalName("ArrivedAt");
             map.MapProperty("MasterUCR").SetName("MasterUcr");
             map.MapProperty("SubmitterTURN").SetName("SubmitterTurn");
+            map.MapProperty("DeclarationUCR").SetName("DeclarationUcr");
         });
 
+        
         GeneratorClassMap.RegisterClassMap("ServiceHeader",
             map => { map.MapProperty("ServiceCallTimestamp").IsDateTime().SetInternalName("ServiceCalled"); });
 
@@ -36,12 +38,14 @@ static class Bootstrap
         {
             map.SetClassName("AlvsClearanceRequestPost");
             map.MapProperty("AlvsClearanceRequest").SetType("AlvsClearanceRequest");
+            map.MapProperty("sendingDate").SetInternalName("SentOn").IsDateTime();
         });
 
         GeneratorClassMap.RegisterClassMap("ALVSClearanceRequestPostResult", map =>
         {
             map.SetClassName("AlvsClearanceRequestPostResult")
                 .NoInternalClass();
+            map.MapProperty("sendingDate").SetInternalName("SentOn").IsDateTime();
         });
     }
 
@@ -239,6 +243,9 @@ static class Bootstrap
 
     public static void RegisterVehicleMovementsClassMaps()
     {
+        GeneratorClassMap.RegisterClassMap("GmrsByVRN",
+            map => { map.SetClassName("GmrsByVrn"); });
+
         GeneratorClassMap.RegisterClassMap("gmrs", map =>
         {
             map.SetClassName("Gmr");
@@ -253,7 +260,11 @@ static class Bootstrap
             map => { map.MapProperty("Gmrs").SetType("Gmr[]"); });
 
         GeneratorClassMap.RegisterClassMap("SearchGmrsForVRNsresponse",
-            map => { map.MapProperty("Gmrs").SetType("Gmr[]"); });
+            map =>
+            {
+                map.MapProperty("Gmrs").SetType("Gmr[]");
+                map.MapProperty("gmrsByVRN").SetName("gmrsByVrns").SetType("GmrsByVrn[]");
+            });
 
         GeneratorClassMap.RegisterClassMap("searchGmrsResponse", map => { map.MapProperty("Gmrs").SetType("Gmr[]"); });
 
