@@ -72,6 +72,7 @@ static class Bootstrap
             map.MapProperty("Id").SetName("IpaffsId");
             map.MapProperty("Type").SetName("ImportNotificationType");
             map.MapProperty("LastUpdated").IsDateTime();
+            map.MapProperty("RiskDecisionLockingTime").SetName("RiskDecisionLockedOn").IsDateTime();
         });
 
         GeneratorClassMap.RegisterClassMap("Purpose", map =>
@@ -119,7 +120,7 @@ static class Bootstrap
             map => { map.MapProperty("dateOfIssue").IsDateTime().SetInternalName("issuedOn"); });
 
         GeneratorClassMap.RegisterClassMap("JourneyRiskCategorisationResult",
-            map => { map.MapProperty("riskLevelDateTime").IsDateTime(); });
+            map => { map.MapProperty("riskLevelDateTime").SetName("RiskLevelSetFor").IsDateTime(); });
 
 
         GeneratorClassMap.RegisterClassMap("RiskAssessmentResult",
@@ -158,8 +159,8 @@ static class Bootstrap
         GeneratorClassMap.RegisterClassMap("PartOne", map =>
         {
             map.MapProperty("commodities").ExcludeFromInternal();
-            map.MapProperty("originalEstimatedDateTime").IsDateTime();
-            map.MapProperty("submissionDate").IsDateTime();
+            map.MapProperty("originalEstimatedDateTime").SetName("originalEstimatedOn").IsDateTime();
+            map.MapProperty("submissionDate").SetName("SubmittedOn").IsDateTime();
             map.MapProperty("isGVMSRoute").SetName("isGvmsRoute");
             map.MapProperty("portOfExitDate").IsDateTime().SetInternalName("ExitedPortOfOn");
 
