@@ -11,7 +11,9 @@ using System.Text.Json.Serialization;
 using Cdms.Business.Extensions;
 using Cdms.BlobService;
 using Cdms.Backend.Data.Healthcheck;
+using Cdms.Business;
 using Cdms.Consumers.Extensions;
+using Cdms.SyncJob.Extensions;
 using CdmsBackend.Config;
 using HealthChecks.UI.Client;
 using JsonApiDotNetCore.Configuration;
@@ -23,6 +25,11 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using JsonApiDotNetCore.MongoDb.Repositories;
 using JsonApiDotNetCore.Repositories;
+using CdmsBackend.BackgroundTaskQueue;
+using CdmsBackend.Mediatr;
+using CdmsBackend.JsonApi;
+using JsonApiDotNetCore.Serialization.Response;
+using Environment = System.Environment;
 
 //-------- Configure the WebApplication builder------------------//
 
@@ -45,6 +52,14 @@ static WebApplication CreateWebApplication(string[] args)
 [ExcludeFromCodeCoverage]
 static void ConfigureWebApplication(WebApplicationBuilder builder)
 {
+    builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+    builder.Services.AddSingleton<ICdmsMediator, CdmsMediator>();
+    builder.Services.AddSyncJob();
+    builder.Services.AddHostedService<QueueHostedService>();
+    builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.AddIniFile("Properties/local.env", true)
         .AddIniFile($"Properties/local.{builder.Environment.EnvironmentName}.env", true);
@@ -52,7 +67,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     builder.Services.AddOptions<ApiOptions>()
         .Bind(builder.Configuration.GetSection(ApiOptions.SectionName))
         .ValidateDataAnnotations();
-
+    
     var logger = ConfigureLogging(builder);
 
     // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
@@ -120,6 +135,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
         discovery => discovery.AddAssembly(Assembly.Load("Cdms.Model")));
 
     builder.Services.AddJsonApiMongoDb();
+    builder.Services.AddScoped<IResponseModelAdapter, CdmsResponseModelAdapter>();
     builder.Services.AddScoped(typeof(IResourceReadRepository<,>), typeof(MongoRepository<,>));
     builder.Services.AddScoped(typeof(IResourceWriteRepository<,>), typeof(MongoRepository<,>));
     builder.Services.AddScoped(typeof(IResourceRepository<,>), typeof(MongoRepository<,>));

@@ -1,12 +1,17 @@
+using System;
 using System.Data.Common;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Cdms.Backend.Data;
 using Cdms.Business.Commands;
 using Cdms.Model;
 using Cdms.Model.Gvms;
 using Cdms.Model.Ipaffs;
+using Cdms.SyncJob;
+using CdmsBackend.IntegrationTests.Helpers;
 using CdmsBackend.IntegrationTests.JsonApiClient;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
+using ThirdParty.Json.LitJson;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,16 +52,12 @@ namespace CdmsBackend.IntegrationTests
             });
 
             // Assert
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
             // Check Db
             factory.GetDbContext().Notifications.Count().Should().Be(5);
 
             // Check Api
-            var jsonClientResponse = client.AsJsonApiClient().Get<ImportNotification>("api/import-notifications");
-            jsonClientResponse.IsSuccess.Should().BeTrue();
-            jsonClientResponse.DocumentRoot.Data.Length.Should().Be(5);
+            var jsonClientResponse = client.AsJsonApiClient().Get("api/import-notifications");
+            jsonClientResponse.Data.Count.Should().Be(5);
         }
 
         [Fact]
@@ -70,8 +72,6 @@ namespace CdmsBackend.IntegrationTests
             });
 
             // Assert
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var existingMovement = await factory.GetDbContext().Movements.Find("CHEDPGB20241039875A5");
 
             existingMovement.Should().NotBeNull();
@@ -82,11 +82,11 @@ namespace CdmsBackend.IntegrationTests
 
             // Check Api
             var jsonClientResponse =
-                client.AsJsonApiClient().GetById<Movement>("CHEDPGB20241039875A5", "api/movements");
-            jsonClientResponse.IsSuccess.Should().BeTrue();
-            jsonClientResponse.DocumentRoot.Data.Items[0].Checks.Length.Should().Be(1);
-            jsonClientResponse.DocumentRoot.Data.Items[0].Checks[0].CheckCode.Should().Be("H234");
-            jsonClientResponse.DocumentRoot.Data.Items[0].Checks[0].DepartmentCode.Should().Be("PHA");
+                client.AsJsonApiClient().GetById("CHEDPGB20241039875A5", "api/movements");
+            var movement = jsonClientResponse.GetResourceObject<Movement>();
+            movement.Items[0].Checks.Length.Should().Be(1);
+            movement.Items[0].Checks[0].CheckCode.Should().Be("H234");
+            movement.Items[0].Checks[0].DepartmentCode.Should().Be("PHA");
         }
 
         [Fact]
@@ -102,14 +102,11 @@ namespace CdmsBackend.IntegrationTests
             });
 
             // Assert
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
             factory.GetDbContext().Movements.Count().Should().Be(5);
 
             // Check Api
-            var jsonClientResponse = client.AsJsonApiClient().Get<Movement>("api/movements");
-            jsonClientResponse.IsSuccess.Should().BeTrue();
-            jsonClientResponse.DocumentRoot.Data.Length.Should().Be(5);
+            var jsonClientResponse = client.AsJsonApiClient().Get("api/movements");
+            jsonClientResponse.Data.Count.Should().Be(5);
         }
 
         [Fact]
@@ -125,14 +122,41 @@ namespace CdmsBackend.IntegrationTests
             });
 
             // Assert
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
             factory.GetDbContext().Gmrs.Count().Should().Be(3);
 
             // Check Api
-            var jsonClientResponse = client.AsJsonApiClient().Get<Gmr>("api/gmrs");
-            jsonClientResponse.IsSuccess.Should().BeTrue();
-            jsonClientResponse.DocumentRoot.Data.Length.Should().Be(3);
+            var jsonClientResponse = client.AsJsonApiClient().Get("api/gmrs");
+            jsonClientResponse.Data.Count.Should().Be(3);
+        }
+
+        private async Task WaitOnJobCompleting(Uri jobUri)
+        {
+            var jsonOptions = new JsonSerializerOptions();
+            jsonOptions.Converters.Add(new JsonStringEnumConverter());
+            jsonOptions.PropertyNameCaseInsensitive = true;
+
+            var jobStatusTask = Task.Run(async () =>
+            {
+                SyncJobStatus status = SyncJobStatus.Pending;
+
+                while (status != SyncJobStatus.Completed)
+                {
+                    await Task.Delay(200);
+                    var jobResponse = await client.GetAsync(jobUri);
+                    var syncJob = await jobResponse.Content.ReadFromJsonAsync<SyncJobResponse>(jsonOptions);
+                    status = syncJob.Status;
+                }
+            });
+
+            var winningTask = await Task.WhenAny(
+                jobStatusTask,
+                Task.Delay(TimeSpan.FromMinutes(1)));
+
+            if (winningTask != jobStatusTask)
+            {
+                Assert.Fail("Waiting for job to complete timed out!");
+            }
+
         }
 
 
@@ -154,16 +178,55 @@ namespace CdmsBackend.IntegrationTests
         private Task<HttpResponseMessage> MakeSyncGmrsRequest(SyncGmrsCommand command)
         {
             return PostCommand(command, "/sync/gmrs");
+
         }
 
 
-        private Task<HttpResponseMessage> PostCommand<T>(T command, string uri)
+        private async Task<HttpResponseMessage> PostCommand<T>(T command, string uri)
         {
             var jsonData = JsonSerializer.Serialize(command);
             HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             //Act
-            return client.PostAsync(uri, content);
+            var response = await client.PostAsync(uri, content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+            //get job id and wait for job to be completed
+            var jobUri = response.Headers.Location;
+            await WaitOnJobCompleting(jobUri);
+
+            return response;
         }
     }
+}
+
+public class SyncJobResponse
+{
+    public Guid JobId { get; set; }
+
+    public string Description { get; set; }
+
+    public int BlobsRead { get; set; }
+
+    public int BlobsPublished { get; set; }
+
+    public int BlobsFailed { get; set; }
+
+    public int MessagesProcessed { get; set; }
+
+    public int MessagesFailed { get; set; }
+
+
+
+    public DateTime QueuedOn { get; set; }
+    public DateTime StartedOn { get; set; }
+
+    public DateTime? CompletedOn { get; set; }
+
+    public TimeSpan RunTime { get; set; }
+
+    public SyncJobStatus Status { get; set; }
+
 }
