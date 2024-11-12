@@ -30,6 +30,8 @@ using CdmsBackend.Mediatr;
 using CdmsBackend.JsonApi;
 using JsonApiDotNetCore.Serialization.Response;
 using Environment = System.Environment;
+using CdmsBackend.Middleware;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 //-------- Configure the WebApplication builder------------------//
 
@@ -52,6 +54,14 @@ static WebApplication CreateWebApplication(string[] args)
 [ExcludeFromCodeCoverage]
 static void ConfigureWebApplication(WebApplicationBuilder builder)
 {
+    builder.Services.Configure<HealthCheckPublisherOptions>(options =>
+    {
+        options.Delay = TimeSpan.FromSeconds(1);
+        options.Timeout = TimeSpan.FromSeconds(1);
+    });
+
+    builder.Services.AddSingleton<IHealthCheckPublisher, CdmsHealthCheckPublisher>();
+
     builder.Services.ConfigureHttpJsonOptions(options =>
     {
         options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -178,13 +188,12 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 {
     var app = builder.Build();
 
-
     app.UseJsonApi();
     app.MapControllers();
-
     app.MapHealthChecks("/health",
         new HealthCheckOptions()
         {
+            
             Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
         });
 
