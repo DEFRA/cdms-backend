@@ -1,8 +1,6 @@
 using Cdms.Business.Pipelines;
 using Cdms.Business.Pipelines.Matching;
-using Cdms.Business.Pipelines.Matching.Rules;
 using FluentAssertions;
-using System.Security.Cryptography;
 using Xunit;
 
 namespace Cdms.Business.Tests.Pipelines.Matching;

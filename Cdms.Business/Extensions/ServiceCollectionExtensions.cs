@@ -1,5 +1,3 @@
-using System.Reflection;
-using Cdms.Backend.Data;
 using Cdms.Backend.Data.Extensions;
 using Cdms.BlobService;
 using Cdms.BlobService.Extensions;
@@ -7,11 +5,7 @@ using Cdms.Business.Commands;
 using Cdms.Business.Pipelines;
 using Cdms.Business.Pipelines.Matching;
 using Cdms.Business.Pipelines.Matching.Rules;
-using Cdms.Model.Extensions;
 using Cdms.SensitiveData;
-using Cdms.Types.Alvs;
-using Cdms.Types.Gmr;
-using Cdms.Types.Ipaffs;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

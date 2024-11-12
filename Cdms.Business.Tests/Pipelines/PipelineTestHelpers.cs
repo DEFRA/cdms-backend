@@ -1,5 +1,4 @@
 using Cdms.Business.Pipelines;
-using MediatR;
 
 namespace Cdms.Business.Tests.Pipelines;
 

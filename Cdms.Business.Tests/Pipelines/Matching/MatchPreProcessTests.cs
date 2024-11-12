@@ -1,5 +1,4 @@
 using Cdms.Business.Pipelines.Matching;
-using Cdms.Business.Pipelines.Matching.Rules;
 using FluentAssertions;
 using Xunit;
 
