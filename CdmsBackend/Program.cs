@@ -141,6 +141,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 #endif
     }
 
+    builder.Services.AddRequestTimeouts();
     builder.Services.AddJsonApi(ConfigureJsonApiOptions,
         discovery => discovery.AddAssembly(Assembly.Load("Cdms.Model")));
 
@@ -190,12 +191,14 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 
     app.UseJsonApi();
     app.MapControllers();
-    app.MapHealthChecks("/health",
+    app.UseRequestTimeouts();
+    app.MapGet("/health", () => "Heathly").AllowAnonymous();
+    app.MapHealthChecks("/healthz",
         new HealthCheckOptions()
         {
             
             Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-        });
+        }).WithRequestTimeout(TimeSpan.FromSeconds(4));
 
     app.UseSyncEndpoints();
     app.UseManagementEndpoints(app.Services.GetRequiredService<IOptions<ApiOptions>>());
