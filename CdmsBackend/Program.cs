@@ -64,10 +64,11 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     builder.Configuration.AddIniFile("Properties/local.env", true)
         .AddIniFile($"Properties/local.{builder.Environment.EnvironmentName}.env", true);
 
-    builder.Services.AddOptions<ApiOptions>()
+   builder.Services.AddOptions<ApiOptions>()
         .Bind(builder.Configuration.GetSection(ApiOptions.SectionName))
+        .PostConfigure(options => builder.Configuration.Bind(options))
         .ValidateDataAnnotations();
-    
+
     var logger = ConfigureLogging(builder);
 
     // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
@@ -81,7 +82,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     builder.Services.AddHttpClient();
 
     // calls outside the platform should be done using the named 'proxy' http client.
-    builder.Services.AddHttpProxyClient(logger, builder.Configuration);
+    builder.Services.AddHttpProxyClient();
 
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
@@ -184,7 +185,6 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.MapControllers();
     
     var dotnetHealthEndpoint = "/health-dotnet";
-    // var dotnetHealthEndpoint = "/health";
     app.MapGet("/health", GetStatus).AllowAnonymous();
     app.MapHealthChecks(dotnetHealthEndpoint,
         new HealthCheckOptions()

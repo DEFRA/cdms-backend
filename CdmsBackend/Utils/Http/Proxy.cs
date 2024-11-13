@@ -1,6 +1,7 @@
 using System.Net;
-using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
+using CdmsBackend.Config;
+using Microsoft.Extensions.Options;
 
 namespace CdmsBackend.Utils.Http;
 
@@ -17,34 +18,27 @@ public static class Proxy
     *     `clientFactory.CreateClient(Proxy.ProxyClient);`
     */
     [ExcludeFromCodeCoverage]
-    public static void AddHttpProxyClient(this IServiceCollection services, Logger logger, IConfiguration configuration)
+    public static void AddHttpProxyClient(this IServiceCollection services)
     {
-        var handler = ConfigurePrimaryHttpMessageHandler(logger, configuration);
-        var proxy = handler.Proxy;
-        
         // Some .net connections use this http client
-        services.AddHttpClient(ProxyClient).ConfigurePrimaryHttpMessageHandler(() => handler);
+        services.AddHttpClient(ProxyClient).ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<ApiOptions>>();
+            var proxy = sp.GetRequiredService<IWebProxy>();
+            return new HttpClientHandler { Proxy = proxy, UseProxy = !string.IsNullOrEmpty(options.Value.CdpHttpsProxy) };
+        });
         
         // Others, including the Azure SDK, rely on this, falling back to HTTPS_PROXY.
         // HTTPS_PROXY if used must not include the protocol
-        services.AddSingleton<IWebProxy, IWebProxy>(provider => proxy!);
+        services.AddSingleton<IWebProxy, WebProxy>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<ApiOptions>>();
+            var logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger(ProxyClient);
+            return CreateProxy(options.Value.CdpHttpsProxy, logger);
+        });
     }
 
-    [ExcludeFromCodeCoverage]
-    public static HttpClientHandler ConfigurePrimaryHttpMessageHandler(Logger logger, IConfiguration configuration)
-    {
-        // var proxyUri = Environment.GetEnvironmentVariable("CDP_HTTPS_PROXY");
-        var proxyUri = configuration["CDP_HTTPS_PROXY"];
-        return CreateHttpClientHandler(proxyUri, logger);
-    }
-
-    public static HttpClientHandler CreateHttpClientHandler(string? proxyUri, Logger logger)
-    {
-        var proxy = CreateProxy(proxyUri, logger);
-        return new HttpClientHandler { Proxy = proxy, UseProxy = proxyUri != null };
-    }
-
-    public static WebProxy CreateProxy(string? proxyUri, Logger logger)
+    public static WebProxy CreateProxy(string? proxyUri, ILogger logger)
     {
         var proxy = new WebProxy { BypassProxyOnLocal = true };
         if (proxyUri != null)
@@ -53,21 +47,21 @@ public static class Proxy
         }
         else
         {
-            logger.Warning("CDP_HTTP_PROXY is NOT set, proxy client will be disabled");
+            logger.LogWarning("CDP_HTTP_PROXY is NOT set, proxy client will be disabled");
         }
 
         return proxy;
     }
 
-    public static void ConfigureProxy(WebProxy proxy, string proxyUri, Logger logger)
+    public static void ConfigureProxy(WebProxy proxy, string proxyUri, ILogger logger)
     {
-        logger.Debug("Creating proxy http client");
+        logger.LogDebug("Creating proxy http client");
         var uri = new UriBuilder(proxyUri);
 
         var credentials = GetCredentialsFromUri(uri);
         if (credentials != null)
         {
-            logger.Debug("Setting proxy credentials");
+            logger.LogDebug("Setting proxy credentials");
             proxy.Credentials = credentials;
         }
 
