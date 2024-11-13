@@ -2,6 +2,7 @@ using System.Net;
 using System.Diagnostics.CodeAnalysis;
 using CdmsBackend.Config;
 using Microsoft.Extensions.Options;
+using FluentAssertions.Common;
 
 namespace CdmsBackend.Utils.Http;
 
@@ -25,7 +26,7 @@ public static class Proxy
         {
             var options = sp.GetRequiredService<IOptions<ApiOptions>>();
             var proxy = sp.GetRequiredService<IWebProxy>();
-            return new HttpClientHandler { Proxy = proxy, UseProxy = !string.IsNullOrEmpty(options.Value.CdpHttpsProxy) };
+            return CreateHttpClientHandler(proxy, options.Value.CdpHttpsProxy);
         });
         
         // Others, including the Azure SDK, rely on this, falling back to HTTPS_PROXY.
@@ -51,6 +52,11 @@ public static class Proxy
         }
 
         return proxy;
+    }
+
+    public static HttpClientHandler CreateHttpClientHandler(IWebProxy proxy, string proxyUri)
+    {
+        return new HttpClientHandler { Proxy = proxy, UseProxy = proxyUri != null };
     }
 
     public static void ConfigureProxy(WebProxy proxy, string proxyUri, ILogger logger)

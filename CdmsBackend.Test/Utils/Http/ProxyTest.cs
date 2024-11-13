@@ -1,25 +1,15 @@
 using CdmsBackend.Utils.Http;
-using NSubstitute;
 using Microsoft.Extensions.Logging.Abstractions;
 using FluentAssertions;
-using Serilog.Core;
-using Elastic.CommonSchema;
-using Serilog;
 
 namespace CdmsBackend.Test.Utils.Http;
 
 public class ProxyTest
 {
 
-   private readonly Logger logger = new LoggerConfiguration().CreateLogger();
-
    private readonly string proxyUri = "http://user:password@localhost:8080";
    private readonly string localProxy = "http://localhost:8080/";
    private readonly string localhost = "http://localhost/";
-
-   public ProxyTest()
-   {
-   }
 
    [Fact]
    public void ExtractProxyCredentials()
@@ -29,7 +19,7 @@ public class ProxyTest
          BypassProxyOnLocal = true
       };
 
-      Proxy.ConfigureProxy(proxy, proxyUri, logger);
+      Proxy.ConfigureProxy(proxy, proxyUri, NullLogger.Instance);
 
       var credentials = proxy.Credentials?.GetCredential(new System.Uri(proxyUri), "Basic");
 
@@ -47,7 +37,7 @@ public class ProxyTest
          BypassProxyOnLocal = true
       };
 
-      Proxy.ConfigureProxy(proxy, noPasswordUri, logger);
+      Proxy.ConfigureProxy(proxy, noPasswordUri, NullLogger.Instance);
 
       proxy.Credentials.Should().BeNull();
    }
@@ -61,7 +51,7 @@ public class ProxyTest
          BypassProxyOnLocal = true
       };
 
-      Proxy.ConfigureProxy(proxy, proxyUri, logger);
+      Proxy.ConfigureProxy(proxy, proxyUri, NullLogger.Instance);
       proxy.Address.Should().NotBeNull();
       proxy.Address?.AbsoluteUri.Should().Be(localProxy);
    }
@@ -70,7 +60,7 @@ public class ProxyTest
    public void CreateProxyFromUri()
    {
 
-      var proxy = Proxy.CreateProxy(proxyUri, logger);
+      var proxy = Proxy.CreateProxy(proxyUri, NullLogger.Instance);
 
       proxy.Address.Should().NotBeNull();
       proxy.Address?.AbsoluteUri.Should().Be(localProxy);
@@ -79,7 +69,7 @@ public class ProxyTest
    [Fact]
    public void CreateNoProxyFromEmptyUri()
    {
-      var proxy = Proxy.CreateProxy(null, logger);
+      var proxy = Proxy.CreateProxy(null, NullLogger.Instance);
 
       proxy.Address.Should().BeNull();
    }
@@ -88,7 +78,7 @@ public class ProxyTest
    public void ProxyShouldBypassLocal()
    {
 
-      var proxy = Proxy.CreateProxy(proxyUri, logger);
+      var proxy = Proxy.CreateProxy(proxyUri, NullLogger.Instance);
 
       proxy.BypassProxyOnLocal.Should().BeTrue();
       proxy.IsBypassed(new Uri(localhost)).Should().BeTrue();
@@ -98,7 +88,8 @@ public class ProxyTest
    [Fact]
    public void HandlerShouldHaveProxy()
    {
-      var handler = Proxy.CreateHttpClientHandler(proxyUri, logger);
+       var proxy = Proxy.CreateProxy(proxyUri, NullLogger.Instance);
+var handler = Proxy.CreateHttpClientHandler(proxy, proxyUri);
 
       handler.Proxy.Should().NotBeNull();
       handler.UseProxy.Should().BeTrue();
