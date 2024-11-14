@@ -4,9 +4,9 @@ using Cdms.Common.Extensions;
 
 namespace CdmsBackend.Config;
 
-public class ApiOptions
+public class ApiOptions : IValidatingOptions
 {
-    public const string SectionName = nameof(ApiOptions);
+    public static readonly string SectionName = nameof(ApiOptions);
 
     public bool EnableManagement { get; set; } = default!;
 
