@@ -20,6 +20,6 @@ public class ApiOptions : IValidatingOptions
 
     public bool Validate()
     {
-        return CdpHttpsProxy.HasValue() ? HttpsProxy.HasValue() : true;
+        return !CdpHttpsProxy.HasValue() || HttpsProxy.HasValue();
     }
 }
