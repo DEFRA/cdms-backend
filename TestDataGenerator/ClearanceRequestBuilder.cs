@@ -71,7 +71,7 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
         });
     }
 
-    public ClearanceRequestBuilder<T> Validate()
+    public override ClearanceRequestBuilder<T> Validate()
     {
         return Do(cr =>
         {
