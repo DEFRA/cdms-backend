@@ -14,6 +14,7 @@ internal class ChedASimpleMatchScenarioGenerator(ILogger<ChedASimpleMatchScenari
         var notification = GetNotificationBuilder("cheda-one-commodity")
             .WithEntryDate(entryDate)
             .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, item)
+            .Validate()
             .Build()!;
         
         logger.LogInformation($"Created {notification}, {notification.ReferenceNumber}");
@@ -21,6 +22,7 @@ internal class ChedASimpleMatchScenarioGenerator(ILogger<ChedASimpleMatchScenari
         var clearanceRequest = GetClearanceRequestBuilder("cr-one-item")
             .WithEntryDate(entryDate)
             .WithReferenceNumber(notification.ReferenceNumber!)
+            .Validate()
             .Build();
         
         logger.LogInformation($"Created {clearanceRequest}, {clearanceRequest.Header!.EntryReference}");
