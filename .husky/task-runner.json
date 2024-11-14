@@ -9,6 +9,20 @@
             "command": "cmd",
             "args": ["/c", "echo Husky.Net is awesome!" ]
          }
+      },
+	  {
+         "name": "dotnet-format",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": ["dotnet-format", "--include", "${staged}"],
+         "include": ["**/*.cs", "**/*.vb"]
+      },
+	  {
+         "name": "warning-check",
+         "command": "dotnet",
+         "group": "pre-push",
+         "args": ["build", "/warnaserror"],
+         "include": ["**/*.cs", "**/*.vb"]
       }
    ]
 }
