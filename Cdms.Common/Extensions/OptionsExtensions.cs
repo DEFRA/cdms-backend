@@ -8,7 +8,6 @@ namespace Cdms.Common.Extensions;
 public interface IValidatingOptions
 {
     public bool Validate();
-    public static string SectionName { get; }
 }
 
 public static class OptionsExtensions
