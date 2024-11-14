@@ -1,6 +1,7 @@
 using Cdms.Model;
 using Cdms.Types.Alvs;
 using TestDataGenerator.Helpers;
+using Cdms.Common.Extensions;
 
 namespace TestDataGenerator;
 

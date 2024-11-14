@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Cdms.Model;
 using Cdms.Types.Alvs;
 using Cdms.Types.Ipaffs;
@@ -20,17 +19,6 @@ public static class DataHelpers
         
         return $"{rootPath}/ALVS/{dateString}/{clearanceRequest.Header!.EntryReference!.Replace(".","")}-{Guid.NewGuid()}.json";
     }
-
-    private static bool HasValue(this string? val)
-    {
-        return val != null;
-    }
-    
-    internal static void AssertHasValue(this string? val)
-    {
-        Debug.Assert(val.HasValue());
-    }
-    
     
     internal static string AsCdsEntryReference(this MatchIdentifier identifier)
     {

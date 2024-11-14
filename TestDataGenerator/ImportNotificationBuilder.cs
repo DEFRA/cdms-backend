@@ -1,5 +1,5 @@
 using Cdms.Types.Ipaffs;
-using TestDataGenerator.Helpers;
+using Cdms.Common.Extensions;
 
 namespace TestDataGenerator;
 

@@ -69,7 +69,9 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     builder.Services.AddOptions<ApiOptions>()
         .Bind(builder.Configuration.GetSection(ApiOptions.SectionName))
         .PostConfigure(options => builder.Configuration.Bind(options))
-        .ValidateDataAnnotations();
+        .ValidateDataAnnotations()
+        .Validate(o => o.Validate())
+        .ValidateOnStart();
     
     var logger = ConfigureLogging(builder);
 
