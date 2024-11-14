@@ -21,12 +21,12 @@ namespace Cdms.Emf
     }
     public static class EmfExporter
     {
-        private static MeterListener meterListener;
-        private static ILogger log;
+        private static readonly MeterListener meterListener = new();
+        private static ILogger log = null!;
         public static void Init(ILogger logger)
         {
             log = logger;
-            meterListener = new();
+            
             meterListener.InstrumentPublished = (instrument, listener) =>
             {
                 if (instrument.Meter.Name is "Cdms")
@@ -51,11 +51,10 @@ namespace Cdms.Emf
             {
                 using (var metricsLogger = new MetricsLogger())
                 {
-                    metricsLogger.SetNamespace("Canary");
                     var dimensionSet = new DimensionSet();
                     foreach (var tag in tags)
                     {
-                        dimensionSet.AddDimension(tag.Key, tag.Value.ToString());
+                        dimensionSet.AddDimension(tag.Key, tag.Value?.ToString());
                     }
 
                     // If the request contains a w3c trace id, let's embed it in the logs
