@@ -23,9 +23,9 @@ public static class SyncEndpoints
         app.MapPost(BaseRoute + "/gmrs/", SyncGmrs).AllowAnonymous();
         app.MapPost(BaseRoute + "/decisions/", SyncDecisions).AllowAnonymous();
         app.MapGet(BaseRoute + "/queue-counts/", GetQueueCounts).AllowAnonymous();
-        app.MapGet(BaseRoute + "/sync-jobs/", GetAllSyncJobs).AllowAnonymous();
-        app.MapGet(BaseRoute + "/sync-jobs/clear", ClearSyncJobs).AllowAnonymous();
-		app.MapGet(BaseRoute + "/sync-job/{jobId}", GetSyncJob).AllowAnonymous();
+        app.MapGet(BaseRoute + "/jobs/", GetAllSyncJobs).AllowAnonymous();
+        app.MapGet(BaseRoute + "/jobs/clear", ClearSyncJobs).AllowAnonymous();
+		app.MapGet(BaseRoute + "/jobs/{jobId}", GetSyncJob).AllowAnonymous();
     }
 
     private static async Task<IResult> GetAllSyncJobs([FromServices] ISyncJobStore store)
@@ -63,7 +63,7 @@ public static class SyncEndpoints
         [FromBody] SyncNotificationsCommand command)
     {
         await mediator.SendSyncJob(command);
-        return Results.Accepted($"/sync/sync-job/{command.JobId}", command.JobId);
+        return Results.Accepted($"/sync/jobs/{command.JobId}", command.JobId);
        
     }
 
@@ -80,7 +80,7 @@ public static class SyncEndpoints
         [FromBody] SyncClearanceRequestsCommand command)
     {
         await mediator.SendSyncJob(command);
-        return Results.Accepted($"/sync/sync-job/{command.JobId}", command.JobId);
+        return Results.Accepted($"/sync/jobs/{command.JobId}", command.JobId);
     }
 
     private static async Task<IResult> GetSyncGmrs(
@@ -95,13 +95,13 @@ public static class SyncEndpoints
         [FromBody] SyncGmrsCommand command)
     {
         await mediator.SendSyncJob(command);
-        return Results.Accepted($"/sync/sync-job/{command.JobId}", command.JobId);
+        return Results.Accepted($"/sync/jobs/{command.JobId}", command.JobId);
     }
 
     private static async Task<IResult> SyncDecisions([FromServices] ICdmsMediator mediator,
         [FromBody] SyncDecisionsCommand command)
     {
         await mediator.SendSyncJob(command);
-        return Results.Accepted($"/sync/sync-job/{command.JobId}", command.JobId);
+        return Results.Accepted($"/sync/jobs/{command.JobId}", command.JobId);
     }
 }
