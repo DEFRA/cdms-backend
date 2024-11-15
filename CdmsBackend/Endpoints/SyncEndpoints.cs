@@ -24,7 +24,8 @@ public static class SyncEndpoints
         app.MapPost(BaseRoute + "/decisions/", SyncDecisions).AllowAnonymous();
         app.MapGet(BaseRoute + "/queue-counts/", GetQueueCounts).AllowAnonymous();
         app.MapGet(BaseRoute + "/sync-jobs/", GetAllSyncJobs).AllowAnonymous();
-        app.MapGet(BaseRoute + "/sync-job/{jobId}", GetSyncJob).AllowAnonymous();
+        app.MapGet(BaseRoute + "/sync-jobs/clear", ClearSyncJobs).AllowAnonymous();
+		app.MapGet(BaseRoute + "/sync-job/{jobId}", GetSyncJob).AllowAnonymous();
     }
 
     private static async Task<IResult> GetAllSyncJobs([FromServices] ISyncJobStore store)
@@ -32,7 +33,13 @@ public static class SyncEndpoints
         return Results.Ok(new { jobs = store.GetJobs() });
     }
 
-    private static async Task<IResult> GetSyncJob([FromServices] ISyncJobStore store, string jobId)
+    private static async Task<IResult> ClearSyncJobs([FromServices] ISyncJobStore store)
+    {
+		store.ClearSyncJobs();
+	    return Results.Ok();
+    }
+
+	private static async Task<IResult> GetSyncJob([FromServices] ISyncJobStore store, string jobId)
     {
         return Results.Ok(store.GetJobs().Find(x => x.JobId == Guid.Parse(jobId)));
     }

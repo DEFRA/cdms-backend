@@ -18,5 +18,10 @@ namespace Cdms.SyncJob
             jobs[id] = syncJob;
             return syncJob;
         }
+
+        public void ClearSyncJobs()
+        {
+            jobs.Clear();
+        }
     }
 }
