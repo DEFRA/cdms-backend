@@ -29,7 +29,7 @@ public class ImportNotificationBuilder : ImportNotificationBuilder<ImportNotific
 public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBuilder<T>>
     where T : ImportNotification, new()
 {
-    protected ImportNotificationBuilder() : base()
+    protected ImportNotificationBuilder()
     {
     }
 
@@ -38,7 +38,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
     }
     
     /// <summary>
-    /// Allows any customisations needed, such as removing problems with serialisation, e.g Do(n => Array.ForEach(n.PartOne!.Commodities!.ComplementParameterSets!, x => x.KeyDataPairs = null));
+    /// Allows any customisations needed, such as removing problems with serialisation, e.g. Do(n => Array.ForEach(n.PartOne!.Commodities!.ComplementParameterSets!, x => x.KeyDataPairs = null));
     /// </summary>
     protected ImportNotificationBuilder<T> WithClean()
     {
@@ -54,7 +54,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
         return Do((n) =>
         {
             var commodities = Enumerable.Range(0, commodityCount)
-                .Select(x => n.PartOne!.Commodities!.CommodityComplements![0]
+                .Select(_ => n.PartOne!.Commodities!.CommodityComplements![0]
                 ).ToArray();
             
             n.PartOne!.Commodities!.CommodityComplements = commodities;
@@ -81,7 +81,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
         return Do(x => x.LastUpdated = entryDate);
     }
 
-    public override ImportNotificationBuilder<T> Validate()
+    protected override ImportNotificationBuilder<T> Validate()
     {
         return Do(n =>
         {

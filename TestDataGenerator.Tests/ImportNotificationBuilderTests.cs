@@ -1,3 +1,4 @@
+using System;
 using Cdms.Types.Ipaffs;
 using FluentAssertions;
 using Xunit;
@@ -31,7 +32,7 @@ public class ImportNotificationBuilderTests
         var builder = ImportNotificationBuilder.Default();
         builder.WithRandomCommodities(5, 5);
         var notification = builder.Build();
-        notification.PartOne.Commodities.CommodityComplements.Length.Should().Be(5);
+        notification.PartOne?.Commodities?.CommodityComplements?.Length.Should().Be(5);
     }
 
     [Fact]

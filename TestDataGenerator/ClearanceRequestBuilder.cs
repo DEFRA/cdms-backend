@@ -5,21 +5,12 @@ using Cdms.Common.Extensions;
 
 namespace TestDataGenerator;
 
-public class ClearanceRequestBuilder : ClearanceRequestBuilder<AlvsClearanceRequest>
-{
-    public ClearanceRequestBuilder()
-    {
-    }
-
-    public ClearanceRequestBuilder(string file) : base(file)
-    {
-    }
-}
+public class ClearanceRequestBuilder(string file) : ClearanceRequestBuilder<AlvsClearanceRequest>(file);
 
 public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder<T>>
     where T : AlvsClearanceRequest, new()
 {
-    protected ClearanceRequestBuilder() : base()
+    private ClearanceRequestBuilder()
     {
     }
 
@@ -72,7 +63,7 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
         });
     }
 
-    public override ClearanceRequestBuilder<T> Validate()
+    protected override ClearanceRequestBuilder<T> Validate()
     {
         return Do(cr =>
         {

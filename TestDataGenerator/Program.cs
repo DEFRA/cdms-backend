@@ -1,10 +1,7 @@
-using Cdms.Types.Alvs;
-using Cdms.Types.Ipaffs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using TestDataGenerator.Config;
 using TestDataGenerator.Scenarios;
 using TestDataGenerator.Services;
@@ -28,11 +25,11 @@ internal class Program
                 builder.Sources.Clear();
                 builder.AddConfiguration(configuration);
             })
-            .ConfigureServices((hostContext, services) =>
+            .ConfigureServices((_, services) =>
             {
                 services.AddHttpClient();
 
-                services.AddSingleton<GeneratorConfig, GeneratorConfig>(s => generatorConfig);
+                services.AddSingleton<GeneratorConfig, GeneratorConfig>(_ => generatorConfig);
                 services.AddSingleton<ChedASimpleMatchScenarioGenerator, ChedASimpleMatchScenarioGenerator>();
                 services.AddSingleton<ChedAManyCommoditiesScenarioGenerator, ChedAManyCommoditiesScenarioGenerator>();
                 if (generatorConfig.StorageService == StorageService.Local)
@@ -52,7 +49,7 @@ internal class Program
         Console.WriteLine("Welcome to test data generator.");
 
         var app = builder.Build();
-        var config = app.Services.GetRequiredService<GeneratorConfig>();
+        // var config = app.Services.GetRequiredService<GeneratorConfig>();
         var generator = app.Services.GetRequiredService<Generator>();
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
@@ -90,7 +87,7 @@ internal class Program
             }
         };
 
-        logger.LogInformation("{datasetsCount} dataset(s) configured", datasets.Length);
+        logger.LogInformation("{DatasetsCount} dataset(s) configured", datasets.Length);
 
         // Allows us to filter the sets and scenarios we want to run at any given time
         // Could be fed by CLI for example
@@ -107,7 +104,7 @@ internal class Program
 
         foreach (var dataset in setsToRun)
         {
-            logger.LogInformation("{scenariosCount} scenario(s) configured", dataset.scenarios.Count());
+            logger.LogInformation("{ScenariosCount} scenario(s) configured", dataset.scenarios.Count());
 
             logger.LogInformation("Clearing down storage path");
             await generator.Cleardown(dataset.rootPath);
@@ -118,7 +115,7 @@ internal class Program
                 await generator.Generate(s.Count, s.Days, s.Generator, dataset.rootPath);
             }
 
-            logger.LogInformation("{dataset} Done", dataset.dataset);
+            logger.LogInformation("{Dataset} Done", dataset.dataset);
         }
 
         logger.LogInformation("Done");

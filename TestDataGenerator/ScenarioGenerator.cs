@@ -3,9 +3,9 @@ using Cdms.Types.Ipaffs;
 
 namespace TestDataGenerator;
 
-public abstract class ScenarioGenerator()
+public abstract class ScenarioGenerator
 {
-    private string fullFolder = $"{Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory)}/Scenarios/Samples";
+    private readonly string _fullFolder = $"{Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory)}/Scenarios/Samples";
 
     internal class GeneratorResult
     {
@@ -18,7 +18,7 @@ public abstract class ScenarioGenerator()
 
     internal ImportNotificationBuilder<ImportNotification> GetNotificationBuilder(string file)
     {
-        var fullPath = $"{fullFolder}/{file}.json";
+        var fullPath = $"{_fullFolder}/{file}.json";
         var builder = ImportNotificationBuilder.FromFile(fullPath);
         
         return builder;
@@ -26,7 +26,7 @@ public abstract class ScenarioGenerator()
     
     internal ClearanceRequestBuilder GetClearanceRequestBuilder(string file)
     {
-        var fullPath = $"{fullFolder}/{file}.json";
+        var fullPath = $"{_fullFolder}/{file}.json";
         var builder = new ClearanceRequestBuilder(fullPath);
         
         return builder;

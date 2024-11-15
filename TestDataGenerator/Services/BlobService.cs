@@ -5,7 +5,6 @@ using Azure.Core.Pipeline;
 using Azure.Identity;
 
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
 
 using TestDataGenerator.Config;
@@ -38,7 +37,7 @@ public class BlobItem : IBlobItem
 {
     public string Name { get; set; } = default!;
 
-    public string NormalisedName { get; set; } = default;
+    public string NormalisedName { get; set; } = default!;
     
     public string Content { get; set; } = default!;
 }
@@ -53,16 +52,16 @@ public abstract class AzureService<T>
 {
     protected readonly TokenCredential Credentials;
     protected readonly HttpClientTransport? Transport;
-    protected readonly ILogger<T> Logger;
+    protected readonly ILogger<AzureService<T>> Logger;
     
-    protected AzureService(ILogger<T> logger, IAzureConfig config, IHttpClientFactory? clientFactory = null)
+    protected AzureService(ILogger<AzureService<T>> logger, IAzureConfig config, IHttpClientFactory? clientFactory = null)
     {
         Logger = logger;
         using AzureEventSourceListener listener = AzureEventSourceListener.CreateConsoleLogger(EventLevel.Verbose);
 
         if (config.AzureClientId != null)
         {
-            logger.LogInformation($"Creating azure credentials based on config vars for {config.AzureClientId}");
+            logger.LogInformation("Creating azure credentials based on config vars for {ConfigAzureClientId}", config.AzureClientId);
             Credentials =
                 new ClientSecretCredential(config.AzureTenantId, config.AzureClientId, config.AzureClientSecret);
 
@@ -85,7 +84,7 @@ public abstract class AzureService<T>
 
 public class LocalBlobService(ILogger<LocalBlobService> logger) : IBlobService
 {
-    private string _rootPath = "../../../.test-data-generator/";
+    private readonly string _rootPath = "../../../.test-data-generator/";
         
     public Task<bool> CleanAsync(string prefix)
     {
@@ -105,10 +104,10 @@ public class LocalBlobService(ILogger<LocalBlobService> logger) : IBlobService
     {
         var fullPath = $"{_rootPath}{item.Name}";
         
-        logger.LogInformation($"Create folder for file {fullPath}");
-        Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+        logger.LogInformation("Create folder for file {FullPath}", fullPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ?? string.Empty);
         
-        logger.LogInformation($"Create file {fullPath}");
+        logger.LogInformation("Create file {FullPath}", fullPath);
         await File.WriteAllTextAsync(fullPath, item.Content);
         
         return true;
@@ -158,7 +157,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
 
     public async Task<bool> CleanAsync(string prefix)
     {
-        Logger.LogInformation($"Cleaning blob storage {config.DmpBlobUri} : {config.DmpBlobContainer} / ${prefix}");
+        Logger.LogInformation("Cleaning blob storage {ConfigDmpBlobUri} : {ConfigDmpBlobContainer} / ${Prefix}", config.DmpBlobUri, config.DmpBlobContainer, prefix);
         
         try
         {
@@ -167,7 +166,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
             
             foreach (var blobItem in allBlobs)
             {
-                Logger.LogInformation($"Deleting {blobItem.Name}");
+                Logger.LogInformation("Deleting {BlobItemName}", blobItem.Name);
                 await containerClient.DeleteBlobAsync(blobItem.Name);
             }
             
@@ -187,32 +186,30 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.ToString());
+            Logger.LogError(ex, "Error cleaning blob store");
             return false;
         }
     }
 
     public async Task<bool> CreateBlobAsync(IBlobItem item)
     {
-        Logger.LogInformation("Connecting to blob storage {0} : {1}", config.DmpBlobUri,
-            config.DmpBlobContainer);
+        Logger.LogInformation("Connecting to blob storage {DmpBlobUri} : {DmpBlobContainer}", config.DmpBlobUri, config.DmpBlobContainer);
         try
         {
             var containerClient = CreateBlobClient(config.DmpBlobUri);
-            var result = await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
+            await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
             return true;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.ToString());
+            Logger.LogError(ex, "Error creating blob");
             return false;
         }
     }
     
     public async Task<bool> CreateBlobsAsync(IBlobItem[] items)
     {
-        Logger.LogInformation("Connecting to blob storage {0} : {1}", config.DmpBlobUri,
-            config.DmpBlobContainer);
+        Logger.LogInformation("Connecting to blob storage {DmpBlobUri} : {DmpBlobContainer}", config.DmpBlobUri, config.DmpBlobContainer);
         try
         {
             var containerClient = CreateBlobClient(config.DmpBlobUri);
@@ -221,15 +218,15 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
             {
                 try
                 {
-                    Logger.LogInformation($"Uploading file {item.Name}");
+                    Logger.LogInformation("Uploading file {ItemName}", item.Name);
                     var result = await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
-                    Logger.LogInformation($"Uploaded file {item.Name} Result = {result}");
+                    Logger.LogInformation("Uploaded file {ItemName} Result = {Result}", item.Name, result);
                     // if (result.Value.)
                     
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError($"Error uploading file ${item.Name}, {ex.ToString()}");
+                    Logger.LogError(ex, "Error uploading file");
                     throw;
                 }
             }
@@ -238,7 +235,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError($"Error uploading files ${ex.ToString()}");
+            Logger.LogError(ex, "Error uploading files");
             return false;
         }
     }
@@ -278,16 +275,15 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
     //     }
     //
     // }
-    //
+
     public async Task<IEnumerable<IBlobItem>> GetResourcesAsync(string prefix)
     {
-        Logger.LogInformation("Connecting to blob storage {0} : {1}", config.DmpBlobUri,
-            config.DmpBlobContainer);
+        Logger.LogInformation("Connecting to blob storage {DmpBlobUri} : {DmpBlobContainer}", config.DmpBlobUri, config.DmpBlobContainer);
         try
         {
             var containerClient = CreateBlobClient(config.DmpBlobUri);
     
-            Logger.LogInformation("Getting blob files from {0}...", prefix);
+            Logger.LogInformation("Getting blob files from {Prefix}...", prefix);
             // var itemCount = 0;
             
             var files = containerClient.GetBlobsAsync(prefix: prefix);
@@ -297,19 +293,19 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
             {
                 if (item.Properties.ContentLength is not 0)
                 {
-                    Logger.LogInformation("\t" + item.Name);
+                    Logger.LogInformation("\t{Name}", item.Name);
                     // itemCount++;
                     output.Add(new BlobItem() { Name = item.Name });
                 }
             }
             
-            Logger.LogInformation($"GetResourcesAsync {output.Count} blobs found.");
+            Logger.LogInformation("GetResourcesAsync {OutputCount} blobs found", output.Count);
     
             return output;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.ToString());
+            Logger.LogError(ex, "Error getting resource");
             throw;
         }
     
