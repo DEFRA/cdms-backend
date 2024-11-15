@@ -6,5 +6,5 @@ public interface ISyncJobStore
 
     SyncJob? GetJob(Guid id);
 
-    SyncJob CreateJob(Guid id, string description);
+    SyncJob CreateJob(Guid id, string timespan, string resource);
 }

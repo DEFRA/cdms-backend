@@ -12,9 +12,9 @@ namespace Cdms.SyncJob
             return jobs.Values.ToList();
         }
 
-        public SyncJob CreateJob(Guid id, string description)
+        public SyncJob CreateJob(Guid id, string timespan, string resource)
         {
-            var syncJob = new SyncJob(id, description);
+            var syncJob = new SyncJob(id, timespan, resource);
             jobs[id] = syncJob;
             return syncJob;
         }
