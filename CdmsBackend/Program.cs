@@ -59,6 +59,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     {
         options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+    // builder.Services.Add<T>(ILogger<T>, a => );
     builder.Services.AddSingleton<ICdmsMediator, CdmsMediator>();
     builder.Services.AddSyncJob();
     builder.Services.AddHostedService<QueueHostedService>();
