@@ -1,10 +1,10 @@
-﻿using MongoDB.Driver;
+using MongoDB.Driver;
 
 namespace Cdms.Backend.Data.InMemory;
 
 public class EmptyMongoDbTransaction : IMongoDbTransaction
 {
-    public IClientSessionHandle Session { get; }
+    public IClientSessionHandle Session => null!;
 
     public Task CommitTransaction(CancellationToken cancellationToken = default)
     {

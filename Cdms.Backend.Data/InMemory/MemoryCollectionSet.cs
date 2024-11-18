@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Linq.Expressions;
 using Cdms.Model.Data;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -9,7 +9,7 @@ public class MemoryCollectionSet<T> : IMongoCollectionSet<T> where T : IDataEnti
 {
     private static List<T> data = [];
 
-    private IQueryable<T> EntityQueryable => data.AsQueryable();
+    private static IQueryable<T> EntityQueryable => data.AsQueryable();
 
     public IEnumerator<T> GetEnumerator()
     {
@@ -31,18 +31,18 @@ public class MemoryCollectionSet<T> : IMongoCollectionSet<T> where T : IDataEnti
 
     public Task Insert(T item, IMongoDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
-        item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString();
+        item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString()!;
         data.Add(item);
         return Task.CompletedTask;
     }
 
     public Task Update(T item, string etag, IMongoDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
-        item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString();
+        item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString()!;
 
         var existingItem = data.Find(x => x.Id == item.Id);
 
-        if (existingItem._Etag != etag)
+        if (existingItem?._Etag != etag)
         {
             throw new ConcurrencyException("Concurrency Error, change this to a Concurrency exception");
         }
