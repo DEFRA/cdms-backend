@@ -71,8 +71,8 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     // builder.Services.Scan(scan =>
     //     scan.AllAssemblies().AddClasses(classes => classes.AssignableTo(typeof(IValidateOptions<>)).AsImplementedInterfaces().WithSingletonLifetime();
 
-    builder.Services.AddSingleton<IValidateOptions<ApiOptions>,ApiOptions.Validator>();
-    builder.Services.CdmsAddOptions<ApiOptions>(builder.Configuration, ApiOptions.SectionName)
+    //builder.Services.AddSingleton<IValidateOptions<ApiOptions>, ApiOptionsValidator>();
+    builder.Services.CdmsAddOptions<ApiOptions, ApiOptions.Validator>(builder.Configuration, ApiOptions.SectionName)
         .PostConfigure(options => builder.Configuration.Bind(options));
     
     var logger = ConfigureLogging(builder);
