@@ -36,7 +36,7 @@ public static class ManagementEndpoints
     private static DictionaryEntry Redact(DictionaryEntry d)
     {
         
-        var value = d.Value;
+        object? value = d.Value;
 
         try
         {
@@ -56,7 +56,6 @@ public static class ManagementEndpoints
                     value = Redacted;
                     break;
                 default:
-                    value = d.Value;
                     break;
             }
         }
