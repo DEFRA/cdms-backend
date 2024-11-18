@@ -22,12 +22,21 @@ public static class OptionsExtensions
             .Validate(o => o.Validate())
             .ValidateOnStart();
     }
-    
-    public static OptionsBuilder<TOptions> CdmsAddOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, string section) where TOptions : class
+
+    public static OptionsBuilder<TOptions> CdmsAddOptions<TOptions, TValidator>(this IServiceCollection services,
+        IConfiguration configuration, string section)
+        where TOptions : class where TValidator : class, IValidateOptions<TOptions>
+    {
+        return services
+            .AddSingleton<IValidateOptions<TOptions>, TValidator>()
+            .CdmsAddOptions<TOptions>(configuration, section);
+    }
+
+    public static OptionsBuilder<TOptions> CdmsAddOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, string section)
+        where TOptions : class 
     {
         
         var s = services
-            .AddSingleton<IValidateOptions<TOptions>, IValidateOptions<TOptions>>()
             .AddOptions<TOptions>()
             .Bind(configuration.GetSection(section))
             .ValidateDataAnnotations();
