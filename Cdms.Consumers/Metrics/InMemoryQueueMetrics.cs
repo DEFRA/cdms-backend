@@ -10,7 +10,7 @@ public class InMemoryQueueMetrics
     readonly Counter<long> incomingCountMetric;
     readonly Counter<long> outgoingCountMetric;
     private long queueCount;
-    private int noOfQueues;
+    private readonly int noOfQueues;
     public InMemoryQueueMetrics(IMeterFactory meterFactory, IMasterMessageBus messageBusProvider)
     {
         var meter = meterFactory.Create("Cdms");
