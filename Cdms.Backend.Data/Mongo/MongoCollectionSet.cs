@@ -33,28 +33,7 @@ namespace Cdms.Backend.Data.Mongo
         public Task<T> Find(string id)
         {
             return EntityQueryable.SingleOrDefaultAsync(x => x.Id == id);
-        }
-
-        public Task<List<T>> FindBy<TField>(Expression<Func<T, TField>> expression, TField value)
-        {
-            var filter = Builders<T>.Filter.Eq(new ExpressionFieldDefinition<T, TField>(expression), value);
-
-            return collection.Find(filter).ToListAsync();
-        }
-
-        public Task<List<T>> FindInBy<TField>(Expression<Func<T, TField>> expression, IEnumerable<TField> values)
-        {
-            var filter = Builders<T>.Filter.In(new ExpressionFieldDefinition<T, TField>(expression), values);
-
-            return collection.Find(filter).ToListAsync();
-        }
-
-
-        public Task<List<T>> FindAnyBy(string fieldName, IEnumerable<int> values)
-        {
-            var filter = Builders<T>.Filter.AnyIn(new StringFieldDefinition<T, int>(fieldName), values);
-            return collection.Find(filter).ToListAsync();
-        }
+        }       
 
         public Task Insert(T item, IMongoDbTransaction transaction = null, CancellationToken cancellationToken = default)
         {
