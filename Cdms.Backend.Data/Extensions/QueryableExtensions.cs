@@ -1,3 +1,6 @@
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+
 namespace Cdms.Backend.Data.Extensions;
 
 public static class QueryableExtensions
@@ -17,8 +20,13 @@ public static class QueryableExtensions
             return list;
         }
 
+        if (source is IMongoQueryable<TSource> mongoQueryable)
+        {
+            return await IAsyncCursorSourceExtensions.ToListAsync(mongoQueryable, cancellationToken);
+        }
 
-        return source.ToList();
+
+        return source.AsEnumerable().ToList();
 
     }
 }
