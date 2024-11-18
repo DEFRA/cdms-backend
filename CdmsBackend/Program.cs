@@ -67,7 +67,11 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.AddIniFile("Properties/local.env", true)
         .AddIniFile($"Properties/local.{builder.Environment.EnvironmentName}.env", true);
+    
+    // builder.Services.Scan(scan =>
+    //     scan.AllAssemblies().AddClasses(classes => classes.AssignableTo(typeof(IValidateOptions<>)).AsImplementedInterfaces().WithSingletonLifetime();
 
+    builder.Services.AddSingleton<IValidateOptions<ApiOptions>,ApiOptions.Validator>();
     builder.Services.CdmsAddOptions<ApiOptions>(builder.Configuration, ApiOptions.SectionName)
         .PostConfigure(options => builder.Configuration.Bind(options));
     
