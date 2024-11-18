@@ -55,7 +55,7 @@ public class ConsumerMetrics
         consumeDuration.Record(milliseconds, tagList);
     }
 
-    private TagList BuildTags<TMessage>(string path, string consumerName)
+    private static TagList BuildTags<TMessage>(string path, string consumerName)
     {
         return new TagList
         {
