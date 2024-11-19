@@ -29,20 +29,11 @@ public class CachingBlobService(
         if (Directory.Exists(path))
         {
             logger.LogInformation($"Folder {path}exists, looking for files.");  
-            foreach (string f in Directory.GetFiles(path))
+           foreach (string f in Directory.GetFiles(path, "*.json", SearchOption.AllDirectories))
             {
                 logger.LogInformation($"Found file {f}");
                 yield return new SynchroniserBlobItem() { Name = f };
-            }
-
-            foreach (string d in Directory.GetDirectories(path))
-            {
-                foreach (string f in Directory.GetFiles(d))
-                {
-                    logger.LogInformation($"Found file {f}");
-                    yield return new SynchroniserBlobItem() { Name = f };
-                }
-            }
+            }           
         }
         else{
             logger.LogWarning($"Cannot scan folder {path} as it doesn't exist.");    
