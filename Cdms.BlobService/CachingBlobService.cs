@@ -30,9 +30,10 @@ public class CachingBlobService(
         {
             logger.LogInformation($"Folder {path}exists, looking for files.");  
            foreach (string f in Directory.GetFiles(path, "*.json", SearchOption.AllDirectories))
-            {
-                logger.LogInformation($"Found file {f}");
-                yield return new SynchroniserBlobItem() { Name = f };
+           {
+               var relativePath = Path.GetRelativePath($"{Directory.GetCurrentDirectory()}/{options.Value.CachePath}", f);
+                logger.LogInformation($"Found file {relativePath}");
+                yield return new SynchroniserBlobItem() { Name = relativePath };
             }           
         }
         else{
@@ -42,7 +43,8 @@ public class CachingBlobService(
 
     public Task<string> GetResource(IBlobItem item, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"GetResource {item.Name}");
-        return blobService.GetResource(item, cancellationToken);
+        var filePath = $"{options.Value.CachePath}/{item.Name}";
+        logger.LogInformation($"GetResource {filePath}");
+        return Task.Run(() => File.ReadAllText(filePath));  //blobService.GetResource(item, cancellationToken);
     }
 }
