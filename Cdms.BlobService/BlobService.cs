@@ -78,12 +78,23 @@ public class BlobService(
         {
             if (item.Properties.ContentLength is not 0)
             {
+                // containerClient.GetBlobClient(item.Name)
                 yield return
-                    new SynchroniserBlobItem(containerClient.GetBlobClient(item.Name)) { Name = item.Name };
+                    new SynchroniserBlobItem() { Name = item.Name };
                 itemCount++;
             }
         }
 
         Logger.LogDebug("GetResourcesAsync {itemCount} blobs found.", itemCount);
+    }
+
+    public async Task<string> GetResource(IBlobItem item, CancellationToken cancellationToken)
+    {
+        var client = CreateBlobClient(options.Value.Timeout, options.Value.Retries);
+        // var client = blobServiceClientFactory.CreateBlobServiceClient(options.Value.Timeout, options.Value.Retries);
+        var blobClient = client.GetBlobClient(item.Name);
+        
+        var content = await blobClient.DownloadContentAsync(cancellationToken);
+        return content.Value.Content.ToString();
     }
 }
