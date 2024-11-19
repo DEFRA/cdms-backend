@@ -67,8 +67,7 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     /// Tracks the last time the record was changed
     /// </summary>
     [Attr]
-    [BsonElement("_ts")]
-    public DateTime _Ts { get; set; }
+    public DateTime CreatedLocal { get; set; }
 
     [Attr]
     [BsonElement("_pointOfEntry")]
@@ -131,7 +130,6 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     public void Changed(AuditEntry auditEntry)
     {
         this.AuditEntries.Add(auditEntry);
-        _Ts = DateTime.UtcNow;
     }
 
     public void Created(string auditId)
@@ -140,7 +138,7 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
             this,
             auditId,
             this.Version.GetValueOrDefault(),
-            this.LastUpdated);
+            this.CreatedSource);
         this.Changed(auditEntry);
     }
 
@@ -149,7 +147,7 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
         var auditEntry = AuditEntry.CreateSkippedVersion(
             auditId,
             version,
-            this.LastUpdated);
+            this.CreatedSource);
         this.Changed(auditEntry);
     }
 
@@ -159,7 +157,7 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
             this,
             auditId,
             this.Version.GetValueOrDefault(),
-            this.LastUpdated);
+            this.CreatedSource);
         this.Changed(auditEntry);
     }
 }

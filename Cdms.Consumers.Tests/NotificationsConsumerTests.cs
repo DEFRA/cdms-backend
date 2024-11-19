@@ -40,7 +40,7 @@ namespace Cdms.Consumers.Tests
             var notification = CreateImportNotification();
             var dbContext = CreateDbContext();
             await dbContext.Notifications.Insert(notification.MapWithTransform());
-            notification.LastUpdated = notification?.LastUpdated?.AddHours(1);
+            notification.CreatedSource = notification?.CreatedSource?.AddHours(1);
 
 
             var consumer = new NotificationConsumer(dbContext);

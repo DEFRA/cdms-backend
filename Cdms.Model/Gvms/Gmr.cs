@@ -42,4 +42,7 @@ public partial class Gmr : IMongoIdentifiable, IDataEntity
     [Attr]
     [JsonPropertyName("relationships")]
     public GmrRelationships Relationships { get; set; } = new GmrRelationships();
+
+    [Attr]
+    public DateTime CreatedLocal { get; set; }
 }

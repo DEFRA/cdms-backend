@@ -38,6 +38,7 @@ namespace Cdms.Backend.Data.Mongo
         public Task Insert(T item, IMongoDbTransaction transaction = null, CancellationToken cancellationToken = default)
         {
             item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString();
+            item.CreatedLocal = DateTime.UtcNow;
             var session =
                 transaction is null ? dbContext.ActiveTransaction?.Session : transaction.Session;
             return session is not null
@@ -53,7 +54,7 @@ namespace Cdms.Backend.Data.Mongo
             var filter = builder.Eq(x => x.Id, item.Id) & builder.Eq(x => x._Etag, etag);
 
             item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString();
-
+            item.CreatedLocal = DateTime.UtcNow;
             var session =
                 transaction is null ? dbContext.ActiveTransaction?.Session : transaction.Session;
             var updateResult = session is not null

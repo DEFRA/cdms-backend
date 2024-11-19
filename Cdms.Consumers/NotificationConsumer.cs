@@ -16,7 +16,7 @@ namespace Cdms.Consumers
             var existingNotification = await dbContext.Notifications.Find(message.ReferenceNumber);
             if (existingNotification is not null)
             {
-                if (internalNotification.LastUpdated > existingNotification.LastUpdated)
+                if (internalNotification.CreatedSource > existingNotification.CreatedSource)
                 {
                     internalNotification.AuditEntries = existingNotification.AuditEntries;
                     internalNotification.Updated(BuildNormalizedIpaffsPath(auditId!), existingNotification);

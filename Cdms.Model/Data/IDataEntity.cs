@@ -5,4 +5,6 @@ public interface IDataEntity
     public string Id { get; set; }
 
     public string _Etag { get; set; }
+
+    public DateTime CreatedLocal { get; set; }
 }
