@@ -187,7 +187,6 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.MapControllers();
     
     var dotnetHealthEndpoint = "/health-dotnet";
-    // var dotnetHealthEndpoint = "/health";
     app.MapGet("/health", GetStatus).AllowAnonymous();
     app.MapHealthChecks(dotnetHealthEndpoint,
         new HealthCheckOptions()

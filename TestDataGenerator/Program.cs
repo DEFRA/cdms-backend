@@ -1,18 +1,15 @@
 using Cdms.Common.Extensions;
-using Cdms.Types.Alvs;
-using Cdms.Types.Ipaffs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using TestDataGenerator.Config;
 using TestDataGenerator.Scenarios;
 using TestDataGenerator.Services;
 
 namespace TestDataGenerator;
 
-internal class Program
+class Program
 {
     static async Task Main(string[] args)
     {

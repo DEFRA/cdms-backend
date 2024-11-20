@@ -1,10 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Cdms.Azure;
 using Microsoft.Extensions.Logging;
-using System.IO;
 using Microsoft.Extensions.Options;
 
 namespace Cdms.BlobService;
@@ -29,9 +28,9 @@ public class BlobService(
         return await CheckBlobAsync(options.Value.DmpBlobUri, timeout, retries);
     }
     
-    public async Task<Status> CheckBlobAsync(string serviceUri, int timeout = default, int retries = default)
+    public async Task<Status> CheckBlobAsync(string uri, int timeout = default, int retries = default)
     {
-        Logger.LogInformation($"Connecting to blob storage {serviceUri} : {options.Value.DmpBlobContainer}. timeout={timeout}, retries={retries}.");
+        Logger.LogInformation("Connecting to blob storage {ServiceUri} : {BlobContainer}. timeout={Timeout}, retries={Retries}.", uri, options.Value.DmpBlobContainer, timeout, retries);
         try
         {
             var containerClient = CreateBlobClient(timeout, retries);
@@ -42,18 +41,18 @@ public class BlobService(
             var itemCount = 0;
             await foreach (BlobHierarchyItem blobItem in folders)
             {
-                Logger.LogInformation("\t" + blobItem.Prefix);
+                Logger.LogInformation(blobItem.Prefix);
                 itemCount++;
             }
 
             return new Status()
             {
-                Success = true, Description = String.Format("Connected. {0} blob folders found in RAW", itemCount)
+                Success = true, Description = $"Connected. {itemCount} blob folders found in RAW"
             };
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.ToString());
+            Logger.LogError(ex, "Check Blob failed");
             return new Status() { Success = false, Description = ex.Message };
         }
 
@@ -62,7 +61,7 @@ public class BlobService(
     [SuppressMessage("SonarLint", "S3267",
         Justification =
             "Ignored this is IAsyncEnumerable and doesn't support linq filtering out the box")]
-    public async IAsyncEnumerable<IBlobItem> GetResourcesAsync(string prefix, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<IBlobItem> GetResourcesAsync(string prefix, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         Logger.LogDebug("Connecting to blob storage {BlobUri} : {BlobContainer} : {Path}", options.Value.DmpBlobUri,
             options.Value.DmpBlobContainer, prefix);
@@ -84,6 +83,6 @@ public class BlobService(
             }
         }
 
-        Logger.LogDebug("GetResourcesAsync {itemCount} blobs found.", itemCount);
+        Logger.LogDebug("GetResourcesAsync {ItemCount} blobs found.", itemCount);
     }
 }

@@ -15,15 +15,15 @@ internal class ChedASimpleMatchScenarioGenerator(ILogger<ChedASimpleMatchScenari
             .WithEntryDate(entryDate)
             .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, scenario, entryDate, item)
             .ValidateAndBuild()!;
-        
-        logger.LogInformation($"Created {notification}, {notification.ReferenceNumber}");
-        
+
+        logger.LogInformation("Created {Notification}, {Id}", notification, notification.ReferenceNumber);
+
         var clearanceRequest = GetClearanceRequestBuilder("cr-one-item")
             .WithEntryDate(entryDate)
             .WithReferenceNumber(notification.ReferenceNumber!)
             .ValidateAndBuild();
-        
-        logger.LogInformation($"Created {clearanceRequest}, {clearanceRequest.Header!.EntryReference}");
+
+        logger.LogInformation("Created {ClearanceRequest}, {Id}", clearanceRequest, clearanceRequest.Header!.EntryReference);
 
         return new GeneratorResult()
         {

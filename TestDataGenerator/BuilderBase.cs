@@ -56,7 +56,7 @@ public abstract class BuilderBase<T, TBuilder>
         CreateRandomInt(Convert.ToInt32(Math.Pow(10, length - 1)), Convert.ToInt32(Math.Pow(10, length) - 1))
             .ToString();
 
-    protected int CreateRandomInt(int min, int max) => new Random().Next(min, max);
+    protected int CreateRandomInt(int min, int max) => Random.Shared.Next(min, max);
 
     public T Build() => _composer.Create();
     
