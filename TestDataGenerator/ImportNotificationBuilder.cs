@@ -78,7 +78,9 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
     public ImportNotificationBuilder<T> WithCommodity(string commodityCode, string description, int netWeight)
     {
         return Do(n => n.PartOne!.Commodities!.TotalNetWeight = netWeight)
+            .Do(n => n.PartOne!.Commodities!.TotalGrossWeight = netWeight)
             .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesId = commodityCode)
+            .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesClass = commodityCode)
             .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].CommodityDescription = description)
             .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].ComplementName = description)
             .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesName = description)
