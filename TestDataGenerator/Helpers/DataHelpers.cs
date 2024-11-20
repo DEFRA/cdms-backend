@@ -9,8 +9,8 @@ public static class DataHelpers
     internal static string BlobPath(this ImportNotification notification, string rootPath)
     {
         var dateString = notification.LastUpdated!.Value.ToString("yyyy/MM/dd");
-
-        return $"{rootPath}/IPAFFS/CHEDA/{dateString}/{notification.ReferenceNumber!.Replace(".","_")}-{Guid.NewGuid()}.json";
+        
+        return $"{rootPath}/IPAFFS/{notification.ReferenceNumber![..notification.ReferenceNumber.IndexOf('.')]}/{dateString}/{notification.ReferenceNumber.Replace(".","_")}-{Guid.NewGuid()}.json";
     }
 
     internal static string BlobPath(this AlvsClearanceRequest clearanceRequest, string rootPath)

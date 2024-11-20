@@ -18,9 +18,9 @@ public static class ScenarioFactory
         ScenarioGenerator scenario = app.Services.GetRequiredService<T>();
         return new ScenarioConfig
         {
-            Name = "ChedASimpleMatch",
-            Count = 3,
-            Days = 7,
+            Name = nameof(T).Replace("ScenarioGenerator", ""),
+            Count = count,
+            Days = days,
             Generator = scenario
         };
     }
