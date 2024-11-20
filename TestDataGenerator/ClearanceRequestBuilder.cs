@@ -47,6 +47,14 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
         return Do(x => x.ServiceHeader!.ServiceCallTimestamp = entryDate);
     }
 
+    public ClearanceRequestBuilder<T> WithItem(string documentCode, string commodityCode, string description, int netWeight)
+    {
+        return Do(x => x.Items![0].TaricCommodityCode = commodityCode)
+            .Do(x => x.Items![0].GoodsDescription = description)
+            .Do(x => x.Items![0].ItemNetMass = netWeight)
+            .Do(x => x.Items![0].Documents![0].DocumentCode = documentCode);
+    }
+
     public ClearanceRequestBuilder<T> WithValidDocumentReferenceNumbers()
     {
         return Do(x =>

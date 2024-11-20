@@ -18,6 +18,7 @@ internal class ChedPSimpleMatchScenarioGenerator(ILogger<ChedPSimpleMatchScenari
         var clearanceRequest = GetClearanceRequestBuilder("cr-one-item")
             .WithEntryDate(entryDate)
             .WithReferenceNumber(notification.ReferenceNumber!)
+            .WithItem("N853", "16041428", "Skipjack Tuna Other ROW CHEDP", 300)
             .ValidateAndBuild();
         
         logger.LogInformation("Created {@ClearanceRequest}, {EntryReference}", clearanceRequest, clearanceRequest.Header!.EntryReference);

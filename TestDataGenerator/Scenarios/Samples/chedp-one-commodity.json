@@ -138,10 +138,6 @@
           "speciesID": "167258",
           "keyDataPair": [
             {
-              "key": "netweight",
-              "data": "1"
-            },
-            {
               "key": "number_package",
               "data": "1"
             },

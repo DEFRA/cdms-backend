@@ -75,6 +75,17 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
         return Do(x => x.LastUpdated = entryDate);
     }
 
+    public ImportNotificationBuilder<T> WithCommodity(string commodityCode, string description, int netWeight)
+    {
+        return Do(n => n.PartOne!.Commodities!.TotalNetWeight = netWeight)
+            .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesId = commodityCode)
+            .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].CommodityDescription = description)
+            .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].ComplementName = description)
+            .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesName = description)
+            .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesNomination = description)
+            .Do(n => n.PartOne!.Commodities!.ComplementParameterSets![0].SpeciesId = commodityCode);
+    }
+
     protected override ImportNotificationBuilder<T> Validate()
     {
         return Do(n =>
