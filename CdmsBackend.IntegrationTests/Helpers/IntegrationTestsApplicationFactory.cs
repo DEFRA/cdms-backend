@@ -16,6 +16,12 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureAppConfiguration(configurationBuilder =>
+        {
+            configurationBuilder.Properties.Add("BlobServiceOptions:AzureClientId", "TestValue");
+            configurationBuilder.Properties.Add("BlobServiceOptions:AzureTenantId", "TestValue");
+            configurationBuilder.Properties.Add("BlobServiceOptions:AzureClientSecret", "TestValue");
+        });
         builder.ConfigureServices(services =>
         {
             var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase))!;
