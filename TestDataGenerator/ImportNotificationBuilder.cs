@@ -85,7 +85,8 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
             .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].ComplementName = description)
             .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesName = description)
             .Do(n => n.PartOne!.Commodities!.CommodityComplements![0].SpeciesNomination = description)
-            .Do(n => n.PartOne!.Commodities!.ComplementParameterSets![0].SpeciesId = commodityCode);
+            .Do(n => n.PartOne!.Commodities!.ComplementParameterSets![0].SpeciesId = commodityCode)
+            .Do(n => n.PartOne!.Commodities!.ComplementParameterSets![0].KeyDataPairs!["netweight"] = netWeight);
     }
 
     protected override ImportNotificationBuilder<T> Validate()
