@@ -18,12 +18,12 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase));
+            var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase))!;
             services.Remove(mongoDatabaseDescriptor);
 
             services.AddSingleton(sp =>
             {
-                var options = sp.GetService<IOptions<MongoDbOptions>>();
+                var options = sp.GetService<IOptions<MongoDbOptions>>()!;
                 var settings = MongoClientSettings.FromConnectionString(options.Value.DatabaseUri);
                 var client = new MongoClient(settings);
 
@@ -35,10 +35,15 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
                 return client.GetDatabase($"Cdms_MongoDb_{dbName}_Test");
             });
 
-            var blobServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IBlobService));
-            services.Remove(blobServiceDescriptor);
-
-            services.AddSingleton<IBlobService>(new LocalBlobService("../../../Fixtures"));
+            // var blobServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IBlobService))!;
+            // services.Remove(blobServiceDescriptor);
+            
+            services.AddOptions<BlobServiceOptions>().Configure(o =>
+            {
+                o.CachePath = "../../../Fixtures";
+            });
+            
+            services.AddSingleton<IBlobService, CachingBlobService>();
 
             services.AddLogging(lb => lb.AddXUnit(testOutputHelper));
         });
