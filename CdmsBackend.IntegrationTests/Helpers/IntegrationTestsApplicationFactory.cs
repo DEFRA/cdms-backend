@@ -7,6 +7,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System.IO;
 using Cdms.Backend.Data;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
@@ -18,9 +19,14 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureAppConfiguration(configurationBuilder =>
         {
-            configurationBuilder.Properties.Add("BlobServiceOptions:AzureClientId", "TestValue");
-            configurationBuilder.Properties.Add("BlobServiceOptions:AzureTenantId", "TestValue");
-            configurationBuilder.Properties.Add("BlobServiceOptions:AzureClientSecret", "TestValue");
+            var mockData = new List<KeyValuePair<string, string?>>
+            {
+                new("BlobServiceOptions:AzureClientId", "TestValue"),
+                new("BlobServiceOptions:AzureTenantId", "TestValue"),
+                new("BlobServiceOptions:AzureClientSecret", "TestValue")
+
+            };
+            configurationBuilder.AddInMemoryCollection(mockData);
         });
         builder.ConfigureServices(services =>
         {
