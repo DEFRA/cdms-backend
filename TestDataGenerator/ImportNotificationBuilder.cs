@@ -1,5 +1,6 @@
 using Cdms.Types.Ipaffs;
 using Cdms.Common.Extensions;
+using TestDataGenerator.Helpers;
 
 namespace TestDataGenerator;
 
@@ -63,14 +64,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
 
     public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType)
     {
-        var prefix = chedType switch
-        {
-            ImportNotificationTypeEnum.Cveda => "CHEDA",
-            ImportNotificationTypeEnum.Cvedp => "CHEDP",
-            ImportNotificationTypeEnum.Chedpp => "CHEDPP",
-            ImportNotificationTypeEnum.Ced => "CHEDD",
-            _ => throw new ArgumentOutOfRangeException(nameof(chedType), chedType, null),
-        };
+        var prefix = chedType.ConvertToChedType();
 
         // TODO : We may need a way to guarantee these don't collide?....
         return Do(x => x.ReferenceNumber = $"{prefix}.GB.{DateTime.Now.Year}.{CreateRandomInt(7)}");

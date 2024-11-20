@@ -10,7 +10,7 @@ public static class DataHelpers
     {
         var dateString = notification.LastUpdated!.Value.ToString("yyyy/MM/dd");
         
-        return $"{rootPath}/IPAFFS/{notification.ReferenceNumber![..notification.ReferenceNumber.IndexOf('.')]}/{dateString}/{notification.ReferenceNumber.Replace(".","_")}-{Guid.NewGuid()}.json";
+        return $"{rootPath}/IPAFFS/{notification.ImportNotificationType!.Value.ConvertToChedType()}/{dateString}/{notification.ReferenceNumber!.Replace(".","_")}-{Guid.NewGuid()}.json";
     }
 
     internal static string BlobPath(this AlvsClearanceRequest clearanceRequest, string rootPath)

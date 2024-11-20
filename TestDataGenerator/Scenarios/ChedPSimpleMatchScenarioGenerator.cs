@@ -9,8 +9,8 @@ internal class ChedPSimpleMatchScenarioGenerator(ILogger<ChedPSimpleMatchScenari
     {
         var notification = GetNotificationBuilder("chedp-one-commodity")
             .WithEntryDate(entryDate)
-            .WithReferenceNumber(ImportNotificationTypeEnum.Cvedp, item)
             .WithReferenceNumber(ImportNotificationTypeEnum.Cvedp)
+            .WithCommodity("1604142800", "Skipjack Tuna", 300)
             .ValidateAndBuild();
         
         logger.LogInformation("Created {@Notification}, {NotificationReferenceNumber}", notification, notification.ReferenceNumber);
