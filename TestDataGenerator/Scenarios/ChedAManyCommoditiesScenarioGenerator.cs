@@ -11,7 +11,7 @@ internal class ChedAManyCommoditiesScenarioGenerator(ILogger<ChedAManyCommoditie
         
         var notification = GetNotificationBuilder("cheda-one-commodity")
             .WithEntryDate(entryDate)
-            .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, item)
+            .WithReferenceNumber(ImportNotificationTypeEnum.Cveda)
             .WithRandomCommodities(10, 100)
             .ValidateAndBuild();
         

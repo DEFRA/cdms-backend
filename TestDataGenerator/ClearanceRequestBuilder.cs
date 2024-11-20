@@ -31,8 +31,7 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
     public ClearanceRequestBuilder<T> WithReferenceNumber(string chedReference)
     {
         var id = MatchIdentifier.FromNotification(chedReference);
-        var clearanceRequestDocumentReference =
-            id.AsCdsDocumentReference();
+        var clearanceRequestDocumentReference = id.AsCdsDocumentReference();
         
         return 
             Do(x => x.Header!.EntryReference = id.AsCdsEntryReference())

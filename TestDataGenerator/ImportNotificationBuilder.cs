@@ -51,7 +51,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
     {
         var commodityCount = CreateRandomInt(min, max);
 
-        return Do((n) =>
+        return Do(n =>
         {
             var commodities = Enumerable.Range(0, commodityCount)
                 .Select(_ => n.PartOne!.Commodities!.CommodityComplements![0]
@@ -61,7 +61,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
         });
     }
 
-    public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType, int item)
+    public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType)
     {
         var prefix = chedType switch
         {

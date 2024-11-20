@@ -1,4 +1,3 @@
-using System;
 using Cdms.Types.Ipaffs;
 using FluentAssertions;
 using Xunit;
@@ -11,7 +10,7 @@ public class ImportNotificationBuilderTests
     public void WithReferenceNumber_WithChedA_ShouldCreateCorrectReference()
     {
         var builder = ImportNotificationBuilder.Default();
-        builder.WithReferenceNumber(ImportNotificationTypeEnum.Cveda, 1);
+        builder.WithReferenceNumber(ImportNotificationTypeEnum.Cveda);
         var notification = builder.Build();
         notification.ReferenceNumber.Should().StartWith("CHEDA");
     }
@@ -20,11 +19,10 @@ public class ImportNotificationBuilderTests
     public void WithReferenceNumber_WithChedD_ShouldCreateCorrectReference()
     {
         var builder = ImportNotificationBuilder.Default();
-        builder.WithReferenceNumber(ImportNotificationTypeEnum.Ced, 1);
+        builder.WithReferenceNumber(ImportNotificationTypeEnum.Ced);
         var notification = builder.Build();
         notification.ReferenceNumber.Should().StartWith("CHEDD");
     }
-
 
     [Fact]
     public void WithRandomCommodities_5_ShouldHave5Commodities()

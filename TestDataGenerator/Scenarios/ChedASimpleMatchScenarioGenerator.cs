@@ -11,7 +11,7 @@ internal class ChedASimpleMatchScenarioGenerator(ILogger<ChedASimpleMatchScenari
         
         var notification = GetNotificationBuilder("cheda-one-commodity")
             .WithEntryDate(entryDate)
-            .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, item)
+            .WithReferenceNumber(ImportNotificationTypeEnum.Cveda)
             .ValidateAndBuild();
         
         logger.LogInformation("Created {@Notification}, {NotificationReferenceNumber}", notification, notification.ReferenceNumber);
