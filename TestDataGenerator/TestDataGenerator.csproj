@@ -46,6 +46,9 @@
       <Content Include="Properties\local.env">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <None Update="Scenarios\Samples\chedp-one-commodity.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 

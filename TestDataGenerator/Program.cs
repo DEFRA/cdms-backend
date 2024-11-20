@@ -29,12 +29,10 @@ internal class Program
             {
                 services.AddHttpClient();
 
-                services.AddSingleton<GeneratorConfig, GeneratorConfig>(_ => generatorConfig);
-                services.AddSingleton<ChedASimpleMatchScenarioGenerator, ChedASimpleMatchScenarioGenerator>();
-                services.AddSingleton<ChedAManyCommoditiesScenarioGenerator, ChedAManyCommoditiesScenarioGenerator>();
                 services.AddSingleton<GeneratorConfig>(_ => generatorConfig);
                 services.AddSingleton<ChedASimpleMatchScenarioGenerator>();
                 services.AddSingleton<ChedAManyCommoditiesScenarioGenerator>();
+                services.AddSingleton<ChedPSimpleMatchScenarioGenerator>();
                 if (generatorConfig.StorageService == StorageService.Local)
                 {
                     services.AddSingleton<IBlobService, LocalBlobService>();
@@ -87,6 +85,15 @@ internal class Program
                     app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 30),
                     app.CreateScenarioConfig<ChedAManyCommoditiesScenarioGenerator>(10, 30)
                 }
+            },
+            new
+            {
+                Dataset = "IBM-SCENARIO-1",
+                RootPath = "IBM-SCENARIO-1-CHEDP-1-ITEM-1-CR",
+                Scenarios = new[]
+                {
+                    app.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(10, 30)
+                }
             }
         };
 
@@ -95,17 +102,15 @@ internal class Program
         // Allows us to filter the sets and scenarios we want to run at any given time
         // Could be fed by CLI for example
         var setsToRun = datasets
-            .Where(d => d.Dataset == "LoadTest")
-            .Select(d => new {
-                Scenarios = d.Scenarios
-                    .Where(s =>
-                        s.Name == "ChedASimpleMatch"
-                    ).ToArray(),
-                dataset = d.Dataset,
-                rootPath = d.RootPath
-                d.Dataset,
-                d.RootPath
-            });
+            .Where(d => d.Dataset == "IBM-SCENARIO-1");
+            // .Select(d => new {
+            //     Scenarios = d.Scenarios
+            //         .Where(s =>
+            //             s.Name == "ChedASimpleMatch"
+            //         ).ToArray(),
+            //     d.Dataset,
+            //     d.RootPath
+            // });
 
         foreach (var dataset in setsToRun)
         {
