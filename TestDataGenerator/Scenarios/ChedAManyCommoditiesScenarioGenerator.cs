@@ -24,7 +24,7 @@ internal class ChedAManyCommoditiesScenarioGenerator(ILogger<ChedAManyCommoditie
         
         logger.LogInformation("Created {@ClearanceRequest}, {EntryReference}", clearanceRequest, clearanceRequest.Header!.EntryReference);
 
-        return new GeneratorResult()
+        return new GeneratorResult
         {
             ClearanceRequests = [clearanceRequest], ImportNotifications = [notification]
         };

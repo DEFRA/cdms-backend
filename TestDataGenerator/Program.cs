@@ -32,6 +32,9 @@ internal class Program
                 services.AddSingleton<GeneratorConfig, GeneratorConfig>(_ => generatorConfig);
                 services.AddSingleton<ChedASimpleMatchScenarioGenerator, ChedASimpleMatchScenarioGenerator>();
                 services.AddSingleton<ChedAManyCommoditiesScenarioGenerator, ChedAManyCommoditiesScenarioGenerator>();
+                services.AddSingleton<GeneratorConfig>(_ => generatorConfig);
+                services.AddSingleton<ChedASimpleMatchScenarioGenerator>();
+                services.AddSingleton<ChedAManyCommoditiesScenarioGenerator>();
                 if (generatorConfig.StorageService == StorageService.Local)
                 {
                     services.AddSingleton<IBlobService, LocalBlobService>();
@@ -94,28 +97,30 @@ internal class Program
         var setsToRun = datasets
             .Where(d => d.Dataset == "LoadTest")
             .Select(d => new {
-                scenarios = d.Scenarios
+                Scenarios = d.Scenarios
                     .Where(s =>
                         s.Name == "ChedASimpleMatch"
                     ).ToArray(),
                 dataset = d.Dataset,
                 rootPath = d.RootPath
+                d.Dataset,
+                d.RootPath
             });
 
         foreach (var dataset in setsToRun)
         {
-            logger.LogInformation("{ScenariosCount} scenario(s) configured", dataset.scenarios.Count());
+            logger.LogInformation("{ScenariosCount} scenario(s) configured", dataset.Scenarios.Count());
 
             logger.LogInformation("Clearing down storage path");
-            await generator.Cleardown(dataset.rootPath);
+            await generator.Cleardown(dataset.RootPath);
             logger.LogInformation("Cleared down");
 
-            foreach (var s in dataset.scenarios)
+            foreach (var s in dataset.Scenarios)
             {
-                await generator.Generate(s.Count, s.Days, s.Generator, dataset.rootPath);
+                await generator.Generate(s.Count, s.Days, s.Generator, dataset.RootPath);
             }
 
-            logger.LogInformation("{Dataset} Done", dataset.dataset);
+            logger.LogInformation("{Dataset} Done", dataset.Dataset);
         }
 
         logger.LogInformation("Done");

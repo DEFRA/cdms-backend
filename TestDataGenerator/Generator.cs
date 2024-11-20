@@ -34,7 +34,6 @@ public class Generator(ILogger<Generator> logger, IBlobService blobService)
                 }
             }
         }
-        
     }
 
     private async Task<bool> InsertToBlobStorage(ScenarioGenerator.GeneratorResult result, string rootPath)
