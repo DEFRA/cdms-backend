@@ -35,14 +35,15 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
                 return client.GetDatabase($"Cdms_MongoDb_{dbName}_Test");
             });
 
-            // var blobServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IBlobService))!;
-            // services.Remove(blobServiceDescriptor);
-            
+            var blobServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IBlobService))!;
+            services.Remove(blobServiceDescriptor);
+
             services.AddOptions<BlobServiceOptions>().Configure(o =>
             {
                 o.CachePath = "../../../Fixtures";
             });
-            
+
+            services.AddKeyedSingleton<IBlobService, BlobService>("base");
             services.AddSingleton<IBlobService, CachingBlobService>();
 
             services.AddLogging(lb => lb.AddXUnit(testOutputHelper));
