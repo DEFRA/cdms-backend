@@ -111,15 +111,25 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
         set => matchReference = value;
     }
 
-    public void AddRelationship(string type, TdmRelationshipObject relationship)
+    public void AddRelationship(TdmRelationshipObject relationship)
     {
+        bool linked = false;
         Relationships.Movements.Links ??= relationship.Links;
         foreach (var dataItem in relationship.Data.Where(dataItem => Relationships.Movements.Data.TrueForAll(x => x.Id != dataItem.Id)))
         {
-            Relationships.Movements.Data.Add(dataItem);
+            if (Relationships.Movements.Data.TrueForAll(x => x.Id != dataItem.Id))
+            {
+                Relationships.Movements.Data.Add(dataItem);
+                linked = true;
+            }
         }
 
-        Relationships.Movements.Matched = Relationships.Movements.Data.Exists(x => x.Matched.GetValueOrDefault());
+        Relationships.Movements.Matched = Relationships.Movements.Data.TrueForAll(x => x.Matched.GetValueOrDefault());
+
+        if (linked)
+        {
+            AuditEntries.Add(AuditEntry.CreateLinked(Version.GetValueOrDefault(), LastUpdated));
+        }
     }
 
     public void Changed(AuditEntry auditEntry)

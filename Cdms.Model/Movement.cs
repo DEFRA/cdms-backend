@@ -91,18 +91,29 @@ public class Movement : IMongoIdentifiable, IDataEntity
         set => matchReferences = value;
     }
 
-    public void AddRelationship(string type, TdmRelationshipObject relationship)
+    public void AddRelationship(TdmRelationshipObject relationship)
     {
+        bool linked = false;
         Relationships.Notifications.Links ??= relationship.Links;
         foreach (var dataItem in relationship.Data.Where(dataItem => Relationships.Notifications.Data.TrueForAll(x => x.Id != dataItem.Id)))
         {
-            Relationships.Notifications.Data.Add(dataItem);
+            if (Relationships.Notifications.Data.All(x => x.Id != dataItem.Id))
+            {
+                Relationships.Notifications.Data.Add(dataItem);
+                linked = true;
+            }
         }
 
         Relationships.Notifications.Matched = Items
             .Select(x => x.ItemNumber)
             .All(itemNumber =>
                 Relationships.Notifications.Data.Exists(x => x.Matched.GetValueOrDefault() && x.SourceItem == itemNumber));
+
+        if (linked)
+        {
+            this.AuditEntries.Add(AuditEntry.CreateLinked(0,
+                this.LastUpdated));
+        }
     }
 
     public void Update(AuditEntry auditEntry)

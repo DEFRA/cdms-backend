@@ -1,248 +1,97 @@
-
-
 using Cdms.Backend.Data;
-using Cdms.Business.Pipelines.Matching;
 using Cdms.Model;
-using Cdms.Model.Alvs;
-using Cdms.Model.Auditing;
 using Cdms.Model.Ipaffs;
+using Cdms.Model.Relationships;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cdms.Business.Services;
 
-public class LinkingService : ILinkingService
+public class LinkingService(IMongoDbContext dbContext) : ILinkingService
 {
-    private readonly string auditId = "TEMP//HACK";
-    
-    private const string NotificationMatchReference = "_MatchReference";
-    private const string MovementMatchReference = "_MatchReferences";
-
-    private readonly IMongoDbContext dbContext;
-    
-    public LinkingService(IMongoDbContext dbContext)
+    public async Task<LinkResult> Link(LinkContext linkContext)
     {
-        this.dbContext = dbContext;
+        LinkResult result;
+        switch (linkContext)
+        {
+            case MovementLinkContext movementLinkContext:
+                //TODO: Check if should attempt link
+                result = await FindMovementLinks(movementLinkContext.Movement);
+                break;
+            case ImportNotificationLinkContext notificationLinkContext:
+                //TODO: Check if should attempt link
+                result = await FindImportNotificationLinks(notificationLinkContext.ImportNotification);
+                break;
+            default: throw new ArgumentException("context type not supported");
+        }
+
+        foreach (var notification in result.Notifications)
+        {
+            foreach (var movement in result.Movements)
+            {
+                notification.AddRelationship(new TdmRelationshipObject()
+                {
+                    Links = RelationshipLinks.CreateForNotification(notification),
+                    Data = [RelationshipDataItem.CreateFromMovement(notification, movement, notification._MatchReference.ToString())]
+                });
+
+                movement.AddRelationship(new TdmRelationshipObject()
+                {
+                    Links = RelationshipLinks.CreateForMovement(movement),
+                    Data = [RelationshipDataItem.CreateFromNotification(notification, movement, notification._MatchReference.ToString())]
+                });
+
+                await dbContext.Movements.Update(movement, movement._Etag);
+                await dbContext.Notifications.Update(notification, notification._Etag);
+            }
+        }
+
+        return result;
     }
 
-    public async Task<MatchContext> Link(AlvsClearanceRequest clearanceRequest)
+
+    //TODO: Could this be from the audit, or pass in it within the context
+    //private void ShouldLink(Movement movement)
+    //{
+    //    if (movement.AuditEntries.Last().Status == "Created")
+    //    {
+
+    //        //is new so attempt link
+    //    }
+    //    else if (movement.AuditEntries.Last().Status == "Updated")
+    //    {
+    //        movement.AuditEntries.Last().Diff.Any(x => x.Path == "")
+    //    }
+    //}
+
+    private async Task<LinkResult> FindMovementLinks(Movement movement)
     {
-        var movement = BuildMovement(clearanceRequest);
-        var existingMovement = await dbContext.Movements.Find(movement.Id);
-
-        if (existingMovement != null)
-        {
-            if (IsMovementSuitableForMatching(existingMovement, movement))
-            {
-                // Newer version and fields of interest changed
-                movement.AuditEntries = existingMovement.AuditEntries;
-
-                var auditEntry = AuditEntry.CreateUpdated(existingMovement.ClearanceRequests[0],
-                    movement.ClearanceRequests[0],
-                    BuildNormalizedAlvsPath(auditId),
-                    movement.ClearanceRequests[0].Header.EntryVersionNumber.GetValueOrDefault(),
-                    movement.LastUpdated);
-                movement.Update(auditEntry);
-
-                await dbContext.Movements.Update(movement, existingMovement._Etag);
-            }
-            else
-            {
-                return new MatchContext()
-                {
-                    ContinueMatching = false
-                };
-            }
-        }
-        else
-        {
-            var auditEntry = AuditEntry.CreateCreatedEntry(
-                movement.ClearanceRequests[0],
-                BuildNormalizedAlvsPath(auditId), 
-                movement.ClearanceRequests[0].Header.EntryVersionNumber.GetValueOrDefault(),
-                movement.LastUpdated);
-            movement.Update(auditEntry);
-            await dbContext.Movements.Insert(movement);
-        }
-        
         var chedIds = movement.Items
             .SelectMany(x => x.Documents ?? [])
-            .Select(d => GetMatchingRef(d.DocumentReference))
+            .Select(d => MatchIdentifier.FromCds(d.DocumentReference).Identifier)
             .Where(dr => dr != null)
             .Distinct();
-        
-        var notifications = await dbContext.Notifications.FindBy(NotificationMatchReference, chedIds!);
-        
-        if (notifications.Any())
-        {
-            return new MatchContext()
-            {
-                Movements = new List<Movement>() { existingMovement },
-                Notifications = notifications.ToList(),
-                ContinueMatching = true
-            };
-        }
 
-        return new MatchContext()
+        var notifications = await dbContext.Notifications.Where(x => chedIds.Contains(x._MatchReference)).ToListAsync();
+
+        return new LinkResult()
         {
-            ContinueMatching = false
+            Movements = [movement],
+            Notifications = notifications,
+            State = notifications.Any() ? LinkState.Linked : LinkState.NotLinked
         };
     }
 
-    public async Task<MatchContext> Link(ImportNotification notification)
+    private async Task<LinkResult> FindImportNotificationLinks(ImportNotification importNotification)
     {
-        var existingNotification = await dbContext.Notifications.Find(notification.ReferenceNumber);
+        var identifier = MatchIdentifier.FromNotification(importNotification.Id).Identifier;
 
-        if (existingNotification != null)
-        {
-            if (IsNotificationSuitableForMatching(existingNotification, notification))
-            {
-                // Newer version and fields of interest changed
-                notification.AuditEntries = existingNotification.AuditEntries;
-                notification.Updated(BuildNormalizedIpaffsPath(auditId!), existingNotification);
-                await dbContext.Notifications.Update(notification, existingNotification._Etag);
-            }
-            else
-            {
-                return new MatchContext()
-                {
-                    ContinueMatching = false
-                };
-            }
-        }
-        else
-        {
-            notification.Created(BuildNormalizedIpaffsPath(auditId));
-            await dbContext.Notifications.Insert(notification);
-        }
-        
-        var matchingRef = GetMatchingRef(notification.ReferenceNumber!);
+        var movements = await dbContext.Movements.Where(x => x._MatchReferences.Contains(identifier)).ToListAsync();
 
-        var movements = await dbContext.Movements.FindAnyBy(MovementMatchReference, [matchingRef!]);
-
-        if (movements.Any())
+        return new LinkResult()
         {
-            return new MatchContext()
-            {
-                Movements = movements.ToList(),
-                Notifications = new List<ImportNotification>() { notification },
-                ContinueMatching = true
-            };
-        }
-
-        return new MatchContext()
-        {
-            ContinueMatching = false
+            Movements = movements,
+            Notifications = [importNotification],
+            State = movements.Any() ? LinkState.Linked : LinkState.NotLinked
         };
-    }
-    
-    private bool IsMovementSuitableForMatching(Movement existing, Movement received)
-    {
-        if (existing.ClearanceRequests[0].Header.EntryVersionNumber >
-            received.ClearanceRequests[0].Header.EntryVersionNumber)
-        {
-            // Received out of date movement information
-            return false;
-        }
-        
-        var existingDocs = existing.Items
-            .SelectMany(x => x.Documents ?? [])
-            .Select(d => new
-            {
-                d.DocumentReference
-            });
-        var receivedDocs = received.Items
-            .SelectMany(x => x.Documents ?? [])
-            .Select(d => new
-            {
-                d.DocumentReference
-            });
-        
-        if (existingDocs.Count() != receivedDocs.Count() ||
-            !existingDocs.All(receivedDocs.Contains))
-        {
-            // Delta in received Docs
-            return true;
-        }
-        
-        // No deltas in fields we care about
-        return false;
-    }
-
-    private bool IsNotificationSuitableForMatching(ImportNotification existing, ImportNotification received)
-    {
-        if (existing.LastUpdated > received.LastUpdated)
-        {
-            // Received out of date ipaffs information
-            return false;
-        }
-        
-        var existingCommodities = existing?.Commodities?
-            .Select(c => new
-            {
-                c.CommodityId,
-                c.CommodityDescription
-            });
-        var receivedCommodities = received?.Commodities?
-            .Select(c => new
-            {
-                c.CommodityId,
-                c.CommodityDescription
-            });
-        
-        if (existingCommodities?.Count() != receivedCommodities?.Count() ||
-            !existingCommodities.All(receivedCommodities.Contains))
-        {
-            // Delta in received Commodities
-            return true;
-        }
-
-        // No deltas in fields we care about
-        return false;
-    }
-    
-    // Copy-pasted from consumers, refactor these out to encapsulate audit logging in IAuditable
-    private static string BuildNormalizedAlvsPath(string fullPath)
-    {
-        return fullPath.Replace("RAW/ALVS/", "");
-    }
-
-    private static string BuildNormalizedIpaffsPath(string fullPath)
-    {
-        return fullPath.Replace("RAW/IPAFFS/", "");
-    }
-
-    private static Movement BuildMovement(AlvsClearanceRequest request)
-    {
-        return new Movement()
-        {
-            Id = request.Header!.EntryReference,
-            LastUpdated = request.ServiceHeader?.ServiceCalled,
-            EntryReference = request.Header.EntryReference,
-            MasteUcr = request.Header.MasterUcr,
-            DeclarationType = request.Header.DeclarationType,
-            SubmitterTurn = request.Header.SubmitterTurn,
-            DeclarantId = request.Header.DeclarantId,
-            DeclarantName = request.Header.DeclarantName,
-            DispatchCountryCode = request.Header.DispatchCountryCode,
-            GoodsLocationCode = request.Header.GoodsLocationCode,
-            ClearanceRequests = new List<AlvsClearanceRequest>() { request },
-            Items = request.Items?.Select(x => { return x; }).ToList(),
-        };
-    }
-    
-    private string? GetMatchingRef(string? documentReference)
-    {
-        if (documentReference == null) return null;
-
-        var strLength = documentReference.Length;
-        if (strLength < 7) return null;
-        
-        var subStr = documentReference.Substring(strLength - 7, 7);
-        
-        if (int.TryParse(subStr, out _))
-        {
-            return subStr;
-        }
-
-        return null;
     }
 }
