@@ -5,11 +5,11 @@ namespace TestDataGenerator.Scenarios;
 
 internal class ChedPSimpleMatchScenarioGenerator(ILogger<ChedPSimpleMatchScenarioGenerator> logger) : ScenarioGenerator
 {
-    internal override GeneratorResult Generate(int item, DateTime entryDate)
+    internal override GeneratorResult Generate(int scenario, int item, DateTime entryDate)
     {
         var notification = GetNotificationBuilder("chedp-one-commodity")
             .WithEntryDate(entryDate)
-            .WithReferenceNumber(ImportNotificationTypeEnum.Cvedp)
+            .WithReferenceNumber(ImportNotificationTypeEnum.Cvedp, scenario, entryDate, item)
             .WithCommodity("1604142800", "Skipjack Tuna", 300)
             .ValidateAndBuild();
         

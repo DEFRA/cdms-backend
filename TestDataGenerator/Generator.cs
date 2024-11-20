@@ -12,8 +12,8 @@ public class Generator(ILogger<Generator> logger, IBlobService blobService)
     {
         await blobService.CleanAsync($"{rootPath}/");
     }
-    
-    internal async Task Generate(int count, int days, ScenarioGenerator generator, string rootPath)
+
+    internal async Task Generate(int scenario, int count, int days, ScenarioGenerator generator, string rootPath)
     {
         logger.LogInformation("Generating {Count}x{Days} {Generator}", count, days, generator.GetType().Name);
 
@@ -26,7 +26,7 @@ public class Generator(ILogger<Generator> logger, IBlobService blobService)
             {
                 logger.LogInformation("Generating item {Index}", i);
             
-                var generatorResult = generator.Generate(i, entryDate);
+                var generatorResult = generator.Generate(scenario, i, entryDate);
                 var uploadResult = await InsertToBlobStorage(generatorResult, rootPath);
                 if (!uploadResult)
                 {

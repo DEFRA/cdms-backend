@@ -62,12 +62,16 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
         });
     }
 
-    public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType)
+    public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType, int scenario, DateTime created, int item)
     {
         var prefix = chedType.ConvertToChedType();
 
-        // TODO : We may need a way to guarantee these don't collide?....
-        return Do(x => x.ReferenceNumber = $"{prefix}.GB.{DateTime.Now.Year}.{CreateRandomInt(7)}");
+        if (item > 999999)
+        {
+            throw new ArgumentException("Currently only deals with max 100,000 items");
+        }
+
+        return Do(x => x.ReferenceNumber = $"{prefix}.GB.{created.Year}.{scenario:00}{created.DateRef()}{item + 1:000000}");
     }
 
     public ImportNotificationBuilder<T> WithEntryDate(DateTime entryDate)

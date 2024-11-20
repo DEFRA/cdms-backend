@@ -1,3 +1,4 @@
+using Cdms.Common.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -58,21 +59,31 @@ internal class Program
         {
             new
             {
+                Dataset = "LoadTest-One",
+                RootPath = "GENERATED-LOADTEST-ONE",
+                Scenarios = new[]
+                {
+                    app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(1, 3)
+                }
+            },
+            new
+            {
                 Dataset = "LoadTest",
                 RootPath = "GENERATED-LOADTEST-BASIC",
                 Scenarios = new[]
                 {
                     app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(3, 7),
                     app.CreateScenarioConfig<ChedAManyCommoditiesScenarioGenerator>(3, 7)
+                    // app.CreateScenarioConfig<IbmScenario1SingleItemChedpSingleItemClearanceRequestScenarioGenerator>(3, 7)
                 }
             },
             new
             {
-                Dataset = "LoadTest-90Dx10k",
-                RootPath = "GENERATED-LOADTEST-90Dx10k",
+                Dataset = "LoadTest-Full",
+                RootPath = "GENERATED-LOADTEST-FULL",
                 Scenarios = new[]
                 {
-                    app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10000, 90),
+                    app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(100, 90),
                     app.CreateScenarioConfig<ChedAManyCommoditiesScenarioGenerator>(100, 90)
                 }
             },
@@ -103,26 +114,22 @@ internal class Program
         // Could be fed by CLI for example
         var setsToRun = datasets
             .Where(d => d.Dataset == "IBM-SCENARIO-1");
-            // .Select(d => new {
-            //     Scenarios = d.Scenarios
-            //         .Where(s =>
-            //             s.Name == "ChedASimpleMatch"
-            //         ).ToArray(),
-            //     d.Dataset,
-            //     d.RootPath
-            // });
+        
+        // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
+        logger.LogInformation(setsToRun.ToJson());
 
+        var scenario = 1;
+        
         foreach (var dataset in setsToRun)
         {
             logger.LogInformation("{ScenariosCount} scenario(s) configured", dataset.Scenarios.Count());
 
-            logger.LogInformation("Clearing down storage path");
             await generator.Cleardown(dataset.RootPath);
-            logger.LogInformation("Cleared down");
-
+            
             foreach (var s in dataset.Scenarios)
             {
-                await generator.Generate(s.Count, s.Days, s.Generator, dataset.RootPath);
+                await generator.Generate(scenario, s.Count, s.Days, s.Generator, dataset.RootPath);
+                scenario++;
             }
 
             logger.LogInformation("{Dataset} Done", dataset.Dataset);
