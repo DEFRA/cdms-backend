@@ -7,8 +7,14 @@ using SlimMessageBus;
 
 namespace Cdms.Business.Commands
 {
-    public class SyncNotificationsCommand : SyncCommand 
+    public class SyncNotificationsCommand : SyncCommand
     {
+        public string[] ChedTypes { get; set; } = [];
+        public override string Resource => "ImportNotification";
+
+        public string[] BlobFiles { get; set; } = [];
+
+
         internal class Handler(
             SyncMetrics syncMetrics,
             IPublishBus bus,
@@ -25,15 +31,42 @@ namespace Cdms.Business.Commands
                 var rootFolder = string.IsNullOrEmpty(request.RootFolder)
                     ? businessOptions.Value.DmpBlobRootFolder
                     : request.RootFolder;
-                await SyncBlobPaths<Cdms.Types.Ipaffs.ImportNotification>(request.SyncPeriod, "NOTIFICATIONS",
+
+                if (request.BlobFiles.Any())
+                {
+                    await SyncBlobs<Types.Ipaffs.ImportNotification>(request.SyncPeriod, "NOTIFICATIONS",
+                        request.JobId,
+                        request.BlobFiles.Select(x => $"{rootFolder}/IPAFFS/{x}").ToArray());
+                    return;
+                }
+
+                var chedTypesToSync = new List<string>();
+                
+
+                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDA"))
+                {
+                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDA");
+                }
+
+                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDD"))
+                {
+                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDD");
+                }
+
+                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDP"))
+                {
+                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDP");
+                }
+
+                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDPP"))
+                {
+                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDPP");
+                }
+
+                await SyncBlobPaths<Types.Ipaffs.ImportNotification>(request.SyncPeriod, "NOTIFICATIONS",
                     request.JobId,
-                    $"{rootFolder}/IPAFFS/CHEDA",
-                    $"{rootFolder}/IPAFFS/CHEDD",
-                    $"{rootFolder}/IPAFFS/CHEDP",
-                    $"{rootFolder}/IPAFFS/CHEDPP");
+                    chedTypesToSync.ToArray());
             }
         }
-
-        public override string Resource => "ImportNotification";
     }
 }

@@ -1,3 +1,4 @@
+using Bogus.DataSets;
 using Cdms.BlobService;
 
 namespace CdmsBackend.IntegrationTests.Helpers;
@@ -16,7 +17,12 @@ public class LocalBlobService(string root) : IBlobService
 
     public IAsyncEnumerable<IBlobItem> GetResourcesAsync(string prefix, CancellationToken cancellationToken)
     {
-        return ScanFiles(Path.Combine(root, prefix), cancellationToken);
+        return ScanFiles($"{root}/{prefix}", cancellationToken);
+    }
+
+    public async Task<string> GetResource(IBlobItem item, CancellationToken cancellationToken)
+    {
+        return await File.ReadAllTextAsync(item.Name, cancellationToken);
     }
 
     public async IAsyncEnumerable<IBlobItem> ScanFiles(string prefix, CancellationToken cancellationToken)

@@ -10,6 +10,7 @@ using IRequest = MediatR.IRequest;
 using System.Text;
 using Cdms.Common;
 using Cdms.SyncJob;
+using JsonApiDotNetCore.Queries.Parsing;
 
 namespace Cdms.Business.Commands;
 
@@ -123,7 +124,30 @@ public abstract class SyncCommand() : IRequest, ISyncJob
             });
         }
 
-       
+
+        protected async Task SyncBlobs<TRequest>(SyncPeriod period, string topic, Guid jobId, params string[] paths)
+        {
+            var job = syncJobStore.GetJob(jobId);
+            job.Start();
+            logger.LogInformation($"SyncNotifications period: {period.ToString()}, maxDegreeOfParallelism={maxDegreeOfParallelism}, Environment.ProcessorCount={Environment.ProcessorCount}");
+            try
+            {
+                foreach (var path in paths)
+                {
+                    await SyncBlob<TRequest>(path, topic, new SynchroniserBlobItem() { Name = path }, job, CancellationToken.None);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error syncing blob paths");
+            }
+            finally
+            {
+                job.CompletedReadingBlobs();
+            }
+        }
+
         private async Task SyncBlob<TRequest>(string path, string topic, IBlobItem item, SyncJob.SyncJob job,
             CancellationToken cancellationToken)
         {
