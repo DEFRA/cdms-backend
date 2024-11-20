@@ -43,7 +43,8 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
                 o.CachePath = "../../../Fixtures";
             });
 
-            services.AddKeyedSingleton<IBlobService, BlobService>("base");
+            var mockBlob = NSubstitute.Substitute.For<IBlobService>();
+            services.AddKeyedSingleton<IBlobService>("base", mockBlob);
             services.AddSingleton<IBlobService, CachingBlobService>();
 
             services.AddLogging(lb => lb.AddXUnit(testOutputHelper));
