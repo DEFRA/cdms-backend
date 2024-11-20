@@ -6,5 +6,7 @@ public interface IDataEntity
 
     public string _Etag { get; set; }
 
-    public DateTime CreatedLocal { get; set; }
+    public DateTime Created { get; set; }
+
+    public DateTime Updated { get; set; }
 }

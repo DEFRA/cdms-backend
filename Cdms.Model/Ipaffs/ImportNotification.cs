@@ -28,6 +28,12 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
 
     public string _Etag { get; set; }
 
+    [Attr] 
+    public DateTime Created { get; set; }
+
+    [Attr] 
+    public DateTime Updated { get; set; }
+
     // TODO : this is currently being written on the wire by the json api client
     /// <inheritdoc />
     
@@ -132,13 +138,13 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
         this.AuditEntries.Add(auditEntry);
     }
 
-    public void Created(string auditId)
+    public void Create(string auditId)
     {
         var auditEntry = AuditEntry.CreateCreatedEntry(
             this,
             auditId,
             this.Version.GetValueOrDefault(),
-            this.CreatedSource);
+            this.UpdatedSource);
         this.Changed(auditEntry);
     }
 
@@ -147,17 +153,17 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
         var auditEntry = AuditEntry.CreateSkippedVersion(
             auditId,
             version,
-            this.CreatedSource);
+            this.UpdatedSource);
         this.Changed(auditEntry);
     }
 
-    public void Updated(string auditId, ImportNotification previous)
+    public void Update(string auditId, ImportNotification previous)
     {
         var auditEntry = AuditEntry.CreateUpdated(previous,
             this,
             auditId,
             this.Version.GetValueOrDefault(),
-            this.CreatedSource);
+            this.UpdatedSource);
         this.Changed(auditEntry);
     }
 }

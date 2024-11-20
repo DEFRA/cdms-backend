@@ -171,4 +171,10 @@ public class Movement : IMongoIdentifiable, IDataEntity
     public string? Id { get; set; }
 
     public string _Etag { get; set; }
+
+    [Attr]
+    public DateTime Created { get; set; }
+
+    [Attr]
+    public DateTime Updated { get; set; }
 }

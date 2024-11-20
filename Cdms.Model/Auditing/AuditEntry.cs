@@ -15,7 +15,7 @@ public class AuditEntry
 
     public DateTime? CreatedSource { get; set; }
 
-    public DateTime CreatedLocal { get; set; } = System.DateTime.UtcNow;
+    public DateTime Created { get; set; } = System.DateTime.UtcNow;
 
     public string Status { get; set; }
 
@@ -45,7 +45,7 @@ public class AuditEntry
             Version = version,
             CreatedSource = lastUpdated,
             CreatedBy = CreatedBySystem,
-            CreatedLocal = DateTime.UtcNow,
+            Created = DateTime.UtcNow,
             Status = "Created"
         };
     }
@@ -58,7 +58,7 @@ public class AuditEntry
             Version = version,
             CreatedSource = lastUpdated,
             CreatedBy = CreatedBySystem,
-            CreatedLocal = DateTime.UtcNow,
+            Created = DateTime.UtcNow,
             Status = "Updated"
         };
     }
@@ -71,7 +71,7 @@ public class AuditEntry
             Version = version,
             CreatedSource = lastUpdated,
             CreatedBy = CreatedBySystem,
-            CreatedLocal = DateTime.UtcNow,
+            Created = DateTime.UtcNow,
             Status = "Matched"
         };
     }
@@ -96,7 +96,7 @@ public class AuditEntry
             Version = version,
             CreatedSource = lastUpdated,
             CreatedBy = CreatedBySystem,
-            CreatedLocal = DateTime.UtcNow,
+            Created = DateTime.UtcNow,
             Status = status
         };
 

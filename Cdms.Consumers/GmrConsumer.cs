@@ -21,13 +21,13 @@ namespace Cdms.Consumers
                 {
 
                     var auditEntry =
-                        AuditEntry.CreateCreatedEntry(internalGmr, auditId, 1, gmr.CreatedSource);
+                        AuditEntry.CreateCreatedEntry(internalGmr, auditId, 1, gmr.UpdatedSource);
                     internalGmr.AuditEntries.Add(auditEntry);
                     await dbContext.Gmrs.Insert(internalGmr);
                 }
                 else
                 {
-                    if (gmr.CreatedSource > existingGmr.CreatedSource)
+                    if (gmr.UpdatedSource > existingGmr.UpdatedSource)
                     {
                         internalGmr.AuditEntries = existingGmr.AuditEntries;
                         var auditEntry = AuditEntry.CreateUpdated<Gmr>(
@@ -35,7 +35,7 @@ namespace Cdms.Consumers
                             current: internalGmr,
                             id: auditId,
                             version: internalGmr.AuditEntries.Count + 1,
-                            lastUpdated: gmr.CreatedSource);
+                            lastUpdated: gmr.UpdatedSource);
                         internalGmr.AuditEntries.Add(auditEntry);
                         await dbContext.Gmrs.Update(internalGmr, existingGmr._Etag);
                     }
