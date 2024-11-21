@@ -62,10 +62,12 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
         return Do(x =>
         {
             foreach (var item in x.Items!)
-            foreach (var document in item.Documents!)
             {
-                document.DocumentReference = "GBCHD2024.1001278";
-                document.DocumentCode = "C640";
+                foreach (var document in item.Documents!)
+                {
+                    document.DocumentReference = "GBCHD2024.1001278";
+                    document.DocumentCode = "C640";
+                }
             }
         });
     }

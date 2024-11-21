@@ -148,7 +148,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to clean blobs");
+            Logger.LogError(ex, ex.Message);
             return false;
         }
     }
@@ -178,7 +178,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error uploading files");
+            Logger.LogError(ex, ex.Message);
             return false;
         }
     }
