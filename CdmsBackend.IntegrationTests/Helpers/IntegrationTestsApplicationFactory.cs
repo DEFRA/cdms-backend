@@ -5,58 +5,61 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+// using System.Configuration;
 using System.IO;
 using Cdms.Backend.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 using Google.Protobuf.WellKnownTypes;
+using Microsoft.AspNetCore.Builder;
 
 namespace CdmsBackend.IntegrationTests.Helpers;
 
 public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
 {
+    // protected override Bef
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureServices(services =>
+        // Any integration test overrides could be added here
+        // And we don't want to load the backend ini file 
+        var configurationValues = new Dictionary<string, string>
         {
-            var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase))!;
-            services.Remove(mongoDatabaseDescriptor);
+            { "DisableLoadIniFile", "true" },
+            { "BlobServiceOptions:CachePath", "../../../Fixtures" },
+            { "BlobServiceOptions:CacheReadEnabled", "true" }
+        };
+        
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configurationValues!)
+            .Build();
 
-            var blobOptionsValidatorDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IValidateOptions<BlobServiceOptions>))!;
-            services.Remove(blobOptionsValidatorDescriptor);
-
-            services.AddSingleton(sp =>
+        builder
+            .UseConfiguration(configuration)
+            .ConfigureServices(services =>
             {
-                var options = sp.GetService<IOptions<MongoDbOptions>>()!;
-                var settings = MongoClientSettings.FromConnectionString(options.Value.DatabaseUri);
-                var client = new MongoClient(settings);
+                var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase))!;
+                services.Remove(mongoDatabaseDescriptor);
 
-                var camelCaseConvention = new ConventionPack { new CamelCaseElementNameConvention() };
-                // convention must be registered before initialising collection
-                ConventionRegistry.Register("CamelCase", camelCaseConvention, _ => true);
+                var blobOptionsValidatorDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IValidateOptions<BlobServiceOptions>))!;
+                services.Remove(blobOptionsValidatorDescriptor);
 
-                var dbName = string.IsNullOrEmpty(DatabaseName) ? Random.Shared.Next().ToString() : DatabaseName;
-                return client.GetDatabase($"Cdms_MongoDb_{dbName}_Test");
+                services.AddSingleton(sp =>
+                {
+                    var options = sp.GetService<IOptions<MongoDbOptions>>()!;
+                    var settings = MongoClientSettings.FromConnectionString(options.Value.DatabaseUri);
+                    var client = new MongoClient(settings);
+
+                    var camelCaseConvention = new ConventionPack { new CamelCaseElementNameConvention() };
+                    // convention must be registered before initialising collection
+                    ConventionRegistry.Register("CamelCase", camelCaseConvention, _ => true);
+
+                    var dbName = string.IsNullOrEmpty(DatabaseName) ? Random.Shared.Next().ToString() : DatabaseName;
+                    return client.GetDatabase($"Cdms_MongoDb_{dbName}_Test");
+                });
+
+                services.AddLogging(lb => lb.AddXUnit(testOutputHelper));
             });
-
-            var blobServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IBlobService))!;
-            services.Remove(blobServiceDescriptor);
-
-            services.AddOptions<BlobServiceOptions>().Configure(o =>
-            {
-                o.CachePath = "../../../Fixtures";
-                o.AzureClientId = "TestValue";
-                o.AzureClientSecret = "TestValue";
-                o.AzureClientSecret = "TestValue";
-            });
-
-            var mockBlob = NSubstitute.Substitute.For<IBlobService>();
-            services.AddKeyedSingleton<IBlobService>("base", mockBlob);
-            services.AddSingleton<IBlobService, CachingBlobService>();
-
-            services.AddLogging(lb => lb.AddXUnit(testOutputHelper));
-        });
 
         builder.UseEnvironment("Development");
     }
