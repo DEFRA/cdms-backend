@@ -42,6 +42,6 @@ public class ImportNotificationBuilderTests
         builder.WithEntryDate(date);
 
         var notification = builder.Build();
-        notification.UpdatedSource.Should().Be(date);
+        notification.LastUpdated.Should().Be(date);
     }
 }

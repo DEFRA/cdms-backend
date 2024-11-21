@@ -85,7 +85,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
 
     public ImportNotificationBuilder<T> WithEntryDate(DateTime entryDate)
     {
-        return Do(x => x.UpdatedSource = entryDate);
+        return Do(x => x.LastUpdated = entryDate);
     }
 
     public override ImportNotificationBuilder<T> Validate()

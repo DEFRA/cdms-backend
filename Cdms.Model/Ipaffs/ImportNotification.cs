@@ -69,11 +69,6 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     // They are removed from the document that is sent to the client by the JsonApiResourceDefinition OnApplySparseFieldSet
     // mechanism
 
-    /// <summary>
-    /// Tracks the last time the record was changed
-    /// </summary>
-    [Attr]
-    public DateTime CreatedLocal { get; set; }
 
     [Attr]
     [BsonElement("_pointOfEntry")]

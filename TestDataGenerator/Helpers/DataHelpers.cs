@@ -8,7 +8,7 @@ public static class DataHelpers
 {
     internal static string BlobPath(this ImportNotification notification, string rootPath)
     {
-        var dateString = notification.UpdatedSource!.Value.ToString("yyyy/MM/dd");
+        var dateString = notification.LastUpdated!.Value.ToString("yyyy/MM/dd");
 
         return $"{rootPath}/IPAFFS/CHEDA/{dateString}/{notification.ReferenceNumber!.Replace(".","_")}-{Guid.NewGuid()}.json";
     }

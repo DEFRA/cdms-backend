@@ -63,13 +63,7 @@ public class Movement : IMongoIdentifiable, IDataEntity
     [Attr]
     [JsonPropertyName("relationships")]
     public MovementTdmRelationships Relationships { get; set; } = new MovementTdmRelationships();
-
-    /// <summary>
-    /// Tracks the last time the record was changed
-    /// </summary>
-    [Attr]
-    public DateTime CreatedLocal { get; set; }
-
+    
     [BsonElement("_matchReferences")]
     public List<string> _MatchReferences
     {
