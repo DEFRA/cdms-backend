@@ -178,7 +178,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, ex.Message);
+            Logger.LogError(ex, "Failed to Create Blob");
             return false;
         }
     }
@@ -245,7 +245,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, ex.Message);
+            Logger.LogError(ex, "Failed toGetResourcesAsync");
             throw;
         }
     }
