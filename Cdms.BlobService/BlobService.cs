@@ -32,7 +32,9 @@ public class BlobService(
     
     public async Task<Status> CheckBlobAsync(string uri, int timeout = default, int retries = default)
     {
-        Logger.LogInformation("Connecting to blob storage {Uri} : {DmpBlobContainer}. timeout={Timeout}, retries={Retries}.", uri, options.Value.DmpBlobContainer, timeout, retries);
+        Logger.LogInformation("Connecting to blob storage {Uri} : {BlobContainer}. timeout={Timeout}, retries={Retries}.",
+            uri, options.Value.DmpBlobContainer, timeout, retries);
+        
         try
         {
             var containerClient = CreateBlobClient(timeout, retries);
@@ -43,18 +45,18 @@ public class BlobService(
             var itemCount = 0;
             await foreach (BlobHierarchyItem blobItem in folders)
             {
-                Logger.LogInformation(blobItem.Prefix);
+                Logger.LogInformation("\t{Prefix}", blobItem.Prefix);
                 itemCount++;
             }
 
             return new Status()
             {
-                Success = true, Description = String.Format("Connected. {0} blob folders found in RAW", itemCount)
+                Success = true, Description = $"Connected. {itemCount} blob folders found in RAW"
             };
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "CheckBlobAsync Error");
+            Logger.LogError(ex, "Error loading files");
             return new Status() { Success = false, Description = ex.Message };
         }
 
@@ -80,11 +82,20 @@ public class BlobService(
             if (item.Properties.ContentLength is not 0)
             {
                 yield return
-                    new SynchroniserBlobItem(containerClient.GetBlobClient(item.Name)) { Name = item.Name };
+                    new SynchroniserBlobItem() { Name = item.Name };
                 itemCount++;
             }
         }
 
         Logger.LogDebug("GetResourcesAsync {ItemCount} blobs found.", itemCount);
+    }
+
+    public async Task<string> GetResource(IBlobItem item, CancellationToken cancellationToken)
+    {
+        var client = CreateBlobClient(options.Value.Timeout, options.Value.Retries);
+        var blobClient = client.GetBlobClient(item.Name);
+        
+        var content = await blobClient.DownloadContentAsync(cancellationToken);
+        return content.Value.Content.ToString();
     }
 }
