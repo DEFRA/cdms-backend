@@ -1,5 +1,5 @@
-using Cdms.Types.Ipaffs;
 using Cdms.Common.Extensions;
+using Cdms.Types.Ipaffs;
 using TestDataGenerator.Helpers;
 
 namespace TestDataGenerator;
@@ -13,13 +13,13 @@ public class ImportNotificationBuilder : ImportNotificationBuilder<ImportNotific
     private ImportNotificationBuilder(string file) : base(file)
     {
     }
-    
+
     public static ImportNotificationBuilder<ImportNotification> FromFile(string file)
     {
         return new ImportNotificationBuilder(file)
             .WithClean();
     }
-    
+
     public static ImportNotificationBuilder<ImportNotification> Default()
     {
         return new ImportNotificationBuilder()
@@ -37,15 +37,16 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
     protected ImportNotificationBuilder(string file) : base(file)
     {
     }
-    
+
     /// <summary>
-    /// Allows any customisations needed, such as removing problems with serialisation, e.g. Do(n => Array.ForEach(n.PartOne!.Commodities!.ComplementParameterSets!, x => x.KeyDataPairs = null));
+    ///     Allows any customisations needed, such as removing problems with serialisation, e.g. Do(n =>
+    ///     Array.ForEach(n.PartOne!.Commodities!.ComplementParameterSets!, x => x.KeyDataPairs = null));
     /// </summary>
     protected ImportNotificationBuilder<T> WithClean()
     {
         // TODO : 
-        
-        return this; 
+
+        return this;
     }
 
     public ImportNotificationBuilder<T> WithRandomCommodities(int min, int max)
@@ -57,21 +58,20 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
             var commodities = Enumerable.Range(0, commodityCount)
                 .Select(_ => n.PartOne!.Commodities!.CommodityComplements![0]
                 ).ToArray();
-            
+
             n.PartOne!.Commodities!.CommodityComplements = commodities;
         });
     }
 
-    public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType, int scenario, DateTime created, int item)
+    public ImportNotificationBuilder<T> WithReferenceNumber(ImportNotificationTypeEnum chedType, int scenario,
+        DateTime created, int item)
     {
         var prefix = chedType.ConvertToChedType();
 
-        if (item > 999999)
-        {
-            throw new ArgumentException("Currently only deals with max 100,000 items");
-        }
+        if (item > 999999) throw new ArgumentException("Currently only deals with max 100,000 items");
 
-        return Do(x => x.ReferenceNumber = $"{prefix}.GB.{created.Year}.{scenario:00}{created.DateRef()}{item + 1:000000}");
+        return Do(x =>
+            x.ReferenceNumber = $"{prefix}.GB.{created.Year}.{scenario:00}{created.DateRef()}{item + 1:000000}");
     }
 
     public ImportNotificationBuilder<T> WithEntryDate(DateTime entryDate)
@@ -95,9 +95,6 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
 
     protected override ImportNotificationBuilder<T> Validate()
     {
-        return Do(n =>
-        {
-            n.ReferenceNumber.AssertHasValue();
-        });
+        return Do(n => { n.ReferenceNumber.AssertHasValue(); });
     }
 }

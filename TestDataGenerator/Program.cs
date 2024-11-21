@@ -11,7 +11,7 @@ namespace TestDataGenerator;
 
 internal class Program
 {
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var configuration = new ConfigurationBuilder()
             .AddEnvironmentVariables()
@@ -35,13 +35,9 @@ internal class Program
                 services.AddSingleton<ChedAManyCommoditiesScenarioGenerator>();
                 services.AddSingleton<ChedPSimpleMatchScenarioGenerator>();
                 if (generatorConfig.StorageService == StorageService.Local)
-                {
                     services.AddSingleton<IBlobService, LocalBlobService>();
-                }
                 else
-                {
                     services.AddSingleton<IBlobService, BlobService>();
-                }
 
                 services.AddTransient<Generator>();
             })
@@ -61,10 +57,7 @@ internal class Program
             {
                 Dataset = "LoadTest-One",
                 RootPath = "GENERATED-LOADTEST-ONE",
-                Scenarios = new[]
-                {
-                    app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(1, 3)
-                }
+                Scenarios = new[] { app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(1, 3) }
             },
             new
             {
@@ -81,11 +74,12 @@ internal class Program
             {
                 Dataset = "LoadTest-Full",
                 RootPath = "GENERATED-LOADTEST-FULL",
-                Scenarios = new[]
-                {
-                    app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(100, 90),
-                    app.CreateScenarioConfig<ChedAManyCommoditiesScenarioGenerator>(100, 90)
-                }
+                Scenarios =
+                    new[]
+                    {
+                        app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(100, 90),
+                        app.CreateScenarioConfig<ChedAManyCommoditiesScenarioGenerator>(100, 90)
+                    }
             },
             new
             {
@@ -101,10 +95,7 @@ internal class Program
             {
                 Dataset = "IBM-SCENARIO-1",
                 RootPath = "IBM-SCENARIO-1-CHEDP-1-ITEM-1-CR",
-                Scenarios = new[]
-                {
-                    app.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(10, 30)
-                }
+                Scenarios = new[] { app.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(10, 30) }
             }
         };
 
@@ -114,18 +105,18 @@ internal class Program
         // Could be fed by CLI for example
         var setsToRun = datasets
             .Where(d => d.Dataset == "IBM-SCENARIO-1");
-        
+
         // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
         logger.LogInformation(setsToRun.ToJson());
 
         var scenario = 1;
-        
+
         foreach (var dataset in setsToRun)
         {
             logger.LogInformation("{ScenariosCount} scenario(s) configured", dataset.Scenarios.Count());
 
             await generator.Cleardown(dataset.RootPath);
-            
+
             foreach (var s in dataset.Scenarios)
             {
                 await generator.Generate(scenario, s.Count, s.Days, s.Generator, dataset.RootPath);

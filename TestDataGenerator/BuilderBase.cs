@@ -8,8 +8,6 @@ namespace TestDataGenerator;
 public abstract class BuilderBase<T, TBuilder>
     where TBuilder : BuilderBase<T, TBuilder> where T : new()
 {
-    protected Fixture Fixture { get; private set; } = null!;
-
     private IPostprocessComposer<T> _composer = null!;
 
     protected BuilderBase()
@@ -25,6 +23,8 @@ public abstract class BuilderBase<T, TBuilder>
 
         Setup(n);
     }
+
+    protected Fixture Fixture { get; private set; } = null!;
 
     public TBuilder With<TProperty>(Expression<Func<T, TProperty>> propertyPicker, TProperty value)
     {
@@ -47,21 +47,32 @@ public abstract class BuilderBase<T, TBuilder>
         return (TBuilder)this;
     }
 
-    protected string CreateRandomString(int length) => string.Join("", Fixture.CreateMany<char>(length));
+    protected string CreateRandomString(int length)
+    {
+        return string.Join("", Fixture.CreateMany<char>(length));
+    }
 
-    protected string CreateRandomInt(int length) =>
-        CreateRandomInt(Convert.ToInt32(Math.Pow(10, length - 1)), Convert.ToInt32(Math.Pow(10, length) - 1))
+    protected string CreateRandomInt(int length)
+    {
+        return CreateRandomInt(Convert.ToInt32(Math.Pow(10, length - 1)), Convert.ToInt32(Math.Pow(10, length) - 1))
             .ToString();
+    }
 
-    protected int CreateRandomInt(int min, int max) => new Random().Next(min, max);
+    protected int CreateRandomInt(int min, int max)
+    {
+        return new Random().Next(min, max);
+    }
 
-    public T Build() => _composer.Create();
+    public T Build()
+    {
+        return _composer.Create();
+    }
 
     protected abstract TBuilder Validate();
 
     public T ValidateAndBuild()
     {
-        return this.Validate().Build();
+        return Validate().Build();
     }
 
     private void Setup(T? item = default)

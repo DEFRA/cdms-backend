@@ -1,7 +1,7 @@
+using Cdms.Common.Extensions;
 using Cdms.Model;
 using Cdms.Types.Alvs;
 using TestDataGenerator.Helpers;
-using Cdms.Common.Extensions;
 
 namespace TestDataGenerator;
 
@@ -32,14 +32,14 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
     {
         var id = MatchIdentifier.FromNotification(chedReference);
         var clearanceRequestDocumentReference = id.AsCdsDocumentReference();
-        
-        return 
+
+        return
             Do(x => x.Header!.EntryReference = id.AsCdsEntryReference())
-            .Do(x => x.Header!.DeclarationUcr = id.AsCdsDeclarationUcr()) // We may want to revisit this
-            .Do(x => x.Header!.MasterUcr = id.AsCdsMasterUcr()) // We may want to revisit this
-            .Do(x => 
-                Array.ForEach(x.Items!, i => 
-                    Array.ForEach(i.Documents!, d=> d.DocumentReference = clearanceRequestDocumentReference)));
+                .Do(x => x.Header!.DeclarationUcr = id.AsCdsDeclarationUcr()) // We may want to revisit this
+                .Do(x => x.Header!.MasterUcr = id.AsCdsMasterUcr()) // We may want to revisit this
+                .Do(x =>
+                    Array.ForEach(x.Items!, i =>
+                        Array.ForEach(i.Documents!, d => d.DocumentReference = clearanceRequestDocumentReference)));
     }
 
     public ClearanceRequestBuilder<T> WithEntryDate(DateTime entryDate)
@@ -47,7 +47,8 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
         return Do(x => x.ServiceHeader!.ServiceCallTimestamp = entryDate);
     }
 
-    public ClearanceRequestBuilder<T> WithItem(string documentCode, string commodityCode, string description, int netWeight)
+    public ClearanceRequestBuilder<T> WithItem(string documentCode, string commodityCode, string description,
+        int netWeight)
     {
         return Do(x => x.Items![0].TaricCommodityCode = commodityCode)
             .Do(x => x.Items![0].GoodsDescription = description)
@@ -60,12 +61,10 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
         return Do(x =>
         {
             foreach (var item in x.Items!)
+            foreach (var document in item.Documents!)
             {
-                foreach (var document in item.Documents!)
-                {
-                    document.DocumentReference = "GBCHD2024.1001278";
-                    document.DocumentCode = "C640";
-                }
+                document.DocumentReference = "GBCHD2024.1001278";
+                document.DocumentCode = "C640";
             }
         });
     }
@@ -77,8 +76,8 @@ public class ClearanceRequestBuilder<T> : BuilderBase<T, ClearanceRequestBuilder
             cr.Header!.EntryReference.AssertHasValue();
             cr.Header!.DeclarationUcr.AssertHasValue();
             cr.Header!.MasterUcr.AssertHasValue();
-            
-            Array.ForEach(cr.Items!, i=> Array.ForEach(i.Documents!, d => d.DocumentReference.AssertHasValue()));
+
+            Array.ForEach(cr.Items!, i => Array.ForEach(i.Documents!, d => d.DocumentReference.AssertHasValue()));
         });
     }
 }

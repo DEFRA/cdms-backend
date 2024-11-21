@@ -14,7 +14,7 @@ public static class Logging
             .ConfigureLogging((_, l) =>
                 {
                     l.AddConsole();
-                    
+
                     // l.ClearProviders();
                     //
                     // var loggerConfiguration = new LoggerConfiguration()
@@ -31,7 +31,6 @@ public static class Logging
                     //     .CreateLogger();
                     //
                     // builder.Logging.AddSerilog(logger);
-
                 }
             );
         // .AddLogging(l =>
