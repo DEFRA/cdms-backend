@@ -10,6 +10,7 @@ using Cdms.Backend.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
+using Google.Protobuf.WellKnownTypes;
 
 namespace CdmsBackend.IntegrationTests.Helpers;
 
@@ -22,13 +23,8 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
             var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase))!;
             services.Remove(mongoDatabaseDescriptor);
 
-            services
-                .PostConfigure<BlobServiceOptions>(x =>
-                {
-                    x.AzureClientId = "TestValue";
-                    x.AzureClientSecret = "TestValue";
-                    x.AzureClientSecret = "TestValue";
-                });
+            var blobOptionsValidatorDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IValidateOptions<BlobServiceOptions>))!;
+            services.Remove(blobOptionsValidatorDescriptor);
 
             services.AddSingleton(sp =>
             {
@@ -50,6 +46,9 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
             services.AddOptions<BlobServiceOptions>().Configure(o =>
             {
                 o.CachePath = "../../../Fixtures";
+                o.AzureClientId = "TestValue";
+                o.AzureClientSecret = "TestValue";
+                o.AzureClientSecret = "TestValue";
             });
 
             var mockBlob = NSubstitute.Substitute.For<IBlobService>();
