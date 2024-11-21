@@ -1,3 +1,4 @@
+using Azure.Core;
 using Cdms.BlobService;
 using Cdms.SensitiveData;
 using Cdms.SyncJob;
@@ -41,31 +42,23 @@ namespace Cdms.Business.Commands
                 }
 
                 var chedTypesToSync = new List<string>();
-                
 
-                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDA"))
-                {
-                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDA");
-                }
-
-                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDD"))
-                {
-                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDD");
-                }
-
-                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDP"))
-                {
-                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDP");
-                }
-
-                if (!request.ChedTypes.Any() || request.ChedTypes.Contains("CHEDPP"))
-                {
-                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/CHEDPP");
-                }
+                AddIf(chedTypesToSync, request, rootFolder, "CHEDA");
+                AddIf(chedTypesToSync, request, rootFolder, "CHEDD");
+                AddIf(chedTypesToSync, request, rootFolder, "CHEDP");
+                AddIf(chedTypesToSync, request, rootFolder, "CHEDPP");
 
                 await SyncBlobPaths<Types.Ipaffs.ImportNotification>(request.SyncPeriod, "NOTIFICATIONS",
                     request.JobId,
                     chedTypesToSync.ToArray());
+            }
+
+            private static void AddIf(List<string> chedTypesToSync, SyncNotificationsCommand request, string rootFolder, string chedType)
+            {
+                if (!request.ChedTypes.Any() || request.ChedTypes.Contains(chedType))
+                {
+                    chedTypesToSync.Add($"{rootFolder}/IPAFFS/{chedType}");
+                }
             }
         }
     }
