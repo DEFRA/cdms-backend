@@ -52,13 +52,13 @@ public abstract class BuilderBase<T, TBuilder>
         return string.Join("", Fixture.CreateMany<char>(length));
     }
 
-    protected string CreateRandomInt(int length)
+    protected static string CreateRandomInt(int length)
     {
         return CreateRandomInt(Convert.ToInt32(Math.Pow(10, length - 1)), Convert.ToInt32(Math.Pow(10, length) - 1))
             .ToString();
     }
 
-    protected int CreateRandomInt(int min, int max)
+    protected static int CreateRandomInt(int min, int max)
     {
         return Random.Shared.Next(min, max);
     }
