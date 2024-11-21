@@ -34,7 +34,7 @@ public class ImportNotificationTests(IntegrationTestsApplicationFactory factory,
         await Task.Delay(500);
 
         // Assert
-        var importNotification = await factory.GetDbContext().Notifications.Find("CHEDA.GB.2024.1044183");
+        var importNotification = await factory.GetDbContext().Notifications.Find("CHEDA.GB.2024.1041389");
         importNotification.AuditEntries.Count.Should().Be(1);
     }
 
