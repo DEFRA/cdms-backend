@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
-using System.IO;
 using Cdms.Backend.Data;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
@@ -19,12 +18,12 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase));
-            services.Remove(mongoDatabaseDescriptor);
+            services.Remove(mongoDatabaseDescriptor!);
 
             services.AddSingleton(sp =>
             {
                 var options = sp.GetService<IOptions<MongoDbOptions>>();
-                var settings = MongoClientSettings.FromConnectionString(options.Value.DatabaseUri);
+                var settings = MongoClientSettings.FromConnectionString(options?.Value.DatabaseUri);
                 var client = new MongoClient(settings);
 
                 var camelCaseConvention = new ConventionPack { new CamelCaseElementNameConvention() };
@@ -36,26 +35,26 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
             });
 
             var blobServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IBlobService));
-            services.Remove(blobServiceDescriptor);
+            services.Remove(blobServiceDescriptor!);
 
             services.AddSingleton<IBlobService>(new LocalBlobService("../../../Fixtures"));
 
-            services.AddLogging(lb => lb.AddXUnit(testOutputHelper));
+            services.AddLogging(lb => lb.AddXUnit(TestOutputHelper));
         });
 
         builder.UseEnvironment("Development");
     }
 
-    internal ITestOutputHelper testOutputHelper { get; set; }
+    internal ITestOutputHelper TestOutputHelper { get; set; } = null!;
 
-    internal string DatabaseName { get; set; }
+    internal string DatabaseName { get; set; } = null!;
 
     public IMongoDbContext GetDbContext()
     {
         return Services.CreateScope().ServiceProvider.GetRequiredService<IMongoDbContext>();
     }
 
-    public async Task ClearDb(HttpClient client)
+    public static async Task ClearDb(HttpClient client)
     {
         await client.GetAsync("mgmt/collections/drop");
     }

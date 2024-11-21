@@ -8,12 +8,12 @@ public class BlobServiceOptions : IAzureConfig
 {
     public const string SectionName = nameof(BlobServiceOptions);
 
-    [Required] public string DmpBlobContainer { get; set; }
+    [Required] public string DmpBlobContainer { get; set; } = null!;
 
-    [Required] public string DmpBlobUri { get; set; }
-    [Required] public string AzureClientId { get; set; }
-    [Required] public string AzureTenantId { get; set; }
-    [Required] public string AzureClientSecret { get; set; }
+    [Required] public string DmpBlobUri { get; set; } = null!;
+    [Required] public string AzureClientId { get; set; } = null!;
+    [Required] public string AzureTenantId { get; set; } = null!;
+    [Required] public string AzureClientSecret { get; set; } = null!;
 
     public int Retries { get; set; } = 3;
 

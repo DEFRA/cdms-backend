@@ -64,7 +64,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
     [JsonConverter(typeof(JsonStringEnumConverter<SyncPeriod>))]
     public SyncPeriod SyncPeriod { get; set; }
 
-    public string RootFolder { get; set; }
+    public string RootFolder { get; set; } = null!;
 
     public Guid JobId { get; set; } = Guid.NewGuid();
     public string Timespan => SyncPeriod.ToString();
@@ -90,13 +90,13 @@ public abstract class SyncCommand() : IRequest, ISyncJob
         protected async Task SyncBlobPaths<TRequest>(SyncPeriod period, string topic, Guid jobId, params string[] paths)
         {
             var job = syncJobStore.GetJob(jobId);
-            job.Start();
+            job?.Start();
             logger.LogInformation($"SyncNotifications period: {period.ToString()}, maxDegreeOfParallelism={maxDegreeOfParallelism}, Environment.ProcessorCount={Environment.ProcessorCount}");
             try
             {
                 await Parallel.ForEachAsync(paths, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, async (path, token) =>
                 {
-                     await SyncBlobPath<TRequest>(path, period, topic, job, token);
+                     await SyncBlobPath<TRequest>(path, period, topic, job!, token);
                 });
                 
             }
@@ -106,7 +106,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
             }
             finally
             {
-                job.CompletedReadingBlobs();
+                job?.CompletedReadingBlobs();
             }
         }
 
@@ -149,7 +149,7 @@ var timer = Stopwatch.StartNew();
                     };
                     if (CdmsDiagnostics.ActivitySource.HasListeners())
                     {
-                        headers.Add("traceparent", activity.Id);
+                        headers.Add("traceparent", activity?.Id!);
                     }
                     await bus.Publish(message,
                         topic,

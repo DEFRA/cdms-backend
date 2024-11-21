@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Cdms.BlobService;
 
 namespace CdmsBackend.IntegrationTests.Helpers;
@@ -19,7 +20,7 @@ public class LocalBlobService(string root) : IBlobService
         return ScanFiles(Path.Combine(root, prefix), cancellationToken);
     }
 
-    public async IAsyncEnumerable<IBlobItem> ScanFiles(string prefix, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<IBlobItem> ScanFiles(string prefix, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         foreach (string f in Directory.GetFiles(prefix))
         {
