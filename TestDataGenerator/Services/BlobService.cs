@@ -44,6 +44,8 @@ public interface IBlobService
     public Task<bool> CreateBlobsAsync(IBlobItem[] items);
 }
 
+public class BlobServiceException(Exception innerException) : Exception("BlobServiceException", innerException);
+
 public abstract class AzureService<T>
 {
     protected readonly TokenCredential Credentials;
@@ -171,7 +173,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "Error uploading file {ItemName} - {Message}", item.Name, ex.Message);
-                    throw;
+                    throw new BlobServiceException(ex);
                 }
 
             return true;
@@ -246,7 +248,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed toGetResourcesAsync");
-            throw;
+            throw new BlobServiceException(ex);
         }
     }
 }
