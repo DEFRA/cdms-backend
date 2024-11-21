@@ -8,16 +8,16 @@ namespace Cdms.Model.Auditing;
 public class AuditEntry
 {
     private const string CreatedBySystem = "System";
-    public string Id { get; set; }
+    public string Id { get; set; } = default!;
     public int Version { get; set; }
 
-    public string CreatedBy { get; set; }
+    public string CreatedBy { get; set; } = default!;
 
     public DateTime? CreatedSource { get; set; }
 
     public DateTime CreatedLocal { get; set; } = System.DateTime.UtcNow;
 
-    public string Status { get; set; }
+    public string Status { get; set; } = default!;
 
     public List<AuditDiffEntry> Diff { get; set; } = new();
 
@@ -28,7 +28,7 @@ public class AuditEntry
         var node1 = JsonNode.Parse(previous.ToJsonString());
         var node2 = JsonNode.Parse(current.ToJsonString());
 
-        return CreateInternal(node1, node2, id, version, lastUpdated, status);
+        return CreateInternal(node1!, node2!, id, version, lastUpdated, status);
     }
 
 
@@ -82,7 +82,7 @@ public class AuditEntry
         var node1 = JsonNode.Parse(previous);
         var node2 = JsonNode.Parse(current);
 
-        return CreateInternal(node1, node2, id, version, lastUpdated, "Decision");
+        return CreateInternal(node1!, node2!, id, version, lastUpdated, "Decision");
     }
 
     private static AuditEntry CreateInternal(JsonNode previous, JsonNode current, string id, int version,
@@ -102,7 +102,7 @@ public class AuditEntry
 
         foreach (var operation in diff.Operations)
         {
-            auditEntry.Diff.Add(AuditDiffEntry.CreateInternal(operation));
+            auditEntry.Diff.Add(AuditDiffEntry.Internal(operation));
         }
 
         return auditEntry;
@@ -111,15 +111,15 @@ public class AuditEntry
 
     public class AuditDiffEntry
     {
-        public string Path { get; set; }
+        public string Path { get; set; } = null!;
 
-        public string Op { get; set; }
+        public string Op { get; set; } = null!;
 
-        public object Value { get; set; }
+        public object Value { get; set; } = null!;
 
-        internal static AuditDiffEntry CreateInternal(PatchOperation operation)
+        internal static AuditDiffEntry Internal(PatchOperation operation)
         {
-            object value = null;
+            object value = null!;
             if (operation.Value != null)
             {
                 switch (operation.Value.GetValueKind())

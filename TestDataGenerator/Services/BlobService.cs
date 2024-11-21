@@ -38,7 +38,7 @@ public class BlobItem : IBlobItem
 {
     public string Name { get; set; } = default!;
 
-    public string NormalisedName { get; set; } = default;
+    public string NormalisedName { get; set; } = default!;
     
     public string Content { get; set; } = default!;
 }
@@ -171,18 +171,6 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
                 await containerClient.DeleteBlobAsync(blobItem.Name);
             }
             
-            // TODO : we currently delete the files, but not the folders, not the end of the world but would prefer to
-            // Remove the folders too - it means doing it recursively from the leaf as you can't remove a folder that has folders
-            // or files in it :|
-            
-            // var directories = containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter:"/");
-            //
-            // await foreach (var blobItem in directories)
-            // {
-            //     Logger.LogInformation($"Found {blobItem.Prefix}, item IsBlob {blobItem.IsBlob}, IsPrefix {blobItem.IsPrefix}");
-            //     await containerClient.DeleteBlobAsync(blobItem.Prefix);
-            // }
-            
             return true;
         }
         catch (Exception ex)
@@ -199,7 +187,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         try
         {
             var containerClient = CreateBlobClient(config.DmpBlobUri);
-            var result = await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
+            await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
             return true;
         }
         catch (Exception ex)
@@ -288,7 +276,6 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
             var containerClient = CreateBlobClient(config.DmpBlobUri);
     
             Logger.LogInformation("Getting blob files from {0}...", prefix);
-            // var itemCount = 0;
             
             var files = containerClient.GetBlobsAsync(prefix: prefix);
             var output = new List<IBlobItem>();
@@ -298,7 +285,6 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
                 if (item.Properties.ContentLength is not 0)
                 {
                     Logger.LogInformation("\t" + item.Name);
-                    // itemCount++;
                     output.Add(new BlobItem() { Name = item.Name });
                 }
             }
@@ -314,27 +300,4 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
     
     }
-    //
-    // public async Task<IBlobItem?> GetBlobAsync(string path)
-    // {
-    //     Logger<>.LogInformation(
-    //         $"Downloading blob {path} from blob storage {config.DmpBlobUri} : {config.DmpBlobContainer}");
-    //     try
-    //     {
-    //         var containerClient = CreateBlobClient(config.DmpBlobUri);
-    //
-    //         var blobClient = containerClient.GetBlobClient(path);
-    //
-    //         var content = await blobClient.DownloadContentAsync();
-    //         
-    //         // content.Value.Content.
-    //         return new SynchroniserBlobItem() { Name = path, Content = content.Value.Content.ToString()! };
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Logger<>.LogError(ex.ToString());
-    //         throw;
-    //     }
-    //
-    // }
 }

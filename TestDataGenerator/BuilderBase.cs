@@ -1,19 +1,16 @@
-using System.Composition;
 using System.Linq.Expressions;
 using System.Text.Json;
 using AutoFixture;
 using AutoFixture.Dsl;
-using AutoFixture.Kernel;
-using Cdms.Types.Ipaffs;
 
 namespace TestDataGenerator;
 
 public abstract class BuilderBase<T, TBuilder>
     where TBuilder : BuilderBase<T, TBuilder> where T : new()
 {
-    protected Fixture Fixture { get; private set; }
+    protected Fixture Fixture { get; private set; } = null!;
 
-    private IPostprocessComposer<T> _composer;
+    private IPostprocessComposer<T> _composer = null!;
 
     protected BuilderBase()
     {
@@ -52,11 +49,11 @@ public abstract class BuilderBase<T, TBuilder>
 
     protected string CreateRandomString(int length) => string.Join("", Fixture.CreateMany<char>(length));
 
-    protected string CreateRandomInt(int length) =>
+    protected static string CreateRandomInt(int length) =>
         CreateRandomInt(Convert.ToInt32(Math.Pow(10, length - 1)), Convert.ToInt32(Math.Pow(10, length) - 1))
             .ToString();
 
-    protected int CreateRandomInt(int min, int max) => new Random().Next(min, max);
+    protected static int CreateRandomInt(int min, int max) => new Random().Next(min, max);
 
     public T Build() => _composer.Create();
     
@@ -67,7 +64,7 @@ public abstract class BuilderBase<T, TBuilder>
         return this.Validate().Build();
     }
 
-    private void Setup(T item = default)
+    private void Setup(T item = default!)
     {
         Fixture = new Fixture();
 
