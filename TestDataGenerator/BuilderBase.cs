@@ -60,7 +60,7 @@ public abstract class BuilderBase<T, TBuilder>
 
     protected int CreateRandomInt(int min, int max)
     {
-        return new Random().Next(min, max);
+        return Random.Shared.Next(min, max);
     }
 
     public T Build()

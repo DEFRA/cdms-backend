@@ -170,7 +170,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "Error uploading file {ItemName}", item.Name);
+                    Logger.LogError(ex, "Error uploading file {ItemName} - {Message}", item.Name, ex.Message);
                     throw;
                 }
 
@@ -245,7 +245,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to Get Resources");
+            Logger.LogError(ex, ex.Message);
             throw;
         }
     }
