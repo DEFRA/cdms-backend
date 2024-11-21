@@ -91,7 +91,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
         {
             var job = syncJobStore.GetJob(jobId);
             job?.Start();
-            logger.LogInformation($"SyncNotifications period: {period.ToString()}, maxDegreeOfParallelism={maxDegreeOfParallelism}, Environment.ProcessorCount={Environment.ProcessorCount}");
+            logger.LogInformation("SyncNotifications period: {Period}, maxDegreeOfParallelism={MaxDegreeOfParallelism}, Environment.ProcessorCount={ProcessorCount}", period.ToString(), maxDegreeOfParallelism, Environment.ProcessorCount);
             try
             {
                 await Parallel.ForEachAsync(paths, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, async (path, token) =>
