@@ -57,7 +57,7 @@ public abstract class AzureService<T>
 
         if (config.AzureClientId != null)
         {
-            logger.LogInformation($"Creating azure credentials based on config vars for {config.AzureClientId}");
+            logger.LogInformation("Creating azure credentials based on config vars for {AzureClientId}", config.AzureClientId);
             Credentials =
                 new ClientSecretCredential(config.AzureTenantId, config.AzureClientId, config.AzureClientSecret);
 
@@ -104,10 +104,10 @@ public class LocalBlobService(ILogger<LocalBlobService> logger) : IBlobService
     {
         var fullPath = $"{_rootPath}{item.Name}";
 
-        logger.LogInformation($"Create folder for file {fullPath}");
+        logger.LogInformation("Create folder for file {FullPath}", fullPath);
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
-        logger.LogInformation($"Create file {fullPath}");
+        logger.LogInformation("Create file {FullPath}", fullPath);
         await File.WriteAllTextAsync(fullPath, item.Content);
 
         return true;
@@ -119,7 +119,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
 {
     public async Task<bool> CleanAsync(string prefix)
     {
-        Logger.LogInformation($"Cleaning blob storage {config.DmpBlobUri} : {config.DmpBlobContainer} / ${prefix}");
+        Logger.LogInformation("Cleaning blob storage {DmpBlobUri} : {DmpBlobContainer} / ${Prefix}", config.DmpBlobUri, config.DmpBlobContainer, prefix);
 
         try
         {
@@ -128,7 +128,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
 
             foreach (var blobItem in allBlobs)
             {
-                Logger.LogInformation($"Deleting {blobItem.Name}");
+                Logger.LogInformation("Deleting {BlobItemName}", blobItem.Name);
                 await containerClient.DeleteBlobAsync(blobItem.Name);
             }
 
@@ -148,7 +148,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.ToString());
+            Logger.LogError(ex, "Failed to clean blobs");
             return false;
         }
     }
@@ -164,14 +164,13 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
             foreach (var item in items)
                 try
                 {
-                    Logger.LogInformation($"Uploading file {item.Name}");
+                    Logger.LogInformation("Uploading file {ItemName}", item.Name);
                     var result = await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
-                    Logger.LogInformation($"Uploaded file {item.Name} Result = {result}");
-                    // if (result.Value.)
+                    Logger.LogInformation("Uploaded file {ItemName} Result = {Result}", item.Name, result);
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError($"Error uploading file ${item.Name}, {ex}");
+                    Logger.LogError(ex, "Error uploading file {ItemName}", item.Name);
                     throw;
                 }
 
@@ -179,7 +178,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         }
         catch (Exception ex)
         {
-            Logger.LogError($"Error uploading files ${ex}");
+            Logger.LogError(ex, "Error uploading files");
             return false;
         }
     }
@@ -210,52 +209,16 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         try
         {
             var containerClient = CreateBlobClient(config.DmpBlobUri);
-            var result = await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
+            await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
             return true;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.ToString());
+            Logger.LogError(ex, "Failed to Create Blob");
             return false;
         }
     }
-
-    // public async Task<Status> CheckBlobAsync()
-    // {
-    //     return await CheckBlobAsync(config.DmpBlobUri);
-    // }
-    //
-    // public async Task<Status> CheckBlobAsync(string serviceUri)
-    // {
-    //     Logger<>.LogInformation("Connecting to blob storage {0} : {1}", serviceUri,
-    //         config.DmpBlobContainer);
-    //     try
-    //     {
-    //         var containerClient = CreateBlobClient(serviceUri, 0, 5);
-    //         
-    //         Logger<>.LogInformation("Getting blob folders...");
-    //         var folders = containerClient.GetBlobsByHierarchyAsync(prefix: "RAW/", delimiter: "/");
-    //
-    //         var itemCount = 0;
-    //         await foreach (BlobHierarchyItem blobItem in folders)
-    //         {
-    //             Logger<>.LogInformation("\t" + blobItem.Prefix);
-    //             itemCount++;
-    //         }
-    //
-    //         return new Status()
-    //         {
-    //             Success = true, Description = String.Format("Connected. {0} blob folders found in RAW", itemCount)
-    //         };
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Logger<>.LogError(ex.ToString());
-    //         return new Status() { Success = false, Description = ex.Message };
-    //     }
-    //
-    // }
-    //
+    
     public async Task<IEnumerable<IBlobItem>> GetResourcesAsync(string prefix)
     {
         Logger.LogInformation("Connecting to blob storage {0} : {1}", config.DmpBlobUri,
@@ -265,7 +228,6 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
             var containerClient = CreateBlobClient(config.DmpBlobUri);
 
             Logger.LogInformation("Getting blob files from {0}...", prefix);
-            // var itemCount = 0;
 
             var files = containerClient.GetBlobsAsync(prefix: prefix);
             var output = new List<IBlobItem>();
@@ -273,42 +235,18 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
             await foreach (var item in files)
                 if (item.Properties.ContentLength is not 0)
                 {
-                    Logger.LogInformation("\t" + item.Name);
-                    // itemCount++;
+                    Logger.LogInformation(item.Name);
                     output.Add(new BlobItem { Name = item.Name });
                 }
 
-            Logger.LogInformation($"GetResourcesAsync {output.Count} blobs found.");
+            Logger.LogInformation("GetResourcesAsync {OutputCount} blobs found.", output.Count);
 
             return output;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex.ToString());
+            Logger.LogError(ex, "Failed to Get Resources");
             throw;
         }
     }
-    //
-    // public async Task<IBlobItem?> GetBlobAsync(string path)
-    // {
-    //     Logger<>.LogInformation(
-    //         $"Downloading blob {path} from blob storage {config.DmpBlobUri} : {config.DmpBlobContainer}");
-    //     try
-    //     {
-    //         var containerClient = CreateBlobClient(config.DmpBlobUri);
-    //
-    //         var blobClient = containerClient.GetBlobClient(path);
-    //
-    //         var content = await blobClient.DownloadContentAsync();
-    //         
-    //         // content.Value.Content.
-    //         return new SynchroniserBlobItem() { Name = path, Content = content.Value.Content.ToString()! };
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Logger<>.LogError(ex.ToString());
-    //         throw;
-    //     }
-    //
-    // }
 }

@@ -15,16 +15,16 @@ public class Generator(ILogger<Generator> logger, IBlobService blobService)
 
     internal async Task Generate(int scenario, int count, int days, ScenarioGenerator generator, string rootPath)
     {
-        logger.LogInformation($"Generating {count}x{days} {generator}.");
+        logger.LogInformation("Generating {Count}x{Days} {Generator}.", count, days, generator);
 
         for (var d = -days + 1; d <= 0; d++)
         {
-            logger.LogInformation($"Generating day {d}");
+            logger.LogInformation("Generating day {D}", d);
             var entryDate = DateTime.Today.AddDays(d);
 
             for (var i = 0; i < count; i++)
             {
-                logger.LogInformation($"Generating item {i}");
+                logger.LogInformation("Generating item {I}", i);
 
                 var generatorResult = generator.Generate(scenario, i, entryDate);
                 var uploadResult = await InsertToBlobStorage(generatorResult, rootPath);
@@ -36,7 +36,7 @@ public class Generator(ILogger<Generator> logger, IBlobService blobService)
     internal async Task<bool> InsertToBlobStorage(ScenarioGenerator.GeneratorResult result, string rootPath)
     {
         logger.LogInformation(
-            $"Uploading {result.ImportNotifications.Length} Notification(s) and {result.ClearanceRequests.Length} Clearance Request(s) to blob storage");
+            "Uploading {ImportNotificationsLength} Notification(s) and {ClearanceRequestsLength} Clearance Request(s) to blob storage", result.ImportNotifications.Length, result.ClearanceRequests.Length);
 
         var importNotificationBlobItems = result.ImportNotifications.Select(n =>
             new BlobItem { Name = n.BlobPath(rootPath), Content = JsonSerializer.Serialize(n) });
