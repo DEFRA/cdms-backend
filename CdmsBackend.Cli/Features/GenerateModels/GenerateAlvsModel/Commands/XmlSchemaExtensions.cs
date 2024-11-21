@@ -51,8 +51,9 @@ public static class XmlSchemaExtensions
         {
             schema = schema.Parent;
         }
+        //schemaElement.SchemaTypeName
 
-        foreach (var item in (schema as XmlSchema)?.Items!)
+        foreach (var item in ((XmlSchema)schema!)?.Items!)
         {
             if (item is XmlSchemaType schemaType && schemaType.Name == schemaElement.SchemaTypeName.Name)
             {

@@ -38,7 +38,7 @@ public class BlobItem : IBlobItem
 {
     public string Name { get; set; } = default!;
 
-    public string NormalisedName { get; set; } = default!;
+    public string NormalisedName { get; set; } = default;
     
     public string Content { get; set; } = default!;
 }
@@ -187,7 +187,7 @@ public class BlobService(ILogger<BlobService> logger, GeneratorConfig config, IH
         try
         {
             var containerClient = CreateBlobClient(config.DmpBlobUri);
-            await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
+            var result = await containerClient.UploadBlobAsync(item.Name, BinaryData.FromString(item.Content));
             return true;
         }
         catch (Exception ex)

@@ -44,7 +44,6 @@ namespace CdmsBackend.Cli.Features.GenerateModels.DescriptorModel
                     "[MongoDB.Bson.Serialization.Attributes.BsonRepresentation(MongoDB.Bson.BsonType.String)]");
             }
         }
-
         public string SourceName { get; set; }
 
         public string InternalName { get; set; }
