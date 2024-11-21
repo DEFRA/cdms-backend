@@ -17,21 +17,18 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration(configurationBuilder =>
-        {
-            var mockData = new List<KeyValuePair<string, string?>>
-            {
-                new("BlobServiceOptions:AzureClientId", "TestValue"),
-                new("BlobServiceOptions:AzureTenantId", "TestValue"),
-                new("BlobServiceOptions:AzureClientSecret", "TestValue")
-
-            };
-            configurationBuilder.AddInMemoryCollection(mockData);
-        });
         builder.ConfigureServices(services =>
         {
             var mongoDatabaseDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase))!;
             services.Remove(mongoDatabaseDescriptor);
+
+            services
+                .PostConfigure<BlobServiceOptions>(x =>
+                {
+                    x.AzureClientId = "TestValue";
+                    x.AzureClientSecret = "TestValue";
+                    x.AzureClientSecret = "TestValue";
+                });
 
             services.AddSingleton(sp =>
             {
