@@ -95,13 +95,15 @@ public class Movement : IMongoIdentifiable, IDataEntity
     {
         bool linked = false;
         Relationships.Notifications.Links ??= relationship.Links;
-        foreach (var dataItem in relationship.Data.Where(dataItem => Relationships.Notifications.Data.TrueForAll(x => x.Id != dataItem.Id)))
+
+        var dataItems = relationship.Data.Where(dataItem =>
+            Relationships.Notifications.Data.TrueForAll(x => x.Id != dataItem.Id))
+            .ToList();
+        
+        if (dataItems.Any())
         {
-            if (Relationships.Notifications.Data.All(x => x.Id != dataItem.Id))
-            {
-                Relationships.Notifications.Data.Add(dataItem);
-                linked = true;
-            }
+            Relationships.Notifications.Data.AddRange(dataItems);
+            linked = true;
         }
 
         Relationships.Notifications.Matched = Items

@@ -115,13 +115,15 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     {
         bool linked = false;
         Relationships.Movements.Links ??= relationship.Links;
-        foreach (var dataItem in relationship.Data.Where(dataItem => Relationships.Movements.Data.TrueForAll(x => x.Id != dataItem.Id)))
+        
+        var dataItems = relationship.Data.Where(dataItem =>
+                Relationships.Movements.Data.TrueForAll(x => x.Id != dataItem.Id))
+            .ToList();
+        
+        if (dataItems.Any())
         {
-            if (Relationships.Movements.Data.TrueForAll(x => x.Id != dataItem.Id))
-            {
-                Relationships.Movements.Data.Add(dataItem);
-                linked = true;
-            }
+            Relationships.Movements.Data.AddRange(dataItems);
+            linked = true;
         }
 
         Relationships.Movements.Matched = Relationships.Movements.Data.TrueForAll(x => x.Matched.GetValueOrDefault());
