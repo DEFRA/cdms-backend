@@ -1,3 +1,4 @@
+using Cdms.Common.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -10,10 +11,8 @@ namespace Cdms.BlobService.Extensions
             IConfiguration configuration)
         {
             var config = configuration.GetSection(BlobServiceOptions.SectionName);
-            
-            services.AddOptions<BlobServiceOptions>()
-                .Bind(config)
-                .ValidateDataAnnotations();
+
+            services.CdmsAddOptions<BlobServiceOptions>(configuration, BlobServiceOptions.SectionName);
 
             var blobOptions = config.Get<BlobServiceOptions>()!;
             

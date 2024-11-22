@@ -1,16 +1,14 @@
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using Cdms.BlobService;
+using Cdms.Common;
 using Cdms.SensitiveData;
+using Cdms.SyncJob;
 using Microsoft.Extensions.Logging;
 using SlimMessageBus;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Text;
 using System.Text.Json.Serialization;
 using IRequest = MediatR.IRequest;
-using System.Text;
-using Cdms.Common;
-using Cdms.SyncJob;
-using JsonApiDotNetCore.Queries.Parsing;
 
 namespace Cdms.Business.Commands;
 
@@ -65,7 +63,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
     [JsonConverter(typeof(JsonStringEnumConverter<SyncPeriod>))]
     public SyncPeriod SyncPeriod { get; set; }
 
-    public string RootFolder { get; set; }
+    public string RootFolder { get; set; } = null!;
 
     public Guid JobId { get; set; } = Guid.NewGuid();
     public string Timespan => SyncPeriod.ToString();
@@ -91,15 +89,15 @@ public abstract class SyncCommand() : IRequest, ISyncJob
         protected async Task SyncBlobPaths<TRequest>(SyncPeriod period, string topic, Guid jobId, params string[] paths)
         {
             var job = syncJobStore.GetJob(jobId);
-            job.Start();
+            job?.Start();
             logger.LogInformation("SyncNotifications period: {Period}, maxDegreeOfParallelism={MaxDegreeOfParallelism}, Environment.ProcessorCount={ProcessorCount}", period.ToString(), maxDegreeOfParallelism, Environment.ProcessorCount);
             try
             {
                 await Parallel.ForEachAsync(paths, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, async (path, token) =>
                 {
-                     await SyncBlobPath<TRequest>(path, period, topic, job, token);
+                    await SyncBlobPath<TRequest>(path, period, topic, job!, token);
                 });
-                
+
             }
             catch (Exception ex)
             {
@@ -107,18 +105,18 @@ public abstract class SyncCommand() : IRequest, ISyncJob
             }
             finally
             {
-                job.CompletedReadingBlobs();
+                job?.CompletedReadingBlobs();
             }
         }
 
         protected async Task SyncBlobPath<TRequest>(string path, SyncPeriod period, string topic, SyncJob.SyncJob job,
             CancellationToken cancellationToken)
         {
-            logger.LogInformation("Sync Path: {Path} - period: {Period}", path, period.ToString());
+            logger.LogInformation("Sync Path: {Path} - period: {period}", path, period.ToString());
 
             var result = blobService.GetResourcesAsync($"{path}{GetPeriodPath(period)}", cancellationToken);
 
-            await Parallel.ForEachAsync(result, new ParallelOptions() { CancellationToken = cancellationToken, MaxDegreeOfParallelism = maxDegreeOfParallelism },  async (item, token) =>
+            await Parallel.ForEachAsync(result, new ParallelOptions() { CancellationToken = cancellationToken, MaxDegreeOfParallelism = maxDegreeOfParallelism }, async (item, token) =>
             {
                 await SyncBlob<TRequest>(path, topic, item, job, token);
             });
@@ -128,13 +126,13 @@ public abstract class SyncCommand() : IRequest, ISyncJob
         protected async Task SyncBlobs<TRequest>(SyncPeriod period, string topic, Guid jobId, params string[] paths)
         {
             var job = syncJobStore.GetJob(jobId);
-            job.Start();
+            job?.Start();
             logger.LogInformation("SyncNotifications period: {Period}, maxDegreeOfParallelism={MaxDegreeOfParallelism}, Environment.ProcessorCount={ProcessorCount}", period.ToString(), maxDegreeOfParallelism, Environment.ProcessorCount);
             try
             {
                 foreach (var path in paths)
                 {
-                    await SyncBlob<TRequest>(path, topic, new SynchroniserBlobItem() { Name = path }, job, CancellationToken.None);
+                    await SyncBlob<TRequest>(path, topic, new SynchroniserBlobItem() { Name = path }, job!, CancellationToken.None);
                 }
 
             }
@@ -144,14 +142,14 @@ public abstract class SyncCommand() : IRequest, ISyncJob
             }
             finally
             {
-                job.CompletedReadingBlobs();
+                job?.CompletedReadingBlobs();
             }
         }
 
         private async Task SyncBlob<TRequest>(string path, string topic, IBlobItem item, SyncJob.SyncJob job,
             CancellationToken cancellationToken)
         {
-          
+
             var timer = Stopwatch.StartNew();
             var tagList = new TagList
             {
@@ -173,7 +171,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
                     };
                     if (CdmsDiagnostics.ActivitySource.HasListeners())
                     {
-                        headers.Add("traceparent", activity.Id);
+                        headers.Add("traceparent", activity?.Id!);
                     }
                     await bus.Publish(message,
                         topic,
@@ -197,7 +195,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
             }
         }
 
-       
+
 
         private static string GetPeriodPath(SyncPeriod period)
         {
