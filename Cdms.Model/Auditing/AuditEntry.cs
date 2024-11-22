@@ -8,32 +8,33 @@ namespace Cdms.Model.Auditing;
 public class AuditEntry
 {
     private const string CreatedBySystem = "System";
-    public string Id { get; set; } = null!;
+    public string Id { get; set; } = default!;
     public int Version { get; set; }
 
-    public string CreatedBy { get; set; } = null!;
+    public string CreatedBy { get; set; } = default!;
 
     public DateTime? CreatedSource { get; set; }
 
-    public DateTime CreatedLocal { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedLocal { get; set; } = System.DateTime.UtcNow;
 
-    public string Status { get; set; } = null!;
+    public string Status { get; set; } = default!;
 
-    public List<AuditDiffEntry> Diff { get; set; } = [];
+    public List<AuditDiffEntry> Diff { get; set; } = new();
 
 
-    public static AuditEntry Create<T>(T previous, T current, string id, int version, DateTime? lastUpdated, string status)
+    public static AuditEntry Create<T>(T previous, T current, string id, int version, DateTime? lastUpdated,
+        string lastUpdatedBy, string status)
     {
         var node1 = JsonNode.Parse(previous.ToJsonString());
         var node2 = JsonNode.Parse(current.ToJsonString());
 
-        return Internal(node1, node2, id, version, lastUpdated, status);
+        return CreateInternal(node1!, node2!, id, version, lastUpdated, status);
     }
 
 
     public static AuditEntry CreateUpdated<T>(T previous, T current, string id, int version, DateTime? lastUpdated)
     {
-        return Create(previous, current, id, version, lastUpdated, "Updated");
+        return Create(previous, current, id, version, lastUpdated, CreatedBySystem, "Updated");
     }
 
     public static AuditEntry CreateCreatedEntry<T>(T current, string id, int version, DateTime? lastUpdated)
@@ -81,10 +82,10 @@ public class AuditEntry
         var node1 = JsonNode.Parse(previous);
         var node2 = JsonNode.Parse(current);
 
-        return Internal(node1!, node2!, id, version, lastUpdated, "Decision");
+        return CreateInternal(node1!, node2!, id, version, lastUpdated, "Decision");
     }
 
-    private static AuditEntry Internal(JsonNode previous, JsonNode current, string id, int version,
+    private static AuditEntry CreateInternal(JsonNode previous, JsonNode current, string id, int version,
         DateTime? lastUpdated, string status)
     {
         var diff = previous.CreatePatch(current);
@@ -101,7 +102,7 @@ public class AuditEntry
 
         foreach (var operation in diff.Operations)
         {
-            auditEntry.Diff.Add(AuditDiffEntry.CreateInternal(operation));
+            auditEntry.Diff.Add(AuditDiffEntry.Internal(operation));
         }
 
         return auditEntry;
@@ -116,7 +117,7 @@ public class AuditEntry
 
         public object Value { get; set; } = null!;
 
-        internal static AuditDiffEntry CreateInternal(PatchOperation operation)
+        internal static AuditDiffEntry Internal(PatchOperation operation)
         {
             object value = null!;
             if (operation.Value != null)
