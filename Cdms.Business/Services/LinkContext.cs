@@ -3,15 +3,15 @@ using Cdms.Model.Ipaffs;
 
 namespace Cdms.Business.Services;
 
-public abstract class LinkContext
+public abstract record LinkContext
 {
-    public static MovementLinkContext ForMovement(Movement movement)
+    public static MovementLinkContext ForMovement(Movement receivedMovement, Movement? existingMovement = null)
     {
-        return new MovementLinkContext(movement);
+        return new MovementLinkContext(receivedMovement, existingMovement);
     }
 
-    public static ImportNotificationLinkContext ForImportNotification(ImportNotification importNotification)
+    public static ImportNotificationLinkContext ForImportNotification(ImportNotification receivedImportNotification, ImportNotification? existingImportNotification = null)
     {
-        return new ImportNotificationLinkContext(importNotification);
+        return new ImportNotificationLinkContext(receivedImportNotification, existingImportNotification);
     }
 }

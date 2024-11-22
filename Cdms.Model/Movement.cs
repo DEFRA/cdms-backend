@@ -111,8 +111,7 @@ public class Movement : IMongoIdentifiable, IDataEntity
 
         if (linked)
         {
-            this.AuditEntries.Add(AuditEntry.CreateLinked(0,
-                this.LastUpdated));
+            AuditEntries.Add(AuditEntry.CreateLinked(String.Empty, this.AuditEntries.FirstOrDefault()?.Version ?? 1, LastUpdated));
         }
     }
 

@@ -1,4 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using Cdms.Backend.Data;
+using Cdms.Business.Services;
 using Cdms.Model;
 using Cdms.Model.Auditing;
 using Cdms.Types.Alvs;
@@ -8,16 +10,20 @@ using Items = Cdms.Model.Alvs.Items;
 
 namespace Cdms.Consumers
 {
-    internal class AlvsClearanceRequestConsumer(IMongoDbContext dbContext)
+    internal class AlvsClearanceRequestConsumer(IMongoDbContext dbContext, ILinkingService linkingService)
         : IConsumer<AlvsClearanceRequest>, IConsumerWithContext
     {
+        private ILinkingService linkingService { get; } = linkingService;
+        
+        [SuppressMessage("SonarLint", "S1481",
+            Justification =
+                "LinkResult variable is unused until matching and decisions are implemented")]
         public async Task OnHandle(AlvsClearanceRequest message)
         {
             var internalClearanceRequest = AlvsClearanceRequestMapper.Map(message);
             var auditId = Context.Headers["messageId"].ToString();
             var movement = BuildMovement(internalClearanceRequest);
             var existingMovement = await dbContext.Movements.Find(movement.Id!);
-
 
             if (existingMovement is not null)
             {
@@ -55,6 +61,9 @@ namespace Cdms.Consumers
                 movement.Update(auditEntry);
                 await dbContext.Movements.Insert(movement);
             }
+            
+            var linkContext = new MovementLinkContext(movement, existingMovement);
+            var linkResult = await linkingService.Link(linkContext);
         }
 
         public IConsumerContext Context { get; set; } = null!;

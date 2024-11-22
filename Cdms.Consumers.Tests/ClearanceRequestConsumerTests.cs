@@ -1,5 +1,7 @@
+using Cdms.Business.Services;
 using Cdms.Types.Alvs;
 using FluentAssertions;
+using NSubstitute;
 using SlimMessageBus.Host;
 using TestDataGenerator;
 using Xunit;
@@ -14,10 +16,10 @@ namespace Cdms.Consumers.Tests
             // ARRANGE
             var clearanceRequest = CreateAlvsClearanceRequest();
             var dbContext = CreateDbContext();
-
+            var mockLinkingService = Substitute.For<ILinkingService>();
 
             var consumer =
-                new AlvsClearanceRequestConsumer(dbContext);
+                new AlvsClearanceRequestConsumer(dbContext, mockLinkingService);
             consumer.Context = new ConsumerContext()
             {
                 Headers = new Dictionary<string, object>()

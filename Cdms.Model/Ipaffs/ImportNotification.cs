@@ -128,7 +128,7 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
 
         if (linked)
         {
-            AuditEntries.Add(AuditEntry.CreateLinked(Version.GetValueOrDefault(), LastUpdated));
+            AuditEntries.Add(AuditEntry.CreateLinked(String.Empty, Version.GetValueOrDefault(), LastUpdated));
         }
     }
 
