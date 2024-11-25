@@ -7,7 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <RootNamespace>Cdms.Analytics</RootNamespace>
+        <RootNamespace>Cdms.Analytics.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,6 +36,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Cdms.Analytics\Cdms.Analytics.csproj" />
+      <ProjectReference Include="..\Cdms.Consumers\Cdms.Consumers.csproj" />
       <ProjectReference Include="..\TestDataGenerator\TestDataGenerator.csproj" />
     </ItemGroup>
 

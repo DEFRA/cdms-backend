@@ -1,4 +1,5 @@
 using System.Collections;
+using Cdms.Backend.Data;
 using CdmsBackend.Config;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -100,16 +101,11 @@ public static class ManagementEndpoints
         return Results.Ok(new { collections = collections });
     }
 
-    private static async Task<IResult> DropCollectionsAsync(IMongoDatabase db)
+    private static async Task<IResult> DropCollectionsAsync(IMongoDbContext context)
     {
         try
         {
-            var collections = await (await db.ListCollectionsAsync()).ToListAsync();
-
-            foreach (var collection in collections)
-            {
-                await db.DropCollectionAsync(collection["name"].ToString());
-            }
+            await context.DropCollections();
         }
         catch (Exception e)
         {

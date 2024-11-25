@@ -48,7 +48,7 @@ class Program
 
                 services.AddTransient<Generator>();
                 
-                services.ConfigureServices();
+                services.ConfigureTestGenerationServices();
                 
             })
             .AddLogging();
