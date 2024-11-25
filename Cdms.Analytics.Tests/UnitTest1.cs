@@ -82,6 +82,7 @@ public class AggregationTests
     public async Task WhenAllCalled_ReturnsXXX()
     {
         await mongoContext.DropCollections();
+        
         var scenario = app.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(10, 2);
         await app.PushToConsumers(scenario, 1);
         
@@ -89,21 +90,29 @@ public class AggregationTests
         await app.PushToConsumers(noMatchScenario, 2);
 
         var result = (await svc
-                .GetImportNotificationLinks())
+            .GetImportNotificationLinks())
             .OrderBy(r => r.Date)
             .ThenBy(r => r.BucketVariables["Matched"])
             .ToList();
         
         logger.LogInformation(result.ToJsonString());
             
-        result.Count().Should().Be(4);
+        result.Count.Should().Be(4);
         
-        result[0].Date.Should().Be(DateOnly.FromDateTime(DateTime.Today));
-        result[0].Value.Should().Be(1);
+        result[0].Date.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(-1)));
+        result[0].Value.Should().Be(5);
         result[0].BucketVariables["Matched"].Should().Be("False");
         
-        result[1].Date.Should().Be(DateOnly.FromDateTime(DateTime.Today));
-        result[1].Value.Should().Be(3);
+        result[1].Date.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(-1)));
+        result[1].Value.Should().Be(10);
         result[1].BucketVariables["Matched"].Should().Be("True");
+        
+        result[2].Date.Should().Be(DateOnly.FromDateTime(DateTime.Today));
+        result[2].Value.Should().Be(5);
+        result[2].BucketVariables["Matched"].Should().Be("False");
+        
+        result[3].Date.Should().Be(DateOnly.FromDateTime(DateTime.Today));
+        result[3].Value.Should().Be(10);
+        result[3].BucketVariables["Matched"].Should().Be("True");
     }
 }

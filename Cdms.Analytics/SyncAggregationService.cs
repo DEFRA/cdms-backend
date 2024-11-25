@@ -21,9 +21,6 @@ public class SyncAggregationService(IMongoDbContext context, ILogger<SyncAggrega
             })
             .ToArray();
         
-        logger.LogInformation(s.ToJsonString());
         return s;
-        // context.Notifications.GroupBy(n => n.Relationships )
-        // return [new ByDateResult() { Date = DateOnly.FromDateTime(DateTime.Today)}];
     }
 }
