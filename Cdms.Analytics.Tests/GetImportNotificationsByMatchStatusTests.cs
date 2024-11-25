@@ -23,7 +23,7 @@ public class GetImportNotificationsByMatchStatusTests
     
     private readonly ILogger<GetImportNotificationsByMatchStatusTests> logger;
     
-    private readonly ISyncAggregationService svc;
+    private readonly IMatchingAggregationService svc;
     
     private readonly IMongoDbContext mongoContext;
     
@@ -33,7 +33,7 @@ public class GetImportNotificationsByMatchStatusTests
         
         app = builder.Build();
         logger = app.Services.GetRequiredService<ILogger<GetImportNotificationsByMatchStatusTests>>();
-        svc = app.Services.GetRequiredService<ISyncAggregationService>();
+        svc = app.Services.GetRequiredService<IMatchingAggregationService>();
         mongoContext = app.Services.GetRequiredService<IMongoDbContext>();
     }
     

@@ -1,6 +1,6 @@
 namespace Cdms.Analytics;
 
-public interface ISyncAggregationService
+public interface IMatchingAggregationService
 {
     public Task<ByDateResult[]> GetImportNotificationsByMatchStatus();
 }

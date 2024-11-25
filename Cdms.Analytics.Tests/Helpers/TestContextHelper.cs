@@ -35,7 +35,7 @@ public static class TestContextHelper
             .ConfigureAppConfiguration(c => c.AddInMemoryCollection(configurationValues!))
             .ConfigureServices((hostContext, s) =>
             {
-                s.AddSingleton<ISyncAggregationService, SyncAggregationService>();
+                s.AddSingleton<IMatchingAggregationService, MatchingAggregationService>();
                 s.ConfigureTestGenerationServices();
                 s.AddMongoDbContext(hostContext.Configuration);
                 s.AddBusinessServices(hostContext.Configuration);

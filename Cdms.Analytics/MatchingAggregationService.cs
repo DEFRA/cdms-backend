@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Cdms.Analytics;
 
-public class SyncAggregationService(IMongoDbContext context, ILogger<SyncAggregationService> logger) : ISyncAggregationService
+public class MatchingAggregationService(IMongoDbContext context, ILogger<MatchingAggregationService> logger) : IMatchingAggregationService
 {
     public async Task<ByDateResult[]> GetImportNotificationsByMatchStatus()
     {
