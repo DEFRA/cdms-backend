@@ -15,7 +15,12 @@ namespace Cdms.Backend.Data.Mongo
             : dbContext.Database.GetCollection<T>(collectionName);
 
         private IMongoQueryable<T> EntityQueryable => collection.AsQueryable();
-
+        
+        // public IAggregateFluent<T>  Aggregate()
+        // {
+        //     return collection.Aggregate();
+        // }
+        
         public IEnumerator<T> GetEnumerator()
         {
             return EntityQueryable.GetEnumerator();
