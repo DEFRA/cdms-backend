@@ -1,11 +1,11 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Cdms.Model.Auditing;
 using Cdms.Model.Data;
 using Cdms.Model.Relationships;
 using JsonApiDotNetCore.MongoDb.Resources;
 using JsonApiDotNetCore.Resources.Annotations;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Cdms.Model.Ipaffs;
 
@@ -27,7 +27,9 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     }
 
     public string _Etag { get; set; } = default!;
-    
+    [Attr] public DateTime Created { get; set; }
+    [Attr] public DateTime Updated { get; set; }
+
     [BsonIgnore]
     [NotMapped]
     [Attr]
@@ -115,11 +117,11 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
     {
         bool linked = false;
         Relationships.Movements.Links ??= relationship.Links;
-        
+
         var dataItems = relationship.Data.Where(dataItem =>
                 Relationships.Movements.Data.TrueForAll(x => x.Id != dataItem.Id))
             .ToList();
-        
+
         if (dataItems.Any())
         {
             Relationships.Movements.Data.AddRange(dataItems);
@@ -130,7 +132,7 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
 
         if (linked)
         {
-            AuditEntries.Add(AuditEntry.CreateLinked(String.Empty, Version.GetValueOrDefault(), LastUpdated));
+            AuditEntries.Add(AuditEntry.CreateLinked(String.Empty, Version.GetValueOrDefault(), UpdatedSource));
         }
     }
 
@@ -140,13 +142,13 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
         _Ts = DateTime.UtcNow;
     }
 
-    public void Created(string auditId)
+    public void Create(string auditId)
     {
         var auditEntry = AuditEntry.CreateCreatedEntry(
             this,
             auditId,
             this.Version.GetValueOrDefault(),
-            this.LastUpdated);
+            this.UpdatedSource);
         this.Changed(auditEntry);
     }
 
@@ -155,17 +157,17 @@ public partial class ImportNotification : IMongoIdentifiable, IDataEntity
         var auditEntry = AuditEntry.CreateSkippedVersion(
             auditId,
             version,
-            this.LastUpdated);
+            this.UpdatedSource);
         this.Changed(auditEntry);
     }
 
-    public void Updated(string auditId, ImportNotification previous)
+    public void Update(string auditId, ImportNotification previous)
     {
         var auditEntry = AuditEntry.CreateUpdated(previous,
             this,
             auditId,
             this.Version.GetValueOrDefault(),
-            this.LastUpdated);
+            this.UpdatedSource);
         this.Changed(auditEntry);
     }
 }

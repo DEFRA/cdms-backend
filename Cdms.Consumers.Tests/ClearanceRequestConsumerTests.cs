@@ -38,7 +38,7 @@ namespace Cdms.Consumers.Tests
             savedMovement.AuditEntries[0].Status.Should().Be("Created");
         }
 
-        private AlvsClearanceRequest CreateAlvsClearanceRequest()
+        private static AlvsClearanceRequest CreateAlvsClearanceRequest()
         {
             return ClearanceRequestBuilder.Default()
                 .WithValidDocumentReferenceNumbers().Build();

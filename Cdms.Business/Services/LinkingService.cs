@@ -3,13 +3,12 @@ using Cdms.Backend.Data.Extensions;
 using Cdms.Model;
 using Cdms.Model.Ipaffs;
 using Cdms.Model.Relationships;
-using Xunit.Sdk;
 
 namespace Cdms.Business.Services;
 
 public class LinkingService(IMongoDbContext dbContext) : ILinkingService
 {
-    public async Task<LinkResult> Link(LinkContext linkContext)
+    public async Task<LinkResult> Link(LinkContext linkContext, CancellationToken cancellationToken)
     {
         LinkResult result;
         switch (linkContext)
@@ -19,20 +18,21 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
                 {
                     return new LinkResult(LinkState.NotLinked);
                 }
-                
-                result = await FindMovementLinks(movementLinkContext.ReceivedMovement);
+
+                result = await FindMovementLinks(movementLinkContext.ReceivedMovement, cancellationToken);
                 break;
             case ImportNotificationLinkContext notificationLinkContext:
                 if (!ShouldLink(notificationLinkContext))
                 {
                     return new LinkResult(LinkState.NotLinked);
                 }
-                
-                result = await FindImportNotificationLinks(notificationLinkContext.ReceivedImportNotification);
+
+                result = await FindImportNotificationLinks(notificationLinkContext.ReceivedImportNotification, cancellationToken);
                 break;
             default: throw new ArgumentException("context type not supported");
         }
 
+        using var transaction = await dbContext.StartTransaction(cancellationToken);
         foreach (var notification in result.Notifications)
         {
             foreach (var movement in result.Movements)
@@ -40,17 +40,25 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
                 notification.AddRelationship(new TdmRelationshipObject()
                 {
                     Links = RelationshipLinks.CreateForNotification(notification),
-                    Data = [RelationshipDataItem.CreateFromMovement(notification, movement, notification._MatchReference.ToString())]
+                    Data =
+                    [
+                        RelationshipDataItem.CreateFromMovement(notification, movement,
+                            notification._MatchReference)
+                    ]
                 });
 
                 movement.AddRelationship(new TdmRelationshipObject()
                 {
                     Links = RelationshipLinks.CreateForMovement(movement),
-                    Data = [RelationshipDataItem.CreateFromNotification(notification, movement, notification._MatchReference.ToString())]
+                    Data =
+                    [
+                        RelationshipDataItem.CreateFromNotification(notification, movement,
+                            notification._MatchReference)
+                    ]
                 });
 
-                await dbContext.Movements.Update(movement, movement._Etag);
-                await dbContext.Notifications.Update(notification, notification._Etag);
+                await dbContext.Movements.Update(movement, movement._Etag, transaction, cancellationToken);
+                await dbContext.Notifications.Update(notification, notification._Etag, transaction, cancellationToken);
             }
         }
 
@@ -60,7 +68,7 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
     private static bool ShouldLink(MovementLinkContext movContext)
     {
         if (movContext.ExistingMovement is null) return true;
-        
+
         // Diff movements for fields of interest
         var existingDocs = movContext.ExistingMovement.Items
             .SelectMany(x => x.Documents ?? [])
@@ -68,28 +76,28 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
             {
                 d.DocumentReference
             }).ToList();
-        
+
         var receivedDocs = movContext.ReceivedMovement.Items
             .SelectMany(x => x.Documents ?? [])
             .Select(d => new
             {
                 d.DocumentReference
             }).ToList();
-        
+
         if (existingDocs.Count != receivedDocs.Count ||
-            !existingDocs.All(receivedDocs.Contains))
+            !existingDocs.TrueForAll(receivedDocs.Contains))
         {
             // Delta in received Docs
             return true;
         }
-        
+
         return false;
     }
-    
+
     private static bool ShouldLink(ImportNotificationLinkContext notifContext)
     {
         if (notifContext.ExistingImportNotification is null) return true;
-        
+
         var existingCommodities = notifContext.ExistingImportNotification.Commodities?
             .Select(c => new
             {
@@ -102,18 +110,18 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
                 c.CommodityId,
                 c.CommodityDescription
             }).ToList();
-        
+
         if (existingCommodities?.Count != receivedCommodities?.Count ||
-            existingCommodities?.All(receivedCommodities!.Contains) != true)
+            existingCommodities?.TrueForAll(receivedCommodities!.Contains) != true)
         {
             // Delta in received Commodities
             return true;
         }
-        
+
         return false;
     }
 
-    private async Task<LinkResult> FindMovementLinks(Movement movement)
+    private async Task<LinkResult> FindMovementLinks(Movement movement, CancellationToken cancellationToken)
     {
         var chedIds = movement.Items
             .SelectMany(x => x.Documents ?? [])
@@ -121,7 +129,7 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
             .Select(d => MatchIdentifier.FromCds(d!.DocumentReference!).Identifier)
             .Distinct();
 
-        var notifications = await dbContext.Notifications.Where(x => chedIds.Contains(x._MatchReference)).ToListAsync();
+        var notifications = await dbContext.Notifications.Where(x => chedIds.Contains(x._MatchReference)).ToListAsync(cancellationToken: cancellationToken);
 
         return new LinkResult(notifications.Any() ? LinkState.Linked : LinkState.NotLinked)
         {
@@ -130,11 +138,11 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
         };
     }
 
-    private async Task<LinkResult> FindImportNotificationLinks(ImportNotification importNotification)
+    private async Task<LinkResult> FindImportNotificationLinks(ImportNotification importNotification, CancellationToken cancellationToken)
     {
         var identifier = MatchIdentifier.FromNotification(importNotification!.Id!).Identifier;
 
-        var movements = await dbContext.Movements.Where(x => x._MatchReferences.Contains(identifier)).ToListAsync();
+        var movements = await dbContext.Movements.Where(x => x._MatchReferences.Contains(identifier)).ToListAsync(cancellationToken);
 
         return new LinkResult(movements.Any() ? LinkState.Linked : LinkState.NotLinked)
         {
