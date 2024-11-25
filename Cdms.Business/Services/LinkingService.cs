@@ -27,7 +27,8 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
                     return new LinkResult(LinkState.NotLinked);
                 }
 
-                result = await FindImportNotificationLinks(notificationLinkContext.ReceivedImportNotification, cancellationToken);
+                result = await FindImportNotificationLinks(notificationLinkContext.ReceivedImportNotification,
+                    cancellationToken);
                 break;
             default: throw new ArgumentException("context type not supported");
         }
@@ -62,6 +63,8 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
             }
         }
 
+
+
         return result;
     }
 
@@ -69,15 +72,18 @@ public class LinkingService(IMongoDbContext dbContext) : ILinkingService
     {
         if (movContext.ExistingMovement is null) return true;
 
+        var existingItems = movContext.ExistingMovement.Items is null ? [] : movContext.ExistingMovement.Items;
+        var receivedItems = movContext.ReceivedMovement.Items is null ? [] : movContext.ReceivedMovement.Items;
+
         // Diff movements for fields of interest
-        var existingDocs = movContext.ExistingMovement.Items
+        var existingDocs = existingItems
             .SelectMany(x => x.Documents ?? [])
             .Select(d => new
             {
                 d.DocumentReference
             }).ToList();
 
-        var receivedDocs = movContext.ReceivedMovement.Items
+        var receivedDocs = receivedItems
             .SelectMany(x => x.Documents ?? [])
             .Select(d => new
             {
