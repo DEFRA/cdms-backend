@@ -6,17 +6,29 @@ namespace Cdms.Analytics;
 
 public class SyncAggregationService(IMongoDbContext context, ILogger<SyncAggregationService> logger) : ISyncAggregationService
 {
-    public async Task<ByDateResult[]> GetImportNotificationLinks()
+    public async Task<ByDateResult[]> GetImportNotificationsByMatchStatus()
     {
         var s = context
             .Notifications
-            .GroupBy(n => new { Matched = n.Relationships.Movements.Matched.HasValue && n.Relationships.Movements.Matched.Value, n.CreatedSource!.Value.Date })
-            // .SelectMany(g => new ByDateResult()[])
+            .GroupBy(n => new
+            {
+                Matched = n.Relationships.Movements.Matched.HasValue && n.Relationships.Movements.Matched.Value,
+                n.CreatedSource!.Value.Date,
+                n.ImportNotificationType
+            })
             .AsEnumerable()
             .Select(r => new ByDateResult()
             {
                 Date = DateOnly.FromDateTime(r.Key.Date),
-                BucketVariables = new Dictionary<string, string>() { { "Matched", r.Key.Matched.ToString() } },
+                BucketVariables = new Dictionary<string, string>()
+                {
+                    {
+                        "Matched", r.Key.Matched.ToString()
+                    },
+                    {
+                        "ChedType", r.Key.ImportNotificationType.ToString()
+                    }
+                },
                 Value = r.Count()
             })
             .ToArray();
