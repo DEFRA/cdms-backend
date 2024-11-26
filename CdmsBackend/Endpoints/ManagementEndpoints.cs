@@ -17,7 +17,7 @@ public static class ManagementEndpoints
 		{
 			app.MapGet(BaseRoute + "/collections", GetCollectionsAsync).AllowAnonymous();
 			app.MapGet(BaseRoute + "/collections/drop", DropCollectionsAsync).AllowAnonymous();
-			app.MapGet(BaseRoute + "/environment", GetEnvironment).RequireAuthorization();
+			app.MapGet(BaseRoute + "/environment", GetEnvironment).AllowAnonymous();
 			app.MapGet(BaseRoute + "/status", GetStatus).AllowAnonymous();
 		}
 	}

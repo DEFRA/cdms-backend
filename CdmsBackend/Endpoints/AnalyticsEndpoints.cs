@@ -9,7 +9,7 @@ public static class AnalyticsEndpoints
 
 	public static void UseAnalyticsEndpoints(this IEndpointRouteBuilder app)
 	{
-		app.MapGet(BaseRoute + "/matching", GetMatchingAnalyticsAsync).RequireAuthorization();
+		app.MapGet(BaseRoute + "/matching", GetMatchingAnalyticsAsync).AllowAnonymous();
 	}
 	private static async Task<IResult> GetMatchingAnalyticsAsync(
 		[FromServices] IMatchingAggregationService svc)
