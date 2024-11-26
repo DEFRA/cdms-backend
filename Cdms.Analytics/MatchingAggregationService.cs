@@ -1,12 +1,10 @@
 using Cdms.Backend.Data;
-using Cdms.Model.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace Cdms.Analytics;
 
-public class MatchingAggregationService(IMongoDbContext context, ILogger<MatchingAggregationService> logger) : IMatchingAggregationService
+public class MatchingAggregationService(IMongoDbContext context) : IMatchingAggregationService
 {
-    public async Task<ByDateResult[]> GetImportNotificationsByMatchStatus()
+    public Task<ByDateResult[]> GetImportNotificationsByMatchStatus()
     {
         var s = context
             .Notifications
@@ -26,13 +24,13 @@ public class MatchingAggregationService(IMongoDbContext context, ILogger<Matchin
                         "Matched", r.Key.Matched.ToString()
                     },
                     {
-                        "ChedType", r.Key.ImportNotificationType.ToString()
+                        "ChedType", r.Key.ImportNotificationType.ToString()!
                     }
                 },
                 Value = r.Count()
             })
             .ToArray();
-        
-        return s;
+
+        return Task.FromResult(s);
     }
 }
