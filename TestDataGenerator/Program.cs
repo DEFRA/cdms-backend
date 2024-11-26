@@ -95,6 +95,17 @@ class Program
             },
             new
             {
+                Dataset = "LoadTest-Condensed",
+                RootPath = "GENERATED-CONDENSED",
+                Scenarios = new[]
+                {
+                    app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(5, 7),
+                    app.CreateScenarioConfig<ChedAManyCommoditiesScenarioGenerator>(5, 7),
+                    app.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(15, 7)
+                }
+            },
+            new
+            {
                 Dataset = "LoadTest-90Dx10k",
                 RootPath = "GENERATED-LOADTEST-90Dx10k",
                 Scenarios =

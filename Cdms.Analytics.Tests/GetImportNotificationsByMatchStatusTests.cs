@@ -47,7 +47,7 @@ public class GetImportNotificationsByMatchStatusTests
         await app.PushToConsumers(chedPScenario, 3);
 
         var result = (await svc
-            .GetImportNotificationsByMatchStatus())
+            .GetImportNotificationMatchingByCreated())
             .ToList();
 
         logger.LogInformation(result.ToJsonString());
