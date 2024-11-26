@@ -48,9 +48,6 @@ public class GetImportNotificationsByMatchStatusTests
 
         var result = (await svc
             .GetImportNotificationsByMatchStatus())
-            .OrderBy(r => r.Date)
-            .ThenBy(r => r.BucketVariables["Matched"])
-            .ThenBy(r => r.BucketVariables["ChedType"])
             .ToList();
 
         logger.LogInformation(result.ToJsonString());

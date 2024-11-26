@@ -1,4 +1,5 @@
 using Cdms.Backend.Data;
+using Cdms.Common.Extensions;
 
 namespace Cdms.Analytics;
 
@@ -17,7 +18,7 @@ public class MatchingAggregationService(IMongoDbContext context) : IMatchingAggr
             .AsEnumerable()
             .Select(r => new ByDateResult()
             {
-                Date = DateOnly.FromDateTime(r.Key.Date),
+                Date = r.Key.Date.ToDate(),
                 BucketVariables = new Dictionary<string, string>()
                 {
                     {
@@ -29,6 +30,9 @@ public class MatchingAggregationService(IMongoDbContext context) : IMatchingAggr
                 },
                 Value = r.Count()
             })
+            .OrderBy(r => r.Date)
+            .ThenBy(r => r.BucketVariables["Matched"])
+            .ThenBy(r => r.BucketVariables["ChedType"])
             .ToArray();
 
         return Task.FromResult(s);

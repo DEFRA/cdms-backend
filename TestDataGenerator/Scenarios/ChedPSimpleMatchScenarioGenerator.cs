@@ -9,6 +9,7 @@ public class ChedPSimpleMatchScenarioGenerator(ILogger<ChedPSimpleMatchScenarioG
     {
         var notification = GetNotificationBuilder("chedp-one-commodity")
             .WithEntryDate(entryDate)
+            .WithRandomArrivalDateTime()
             .WithReferenceNumber(ImportNotificationTypeEnum.Cvedp, scenario, entryDate, item)
             .WithCommodity("1604142800", "Skipjack Tuna", 300)
             .ValidateAndBuild();
@@ -18,6 +19,7 @@ public class ChedPSimpleMatchScenarioGenerator(ILogger<ChedPSimpleMatchScenarioG
 
         var clearanceRequest = GetClearanceRequestBuilder("cr-one-item")
             .WithEntryDate(entryDate)
+            .WithArrivalDateTimeOffset(notification.PartOne!.ArrivalDate, notification.PartOne!.ArrivalTime)
             .WithReferenceNumber(notification.ReferenceNumber!)
             .WithItem("N853", "16041421", "Tuna ROW CHEDP", 900)
             .ValidateAndBuild();

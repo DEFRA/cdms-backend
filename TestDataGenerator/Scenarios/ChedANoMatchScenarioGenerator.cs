@@ -9,6 +9,7 @@ public class ChedANoMatchScenarioGenerator(ILogger<ChedANoMatchScenarioGenerator
     {
         var notification = GetNotificationBuilder("cheda-one-commodity")
             .WithEntryDate(entryDate)
+            .WithRandomArrivalDateTime()
             .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, scenario, entryDate, item)
             .ValidateAndBuild()!;
 

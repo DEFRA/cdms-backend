@@ -10,6 +10,7 @@ public class ChedAManyCommoditiesScenarioGenerator(ILogger<ChedAManyCommoditiesS
     {
         var notification = GetNotificationBuilder("cheda-one-commodity")
             .WithEntryDate(entryDate)
+            .WithRandomArrivalDateTime()
             .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, scenario, entryDate, item)
             .WithRandomCommodities(10, 100)
             .ValidateAndBuild()!;
@@ -19,6 +20,7 @@ public class ChedAManyCommoditiesScenarioGenerator(ILogger<ChedAManyCommoditiesS
 
         var clearanceRequest = GetClearanceRequestBuilder("cr-one-item")
             .WithEntryDate(entryDate)
+            .WithArrivalDateTimeOffset(notification.PartOne!.ArrivalDate, notification.PartOne!.ArrivalTime)
             .WithReferenceNumber(notification.ReferenceNumber!)
             .ValidateAndBuild();
         

@@ -15,6 +15,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Cdms.Backend.Data\Cdms.Backend.Data.csproj" />
+      <ProjectReference Include="..\Cdms.Common\Cdms.Common.csproj" />
     </ItemGroup>
 
 </Project>
