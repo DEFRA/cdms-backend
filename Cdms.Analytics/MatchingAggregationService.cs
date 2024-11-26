@@ -61,22 +61,34 @@ public class MatchingAggregationService(IMongoDbContext context, ILogger<Matchin
 
         var comparer = Comparer<ByDateResult>.Create((d1, d2) => d1.Date.CompareTo(d2.Date));
 
+        // By creating the dates we care about, we can ensure the arrays have all the dates, 
+        // including any series that don't have data on a given day. We need these to be zero for the chart to render
+        // correctly
+        var dateRange = Enumerable.Range(0, 30)
+            .Select(offset => DateTime.Today.AddDays(offset).ToDate())
+            .ToArray(); 
+        
         var mongoResult = context
             .Notifications
             .Aggregate()
+            .Match(n => n.PartOne!.ArrivedOn >= DateTime.Today)
             .Project(projection)
             .Group(group)
             .Group(datasetGroup)
             .ToList()
             .Select(b =>
-                new Dataset(b["_id"]["importNotificationType"].ToString()!, b["_id"]["matched"].ToBoolean())
                 {
-                    Dates = b["dates"].AsBsonArray.Select(a => new ByDateResult()
-                        {
-                            Date = a["arrivedOn"].ToUniversalTime().ToDate(), Value = a["count"].AsInt32
-                        })
-                        .Order(comparer)
-                        .ToList()
+                    // Turn the date : count aggregation into a dictionary 
+                    var dates = b["dates"].AsBsonArray
+                        .ToDictionary(d => d["arrivedOn"].ToUniversalTime().ToDate(), d => d["count"].AsInt32);
+
+                    // Then map it into a list of the dates we want in our range 
+                    return new Dataset(b["_id"]["importNotificationType"].ToString()!, b["_id"]["matched"].ToBoolean())
+                    {
+                        Dates = dateRange.Select(resultDate => new ByDateResult() { Date = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)})
+                            .Order(comparer)
+                            .ToList()
+                    };
                 }
             )
             .OrderBy(d => d.Name)
@@ -85,6 +97,5 @@ public class MatchingAggregationService(IMongoDbContext context, ILogger<Matchin
         logger.LogDebug("Aggregated Data {result}", mongoResult.ToList().ToJsonString());
         
         return Task.FromResult(mongoResult);
-
     }
 }

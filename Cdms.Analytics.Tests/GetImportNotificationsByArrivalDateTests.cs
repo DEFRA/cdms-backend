@@ -32,9 +32,10 @@ public class GetImportNotificationsByArrivalDateTests
         var builder = TestContextHelper.CreateBuilder(testOutputHelper);
         
         app = builder.Build();
+        var rootScope = app.Services.CreateScope();
         logger = app.Services.GetRequiredService<ILogger<GetImportNotificationsByMatchStatusTests>>();
-        svc = app.Services.GetRequiredService<IMatchingAggregationService>();
-        mongoContext = app.Services.GetRequiredService<IMongoDbContext>();
+        svc = rootScope.ServiceProvider.GetRequiredService<IMatchingAggregationService>();
+        mongoContext = rootScope.ServiceProvider.GetRequiredService<IMongoDbContext>();
     }
     
     [Fact]
@@ -60,9 +61,12 @@ public class GetImportNotificationsByArrivalDateTests
         result.Count.Should().Be(3);
 
         result[0].Name.Should().Be("Cveda Match");
+        result[0].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
         
         result[1].Name.Should().Be("Cveda No Match");
+        result[1].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
         
         result[2].Name.Should().Be("Cvedp Match");
+        result[1].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
     }
 }
