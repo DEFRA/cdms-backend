@@ -9,7 +9,7 @@ namespace Cdms.Business.Services;
 
 public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics) : ILinkingService
 {
-    public async Task<LinkResult> Link(LinkContext linkContext, CancellationToken cancellationToken)
+    public async Task<LinkResult> Link(LinkContext linkContext, CancellationToken cancellationToken = default)
     {
         var startedAt = TimeProvider.System.GetTimestamp();
         LinkResult result;
