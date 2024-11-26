@@ -62,11 +62,15 @@ public class GetImportNotificationsByArrivalDateTests
 
         result[0].Name.Should().Be("Cveda Match");
         result[0].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
+        result[0].Dates.Count.Should().Be(30);
         
         result[1].Name.Should().Be("Cveda No Match");
         result[1].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
-        
+        result[1].Dates.Count.Should().Be(30);
+
         result[2].Name.Should().Be("Cvedp Match");
         result[1].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
+        result[2].Dates.Count.Should().Be(30);
+
     }
 }

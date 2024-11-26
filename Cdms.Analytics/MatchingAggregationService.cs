@@ -64,14 +64,16 @@ public class MatchingAggregationService(IMongoDbContext context, ILogger<Matchin
         // By creating the dates we care about, we can ensure the arrays have all the dates, 
         // including any series that don't have data on a given day. We need these to be zero for the chart to render
         // correctly
-        var dateRange = Enumerable.Range(0, 30)
+        var days = 30;
+        
+        var dateRange = Enumerable.Range(0, days)
             .Select(offset => DateTime.Today.AddDays(offset).ToDate())
             .ToArray(); 
         
         var mongoResult = context
             .Notifications
             .Aggregate()
-            .Match(n => n.PartOne!.ArrivedOn >= DateTime.Today)
+            .Match(n => n.PartOne!.ArrivedOn >= DateTime.Today && n.PartOne!.ArrivedOn <= DateTime.Today.AddDays(days))
             .Project(projection)
             .Group(group)
             .Group(datasetGroup)
