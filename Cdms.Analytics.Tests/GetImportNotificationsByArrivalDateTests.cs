@@ -61,18 +61,18 @@ public class GetImportNotificationsByArrivalDateTests
         
         // logger.LogInformation(result.ToJsonString());
             
-        result.Count.Should().Be(2);
+        result.Count.Should().Be(3);
 
         result[0].Name.Should().Be("Cveda Linked");
         result[0].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
         result[0].Dates.Count.Should().Be(30);
         
-        // result[1].Name.Should().Be("Cveda Not Linked");
-        // result[1].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
-        // result[1].Dates.Count.Should().Be(30);
-
-        result[1].Name.Should().Be("Cvedp Linked");
+        result[1].Name.Should().Be("Cveda Not Linked");
         result[1].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
         result[1].Dates.Count.Should().Be(30);
+
+        result[2].Name.Should().Be("Cvedp Linked");
+        result[2].Dates[0].Date.Should().BeOnOrAfter(DateOnly.FromDateTime(DateTime.Today));
+        result[2].Dates.Count.Should().Be(30);
     }
 }
