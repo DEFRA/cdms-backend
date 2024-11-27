@@ -34,7 +34,9 @@ using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.Claims;
+using CdmsBackend.OpenAPI;
 using System.Text.Json.Serialization;
+using Microsoft.OpenApi.Models;
 using Environment = System.Environment;
 
 //-------- Configure the WebApplication builder------------------//
@@ -49,6 +51,18 @@ static WebApplication CreateWebApplication(string[] args)
 	var builder = WebApplication.CreateBuilder(args);
 
 	ConfigureWebApplication(builder);
+
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+
+        c.SwaggerDoc("public-v0.1", new OpenApiInfo { Title = "CDMS Public API", Version = "v0.1" });
+
+
+        //c.DocInclusionPredicate((name, api) =>  !name.StartsWith("public"));
+        c.DocumentFilter<DocumentFilter>();
+        c.SchemaFilter<SchemaFilter>();
+    });
 	ConfigureAuthentication(builder);
 
 	var app = BuildWebApplication(builder);
@@ -219,6 +233,12 @@ static void ConfigureEndpoints(WebApplicationBuilder builder)
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 {
 	var app = builder.Build();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
+    {
+        options.SwaggerEndpoint("/swagger/public-v0.1/swagger.json", "public");
+    });
 
 
 	app.UseEmfExporter();
