@@ -14,7 +14,7 @@ public class ChedPSimpleMatchScenarioGenerator(ILogger<ChedPSimpleMatchScenarioG
             .WithCommodity("1604142800", "Skipjack Tuna", 300)
             .ValidateAndBuild();
 
-        logger.LogInformation("Created {@Notification}, {NotificationReferenceNumber}", notification,
+        logger.LogInformation("Created {NotificationReferenceNumber}", 
             notification.ReferenceNumber);
 
         var clearanceRequest = GetClearanceRequestBuilder("cr-one-item")
@@ -24,8 +24,7 @@ public class ChedPSimpleMatchScenarioGenerator(ILogger<ChedPSimpleMatchScenarioG
             .WithItem("N853", "16041421", "Tuna ROW CHEDP", 900)
             .ValidateAndBuild();
 
-        logger.LogInformation("Created {@ClearanceRequest}, {EntryReference}", clearanceRequest,
-            clearanceRequest.Header!.EntryReference);
+        logger.LogInformation("Created {EntryReference}", clearanceRequest.Header!.EntryReference);
 
         return new GeneratorResult { ClearanceRequests = [clearanceRequest], ImportNotifications = [notification] };
     }

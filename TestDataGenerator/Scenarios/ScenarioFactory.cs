@@ -18,7 +18,6 @@ public class ScenarioConfig
 
 public static class ScenarioFactory
 {
-    
     public static ScenarioConfig CreateScenarioConfig<T>(this IHost app, int count, int days)
         where T : ScenarioGenerator
     {

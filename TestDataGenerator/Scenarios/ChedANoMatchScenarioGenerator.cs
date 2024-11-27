@@ -13,7 +13,7 @@ public class ChedANoMatchScenarioGenerator(ILogger<ChedANoMatchScenarioGenerator
             .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, scenario, entryDate, item)
             .ValidateAndBuild()!;
 
-        logger.LogInformation("Created no match notification {@Notification}, {NotificationReferenceNumber}", notification,
+        logger.LogInformation("Created {NotificationReferenceNumber}", 
             notification.ReferenceNumber);
 
         return new GeneratorResult { ClearanceRequests = [], ImportNotifications = [notification] };

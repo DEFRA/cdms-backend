@@ -15,7 +15,7 @@ public class ChedAManyCommoditiesScenarioGenerator(ILogger<ChedAManyCommoditiesS
             .WithRandomCommodities(10, 100)
             .ValidateAndBuild()!;
         
-        logger.LogInformation("Created {@Notification}, {NotificationReferenceNumber}", notification,
+        logger.LogInformation("Created {NotificationReferenceNumber}", 
             notification.ReferenceNumber);
 
         var clearanceRequest = GetClearanceRequestBuilder("cr-one-item")
@@ -24,8 +24,7 @@ public class ChedAManyCommoditiesScenarioGenerator(ILogger<ChedAManyCommoditiesS
             .WithReferenceNumber(notification.ReferenceNumber!)
             .ValidateAndBuild();
         
-        logger.LogInformation("Created {@ClearanceRequest}, {EntryReference}", clearanceRequest,
-            clearanceRequest.Header!.EntryReference);
+        logger.LogInformation("Created {EntryReference}", clearanceRequest.Header!.EntryReference);
 
         return new GeneratorResult { ClearanceRequests = [clearanceRequest], ImportNotifications = [notification] };
 

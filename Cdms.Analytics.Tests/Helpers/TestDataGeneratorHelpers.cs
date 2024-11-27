@@ -21,8 +21,6 @@ public static class TestDataGeneratorHelpers
         
         var logger = app.Services.GetRequiredService<ILogger<ScenarioGenerator>>();
         
-        logger.LogInformation(generatorResults.ToJsonString());
-        
         foreach (var generatorResult in generatorResults)
         {
             foreach (var cr in generatorResult.ClearanceRequests)
