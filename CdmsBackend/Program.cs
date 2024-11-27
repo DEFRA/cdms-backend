@@ -154,7 +154,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 	builder.Services.AddScoped(typeof(IResourceReadRepository<,>), typeof(MongoRepository<,>));
 	builder.Services.AddScoped(typeof(IResourceWriteRepository<,>), typeof(MongoRepository<,>));
 	builder.Services.AddScoped(typeof(IResourceRepository<,>), typeof(MongoRepository<,>));
-	builder.Services.AddSingleton<IMatchingAggregationService, MatchingAggregationService>();
+	builder.Services.AddScoped<IMatchingAggregationService, MatchingAggregationService>();
 }
 
 [ExcludeFromCodeCoverage]
