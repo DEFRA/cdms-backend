@@ -34,7 +34,9 @@ using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.Claims;
+using CdmsBackend.OpenAPI;
 using System.Text.Json.Serialization;
+using Microsoft.OpenApi.Models;
 using Environment = System.Environment;
 
 using OpenTelemetry.Extensions.Hosting;
@@ -51,6 +53,18 @@ static WebApplication CreateWebApplication(string[] args)
 	var builder = WebApplication.CreateBuilder(args);
 
 	ConfigureWebApplication(builder);
+
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+
+        c.SwaggerDoc("public-v0.1", new OpenApiInfo { Title = "CDMS Public API", Version = "v0.1" });
+
+
+        //c.DocInclusionPredicate((name, api) =>  !name.StartsWith("public"));
+        c.DocumentFilter<DocumentFilter>();
+        c.SchemaFilter<SchemaFilter>();
+    });
 	ConfigureAuthentication(builder);
 
 	var app = BuildWebApplication(builder);
@@ -104,7 +118,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 	builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 	// This uses grafana for metrics and tracing and works with the local docker compose setup as well as in CDP
-	
+
 	builder.Services.AddOpenTelemetry()
 		.WithMetrics(metrics =>
 		{
@@ -221,13 +235,19 @@ static void ConfigureEndpoints(WebApplicationBuilder builder)
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 {
 	var app = builder.Build();
+    app.UseSwagger();
+    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
+    {
+        options.SwaggerEndpoint("/swagger/public-v0.1/swagger.json", "public");
+    });
+
 
 	app.UseEmfExporter();
 	app.UseAuthentication();
 	app.UseAuthorization();
 	app.UseJsonApi();
 	app.MapControllers().RequireAuthorization();
-    
+
     var dotnetHealthEndpoint = "/health-dotnet";
 	app.MapGet("/health", GetStatus).AllowAnonymous();
 	app.MapHealthChecks(dotnetHealthEndpoint,
@@ -242,12 +262,12 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 	app.UseManagementEndpoints(options);
 	app.UseDiagnosticEndpoints(options);
 	app.UseAnalyticsEndpoints();
-    
+
     if (builder.Environment.IsDevelopment())
     {
         app.UseOpenTelemetryPrometheusScrapingEndpoint();
     }
-    
+
 	return app;
 }
 
