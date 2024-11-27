@@ -29,7 +29,7 @@ public class GetImportNotificationsByArrivalDateTests
     
     public GetImportNotificationsByArrivalDateTests(ITestOutputHelper testOutputHelper)
     {
-        var builder = TestContextHelper.CreateBuilder(testOutputHelper);
+        var builder = TestContextHelper.CreateBuilder<GetImportNotificationsByArrivalDateTests>(testOutputHelper);
         
         app = builder.Build();
         var rootScope = app.Services.CreateScope();
