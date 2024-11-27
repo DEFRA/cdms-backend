@@ -1,11 +1,18 @@
-﻿namespace CdmsBackend.Authentication
+﻿using CdmsBackend.Config;
+using Microsoft.Extensions.Options;
+
+namespace CdmsBackend.Authentication
 {
-	public class ClientCredentialsManager(IClientCredentialsStore clientCredentialsStore) : IClientCredentialsManager
+	public class ClientCredentialsManager(IOptions<ApiOptions> options) : IClientCredentialsManager
 	{
-		public async Task<bool> IsValid(string clientId, string clientSecret)
+		public Task<bool> IsValid(string clientId, string clientSecret)
 		{
-			var actualSecret = await clientCredentialsStore.GetClientSecret(clientId);
-			return clientSecret.Equals(actualSecret);
+			if (options.Value.Credentials.TryGetValue(clientId, out string? secret))
+			{
+				return Task.FromResult(clientSecret.Equals(secret));
+			}
+
+			return Task.FromResult(false);
 		}
 	}
 }

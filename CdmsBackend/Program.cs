@@ -78,7 +78,11 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 	}
 
 	builder.Services.CdmsAddOptions<ApiOptions, ApiOptions.Validator>(builder.Configuration, ApiOptions.SectionName)
-		.PostConfigure(options => builder.Configuration.Bind(options));
+		.PostConfigure(options =>
+		{
+			builder.Configuration.Bind(options);
+			builder.Configuration.GetSection("AuthKeyStore").Bind(options);
+		});
 
 
 	// Load certificates into Trust Store - Note must happen before Mongo and Http client connections
@@ -181,7 +185,6 @@ static Logger ConfigureLogging(WebApplicationBuilder builder)
 [ExcludeFromCodeCoverage]
 static void ConfigureAuthentication(WebApplicationBuilder builder)
 {
-	builder.Services.AddSingleton<IClientCredentialsStore, ClientCredentialsStore>();
 	builder.Services.AddSingleton<IClientCredentialsManager, ClientCredentialsManager>();
 
 	builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
@@ -244,11 +247,11 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 			Predicate = _ => true,
 			ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 		});
-    
-    var options = app.Services.GetRequiredService<IOptions<ApiOptions>>();
-    app.UseSyncEndpoints(options);
-    app.UseManagementEndpoints(options);
-    app.UseDiagnosticEndpoints(options);
+
+	var options = app.Services.GetRequiredService<IOptions<ApiOptions>>();
+	app.UseSyncEndpoints(options);
+	app.UseManagementEndpoints(options);
+	app.UseDiagnosticEndpoints(options);
 	app.UseAnalyticsEndpoints();
 
 	return app;

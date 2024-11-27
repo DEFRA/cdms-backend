@@ -24,7 +24,7 @@ public class IntegrationTestsApplicationFactory : WebApplicationFactory<Program>
             { "DisableLoadIniFile", "true" },
             { "BlobServiceOptions:CachePath", "../../../Fixtures" },
             { "BlobServiceOptions:CacheReadEnabled", "true" },
-            { "AuthKeyStore:IntTest_Secret", "Password" }
+            { "AuthKeyStore:Credentials:IntTest", "Password" }
         };
 
         var configuration = new ConfigurationBuilder()
