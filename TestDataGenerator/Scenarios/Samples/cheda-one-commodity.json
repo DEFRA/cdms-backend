@@ -1,8 +1,7 @@
 {
-  "id": 33100,
   "referenceNumber": null,
   "version": 1,
-  "lastUpdated": "2024-10-22T10:05:53.294505534Z",
+  "lastUpdated": null,
   "lastUpdatedBy": {
     "displayName": "Percy Inspector-Tester",
     "userId": "79f6dc68-2144-e911-a96a-000d3a29ba60"
@@ -148,8 +147,8 @@
       "purposeGroup": "For Import"
     },
     "pointOfEntry": "GBAPHA1A",
-    "arrivalDate": "2025-01-01",
-    "arrivalTime": "22:00:00",
+    "arrivalDate": null,
+    "arrivalTime": null,
     "transporter": {
       "id": "ab490d10-48a7-43d8-b552-9bde3ea5ee4a",
       "type": "private transporter",

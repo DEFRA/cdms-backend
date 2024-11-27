@@ -1,5 +1,4 @@
 {
-  "id": 49972,
   "referenceNumber": null,
   "externalReferences": [
     {
@@ -11,7 +10,7 @@
     }
   ],
   "version": 5,
-  "lastUpdated": "2024-11-08T08:25:18.444350457Z",
+  "lastUpdated": null,
   "lastUpdatedBy": {
     "displayName": "Mark Admin-Tester",
     "userId": "79f6dc68-2144-e911-a96a-000d3a29ba60"
@@ -167,12 +166,12 @@
         "AS"
       ],
       "purposeGroup": "For Transit to 3rd Country",
-      "estimatedArrivalDateAtPortOfExit": "2024-11-21",
-      "estimatedArrivalTimeAtPortOfExit": "11:11:00"
+      "estimatedArrivalDateAtPortOfExit": null,
+      "estimatedArrivalTimeAtPortOfExit": null
     },
     "pointOfEntry": "GBPBY017",
-    "arrivalDate": "2024-12-31",
-    "arrivalTime": "12:00:00",
+    "arrivalDate": null,
+    "arrivalTime": null,
     "transporter": {
       "id": "9d151269-fd63-46ff-ae39-121a6f847944",
       "type": "private transporter",
