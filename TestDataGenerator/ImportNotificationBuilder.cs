@@ -1,5 +1,6 @@
 using Cdms.Common.Extensions;
 using Cdms.Types.Ipaffs;
+using Json.Patch;
 using TestDataGenerator.Helpers;
 
 namespace TestDataGenerator;
@@ -80,13 +81,15 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
         return Do(x => x.LastUpdated = entryDate);
     }
 
-    public ImportNotificationBuilder<T> WithRandomArrivalDateTime(int maxDays = 90, int maxHours = 6)
+    public ImportNotificationBuilder<T> WithRandomArrivalDateTime(int maxDays, int maxHours=6)
     {
         var dayOffset = CreateRandomInt(maxDays * -1, maxDays);
         var hourOffset = CreateRandomInt(maxHours * -1, maxHours);
-        var dt = DateTime.Today.AddDays(dayOffset).AddHours(hourOffset);
+        
         return Do(x =>
         {
+            var dt = DateTime.Today.AddDays(dayOffset).AddHours(hourOffset);
+            dt = dt > x.LastUpdated ? dt : x.LastUpdated ?? dt;
             x.PartOne!.ArrivalDate = dt.ToDate();
             x.PartOne!.ArrivalTime = dt.ToTime();
         });

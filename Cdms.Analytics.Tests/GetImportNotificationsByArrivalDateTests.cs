@@ -43,13 +43,13 @@ public class GetImportNotificationsByArrivalDateTests
     {
         await mongoContext.DropCollections();
         
-        var scenario = app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 2);
+        var scenario = app.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 3, arrivalDateRange: 10);
         await app.PushToConsumers(scenario, 1);
         
-        var noMatchScenario = app.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 2);
+        var noMatchScenario = app.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 3, arrivalDateRange: 10);
         await app.PushToConsumers(noMatchScenario, 2);
         
-        var chedPScenario = app.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 1);
+        var chedPScenario = app.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10);
         await app.PushToConsumers(chedPScenario, 3);
         
         logger.LogInformation("Querying for aggregated data");

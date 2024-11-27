@@ -9,7 +9,7 @@ public class ByDateResult
 
 public class Dataset(string name)
 {
-    public string Name { get; set; } = name; //$"{name} {(match ? "Linked" : "Not Linked")}";
+    public string Name { get; set; } = name;
     public List<ByDateResult> Dates { get; set; } = [];
     
 }

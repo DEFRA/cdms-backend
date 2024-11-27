@@ -66,7 +66,7 @@ public class MatchingAggregationService(IMongoDbContext context, ILogger<Matchin
         ProjectionDefinition<ImportNotification> projection = "{linked:{ $ne: [0, { $size: '$relationships.movements.data'}]}, 'importNotificationType':1, dateToUse: { $dateTrunc: { date: '" + dateField + "', unit: 'day'}}}";
         
         // First aggregate the dataset by chedtype, whether its matched and the date it arrives. Count the number in each bucket.
-        ProjectionDefinition<BsonDocument> group = "{_id: { linked: 'linked', importNotificationType: '$importNotificationType', dateToUse: '$dateToUse' }, count: { $count: { } }}";
+        ProjectionDefinition<BsonDocument> group = "{_id: { linked: '$linked', importNotificationType: '$importNotificationType', dateToUse: '$dateToUse' }, count: { $count: { } }}";
         
         // Then further group by chedtype & whether its matched to give us the structure we need in our chart
         ProjectionDefinition<BsonDocument> datasetGroup = "{_id: { importNotificationType: '$_id.importNotificationType', linked: '$_id.linked'}, dates: { $push: { dateToUse: '$_id.dateToUse', count: '$count' }}}";

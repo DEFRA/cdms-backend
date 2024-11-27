@@ -56,7 +56,7 @@ public static class TestDataGeneratorHelpers
     private static ScenarioGenerator.GeneratorResult[] Generate(this IHost app, int scenarioIndex, ScenarioConfig scenario)
     {
         var logger = app.Services.GetRequiredService<ILogger<ScenarioGenerator>>();
-        var days = scenario.Days;
+        var days = scenario.CreationDateRange;
         var count = scenario.Count;
         var generator = scenario.Generator;
         
@@ -72,7 +72,7 @@ public static class TestDataGeneratorHelpers
             {
                 logger.LogInformation("Generating item {I}", i);
 
-                results.Add(generator.Generate(scenarioIndex, i, entryDate));
+                results.Add(generator.Generate(scenarioIndex, i, entryDate, scenario));
             }
         }
 

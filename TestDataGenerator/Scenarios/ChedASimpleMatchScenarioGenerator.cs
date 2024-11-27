@@ -5,13 +5,13 @@ namespace TestDataGenerator.Scenarios;
 
 public class ChedASimpleMatchScenarioGenerator(ILogger<ChedASimpleMatchScenarioGenerator> logger) : ScenarioGenerator
 {
-    public override GeneratorResult Generate(int scenario, int item, DateTime entryDate)
+    public override GeneratorResult Generate(int scenario, int item, DateTime entryDate, ScenarioConfig config)
     {
         // TODO : get a good 'pair' of notification and cr as the source templates
 
         var notification = GetNotificationBuilder("cheda-one-commodity")
             .WithEntryDate(entryDate)
-            .WithRandomArrivalDateTime()
+            .WithRandomArrivalDateTime(config.ArrivalDateRange)
             .WithReferenceNumber(ImportNotificationTypeEnum.Cveda, scenario, entryDate, item)
             .ValidateAndBuild()!;
 

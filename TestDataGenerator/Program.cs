@@ -144,7 +144,7 @@ class Program
 
             foreach (var s in dataset.Scenarios)
             {
-                await generator.Generate(scenario, s.Count, s.Days, s.Generator, dataset.RootPath);
+                await generator.Generate(scenario, s, dataset.RootPath);
                 scenario++;
             }
 
