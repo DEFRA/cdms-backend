@@ -55,15 +55,11 @@ public class ApiOptions
 				}
 			}
 
-			foreach (var kvp in options.Credentials)
-			{
-				if (string.IsNullOrEmpty(kvp.Value))
-				{
-					return ValidateOptionsResult.Fail($"No password has been set for ClientId {kvp.Key}");
-				}
-			}
+			var missingCredentials = options.Credentials.FirstOrDefault(kvp => string.IsNullOrEmpty(kvp.Value));
 
-			return ValidateOptionsResult.Success;
+			return missingCredentials.Key is not null
+				? ValidateOptionsResult.Fail($"No password has been set for ClientId {missingCredentials.Key}")
+				: ValidateOptionsResult.Success;
 		}
 	}
 }
