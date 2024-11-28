@@ -405,7 +405,7 @@ public partial class PartOne  //
         /// </summary>
     [Attr]
     [System.ComponentModel.Description("DateTime")]
-    public DateTime? ArrivesOn { get; set; }
+    public DateTime? ArrivesAt { get; set; }
 
 	
         /// <summary>

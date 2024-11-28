@@ -164,7 +164,7 @@ static class Bootstrap
             map.MapProperty("isGVMSRoute").SetName("isGvmsRoute");
             map.MapProperty("portOfExitDate").IsDateTime().SetInternalName("ExitedPortOfOn");
 
-            map.MapDateOnlyAndTimeOnlyToDateTimeProperty("arrivalDate", "arrivalTime", "arrivesOn");
+            map.MapDateOnlyAndTimeOnlyToDateTimeProperty("arrivalDate", "arrivalTime", "arrivesAt");
             map.MapDateOnlyAndTimeOnlyToDateTimeProperty("departureDate", "departureTime", "departedOn");
         });
 
