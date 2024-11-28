@@ -78,7 +78,7 @@ public class ImportNotificationBuilder<T> : BuilderBase<T, ImportNotificationBui
 
     public ImportNotificationBuilder<T> WithEntryDate(DateTime entryDate)
     {
-        return Do(x => x.LastUpdated = entryDate);
+        return Do(x => x.LastUpdated = entryDate.RandomTime());
     }
 
     public ImportNotificationBuilder<T> WithRandomArrivalDateTime(int maxDays, int maxHours=6)
