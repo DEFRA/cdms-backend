@@ -15,12 +15,12 @@ public class SyncMetrics
     public SyncMetrics(IMeterFactory meterFactory)
     {
         var meter = meterFactory.Create(MetricNames.MeterName);
-        syncTotal = meter.CreateCounter<long>("blob.cdms.sync", "ea", "Number of blobs read");
-        syncFaultTotal = meter.CreateCounter<long>("blob.cdms.sync.errors", "ea",
+        syncTotal = meter.CreateCounter<long>("cdms.sync", "ea", "Number of blobs read");
+        syncFaultTotal = meter.CreateCounter<long>("cdms.sync.errors", "ea",
             "Number of sync faults");
-        syncInProgress = meter.CreateCounter<long>("blob.cdms.sync.active", "ea",
+        syncInProgress = meter.CreateCounter<long>("cdms.sync.active", "ea",
             "Number of blobs syncing in progress");
-        syncDuration = meter.CreateHistogram<double>("blob.cdms.sync.duration", "ms",
+        syncDuration = meter.CreateHistogram<double>("cdms.sync.duration", "ms",
             "Elapsed time spent reading the blob, in millis");
     }
 

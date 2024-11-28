@@ -12,10 +12,10 @@ public class LinkingMetrics
     public LinkingMetrics(IMeterFactory meterFactory)
     {
         var meter = meterFactory.Create(MetricNames.MeterName);
-        duration = meter.CreateHistogram<double>("messaging.memory.time_queued", "ms", "Elapsed time spent consuming a message, in millis");
+        duration = meter.CreateHistogram<double>("cdms.linking.duration", "ms", "Elapsed time spent linking, in millis");
 
-        total = meter.CreateCounter<long>("messaging.memory.incoming", description: "Number of messages incoming");
-        faulted = meter.CreateCounter<long>("messaging.memory.outgoing", description: "Number of messages outgoing");
+        total = meter.CreateCounter<long>("cdms.linking.total", description: "Number of links generated");
+        faulted = meter.CreateCounter<long>("cdms.linking.faulted", description: "Number of times linking errored");
         
     }
     public void Faulted(Exception exception)
