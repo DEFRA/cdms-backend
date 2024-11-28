@@ -42,6 +42,9 @@ public class AggregationTestFixture : IDisposable
         
         App.PushToConsumers(App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10), 5)
             .GetAwaiter().GetResult();
+        
+        App.PushToConsumers(App.CreateScenarioConfig<CRNoMatchScenarioGenerator>(1, 3, arrivalDateRange: 10), 6)
+            .GetAwaiter().GetResult();
 
         // SetupData().GetAwaiter().GetResult();
     }

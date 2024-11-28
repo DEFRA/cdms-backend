@@ -21,11 +21,13 @@ public class GetMovementsByCreatedDateTests(
 
         testOutputHelper.WriteLine(result.ToJsonString());
 
-        result.Count.Should().Be(1);
+        result.Count.Should().Be(2);
 
         result[0].Name.Should().Be("Linked");
         result[0].Periods[0].Period.Should().BeOnOrBefore(DateTime.Today);
         result[0].Periods.Count.Should().Be(24);
+        
+        result[1].Name.Should().Be("Not Linked");
     }
     
     [Fact]
@@ -37,10 +39,12 @@ public class GetMovementsByCreatedDateTests(
 
         testOutputHelper.WriteLine(result.ToJsonString());
 
-        result.Count.Should().Be(1);
+        result.Count.Should().Be(2);
 
         result[0].Name.Should().Be("Linked");
         result[0].Periods[0].Period.Should().BeOnOrBefore(DateTime.Today);
         result[0].Periods.Count.Should().Be(DateTime.Today.DaysSinceMonthAgo() + 1);
+        
+        result[1].Name.Should().Be("Not Linked");
     }
 }
