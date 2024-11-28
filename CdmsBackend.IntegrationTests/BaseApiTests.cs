@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -7,6 +8,7 @@ using Cdms.Business.Commands;
 using Cdms.SyncJob;
 using CdmsBackend.IntegrationTests.Helpers;
 using FluentAssertions;
+using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 using Xunit.Abstractions;
@@ -26,6 +28,11 @@ namespace CdmsBackend.IntegrationTests
             this.Factory.DatabaseName = "SmokeTests";
             Client =
                 this.Factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+            string credentials = "IntTest:Password";
+            byte[] credentialsAsBytes = Encoding.UTF8.GetBytes(credentials.ToCharArray());
+            var encodedCredentials = Convert.ToBase64String(credentialsAsBytes);
+            Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(BasicAuthenticationDefaults.AuthenticationScheme, encodedCredentials);
         }
 
         private async Task WaitOnJobCompleting(Uri jobUri)
