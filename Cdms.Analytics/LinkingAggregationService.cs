@@ -77,8 +77,8 @@ public class LinkingAggregationService(IMongoDbContext context, ILogger<LinkingA
         string CreateDatasetName(BsonDocument b) => GetLinkedName(b["_id"]["linked"].ToBoolean());
 
         DateTime AggregateDateCreator(BsonValue b) => b["dateToUse"].ToUniversalTime();
-
-        return GetMovementAggregate(dateRange, CreateDatasetName, matchFilter, AggregateDateCreator, "xxx", aggregateBy);
+        
+        return GetMovementAggregate(dateRange, CreateDatasetName, matchFilter, AggregateDateCreator, "$arrivesAt", aggregateBy);
     }
     
     public Task<Dataset[]> GetImportNotificationLinkingByCreated(DateTime from, DateTime to, AggregationPeriod aggregateBy = AggregationPeriod.Day)

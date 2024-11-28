@@ -16,11 +16,11 @@ public static class AnalyticsEndpoints
     private static async Task<IResult> GetDashboard(
         [FromServices] ILinkingAggregationService svc)
     {
-        var importNotificationLinkingByArrival = await svc
-            .GetImportNotificationLinkingByArrival(DateTime.Today.MonthAgo(), DateTime.Today) ;
-        
         var importNotificationLinkingByCreated = await svc
             .GetImportNotificationLinkingByCreated(DateTime.Today.MonthAgo(), DateTime.Today);
+        
+        var importNotificationLinkingByArrival = await svc
+            .GetImportNotificationLinkingByArrival(DateTime.Today, DateTime.Today.MonthLater()) ;
         
         var last7DaysImportNotificationsLinkingStatus = await svc
             .GetImportNotificationLinkingStatus(DateTime.Today.WeekAgo(), DateTime.Today);
@@ -37,14 +37,15 @@ public static class AnalyticsEndpoints
         var movementsLinkingByCreated = await svc
             .GetMovementsLinkingByCreated(DateTime.Today.MonthAgo(), DateTime.Today) ;
         
-        var movementsLinkingByCArrival = await svc
-            .GetImportNotificationLinkingByCreated(DateTime.Today.MonthAgo(), DateTime.Today);
+        var movementsLinkingByArrival = await svc
+            .GetMovementsLinkingByArrival(DateTime.Today, DateTime.Today.MonthLater());
         
         return Results.Ok(new
         {
-            importNotificationLinkingByArrival, importNotificationLinkingByCreated,
+            importNotificationLinkingByCreated, importNotificationLinkingByArrival,
             last7DaysImportNotificationsLinkingStatus, last24HoursImportNotificationsLinkingStatus,
-            last24HoursMovementsLinkingByCreated, last24HoursImportNotificationsLinkingByCreated
+            last24HoursMovementsLinkingByCreated, last24HoursImportNotificationsLinkingByCreated,
+            movementsLinkingByCreated, movementsLinkingByArrival
         });
     }
 }

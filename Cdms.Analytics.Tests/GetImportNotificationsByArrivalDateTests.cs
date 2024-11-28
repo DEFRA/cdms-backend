@@ -1,3 +1,4 @@
+using Cdms.Common.Extensions;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -11,11 +12,12 @@ public class GetImportNotificationsByArrivalDateTests(
 {
     
     [Fact]
-    public async Task WhenCalledNext30Days_ReturnExpectedAggregation()
+    public async Task WhenCalledNextMonth_ReturnExpectedAggregation()
     {
         testOutputHelper.WriteLine("Querying for aggregated data");
+        
         var result = (await aggregationTestFixture.LinkingAggregationService
-            .GetImportNotificationLinkingByArrival(DateTime.Today, DateTime.Today.AddDays(30)))
+            .GetImportNotificationLinkingByArrival(DateTime.Today, DateTime.Today.MonthLater()))
             .ToList();
 
         testOutputHelper.WriteLine($"{result.Count} aggregated items found");
@@ -26,14 +28,14 @@ public class GetImportNotificationsByArrivalDateTests(
 
         result[0].Name.Should().Be("Cveda Linked");
         result[0].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
-        result[0].Periods.Count.Should().Be(30);
+        result[0].Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
         
         result[1].Name.Should().Be("Cveda Not Linked");
         result[1].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
-        result[1].Periods.Count.Should().Be(30);
+        result[1].Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
 
         result[2].Name.Should().Be("Cvedp Linked");
         result[2].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
-        result[2].Periods.Count.Should().Be(30);
+        result[2].Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
     }
 }

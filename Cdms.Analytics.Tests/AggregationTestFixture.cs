@@ -23,35 +23,42 @@ public class AggregationTestFixture : IDisposable
 
         MongoDbContext = rootScope.ServiceProvider.GetRequiredService<IMongoDbContext>();
         LinkingAggregationService = rootScope.ServiceProvider.GetRequiredService<ILinkingAggregationService>();
+        
         MongoDbContext.DropCollections().GetAwaiter().GetResult();
 
-        var scenario = App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 3, arrivalDateRange: 10);
-        App.PushToConsumers(scenario, 1).GetAwaiter().GetResult();
+        // Ensure we have some data scenarios around 24 hour tests
+        App.PushToConsumers(App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 1, arrivalDateRange: 2), 1)
+            .GetAwaiter().GetResult();
+        
+        App.PushToConsumers(App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(10, 1, arrivalDateRange: 2), 2)
+            .GetAwaiter().GetResult();
+        
+        // Create some more variable data over the rest of time
+        App.PushToConsumers(App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 7, arrivalDateRange: 10), 3)
+            .GetAwaiter().GetResult();
+        
+        App.PushToConsumers(App.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 3, arrivalDateRange: 10), 4)
+            .GetAwaiter().GetResult();
+        
+        App.PushToConsumers(App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10), 5)
+            .GetAwaiter().GetResult();
 
-        var noMatchScenario = App.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 3, arrivalDateRange: 10);
-        App.PushToConsumers(noMatchScenario, 2).GetAwaiter().GetResult();
-
-        var chedPScenario = App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10);
-        App.PushToConsumers(chedPScenario, 3).GetAwaiter().GetResult();
-
-
-
-        SetupData().GetAwaiter().GetResult();
+        // SetupData().GetAwaiter().GetResult();
     }
 
-    public async Task SetupData()
-    {
-        await MongoDbContext.DropCollections();
-
-        var scenario = App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 3, arrivalDateRange: 10);
-        await App.PushToConsumers(scenario, 1);
-
-        var noMatchScenario = App.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 3, arrivalDateRange: 10);
-        await App.PushToConsumers(noMatchScenario, 2);
-
-        var chedPScenario = App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10);
-        await App.PushToConsumers(chedPScenario, 3);
-    }
+    // public async Task SetupData()
+    // {
+    //     await MongoDbContext.DropCollections();
+    //
+    //     var scenario = App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 3, arrivalDateRange: 10);
+    //     await App.PushToConsumers(scenario, 1);
+    //
+    //     var noMatchScenario = App.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 3, arrivalDateRange: 10);
+    //     await App.PushToConsumers(noMatchScenario, 2);
+    //
+    //     var chedPScenario = App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10);
+    //     await App.PushToConsumers(chedPScenario, 3);
+    // }
 
     public void Dispose()
     {

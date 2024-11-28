@@ -1,3 +1,4 @@
+using Cdms.Common.Extensions;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -9,16 +10,13 @@ public class GetImportNotificationsStatus(
     AggregationTestFixture aggregationTestFixture,
     ITestOutputHelper testOutputHelper)
 {
- 
     
     [Fact]
-    public async Task WhenCalledLast7Days_ReturnExpectedAggregation()
+    public async Task WhenCalledLastWeek_ReturnExpectedAggregation()
     {
-
-
         testOutputHelper.WriteLine("Querying for aggregated data");
         var result = (await aggregationTestFixture.LinkingAggregationService
-            .GetImportNotificationLinkingStatus(DateTime.Today.AddDays(-7), DateTime.Today));
+            .GetImportNotificationLinkingStatus(DateTime.Today.WeekAgo(), DateTime.Today.Tomorrow()));
 
         testOutputHelper.WriteLine("{0} aggregated items found", result.Values.Count);
         
@@ -29,7 +27,6 @@ public class GetImportNotificationsStatus(
     [Fact]
     public async Task WhenCalledLast24Hours_ReturnExpectedAggregation()
     {
-
         testOutputHelper.WriteLine("Querying for aggregated data");
         var result = (await aggregationTestFixture.LinkingAggregationService
             .GetImportNotificationLinkingStatus(DateTime.Now.AddDays(-1), DateTime.Now));

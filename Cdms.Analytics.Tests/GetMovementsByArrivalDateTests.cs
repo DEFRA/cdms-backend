@@ -7,16 +7,16 @@ using Xunit.Abstractions;
 namespace Cdms.Analytics.Tests;
 
 [Collection("Aggregation Test collection")]
-public class GetMovementsByCreatedDateTests(
+public class GetMovementsByArrivalDateTests(
     AggregationTestFixture aggregationTestFixture,
     ITestOutputHelper testOutputHelper) {
     
     [Fact]
-    public async Task WhenCalledLast24Hours_ReturnExpectedAggregation()
+    public async Task WhenCalledNext24Hours_ReturnExpectedAggregation()
     {
 
         var result = (await aggregationTestFixture.LinkingAggregationService
-            .GetMovementsLinkingByCreated(DateTime.Now.NextHour().Yesterday(), DateTime.Now.NextHour(), AggregationPeriod.Hour))
+            .GetMovementsLinkingByArrival(DateTime.Now, DateTime.Now.Tomorrow(), AggregationPeriod.Hour))
             .ToList();
 
         testOutputHelper.WriteLine(result.ToJsonString());
@@ -24,15 +24,15 @@ public class GetMovementsByCreatedDateTests(
         result.Count.Should().Be(1);
 
         result[0].Name.Should().Be("Linked");
-        result[0].Periods[0].Period.Should().BeOnOrBefore(DateTime.Today);
+        result[0].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
         result[0].Periods.Count.Should().Be(24);
     }
     
     [Fact]
-    public async Task WhenCalledLastMonth_ReturnExpectedAggregation()
+    public async Task WhenCalledNextMonth_ReturnExpectedAggregation()
     {
         var result = (await aggregationTestFixture.LinkingAggregationService
-            .GetMovementsLinkingByCreated(DateTime.Today.MonthAgo(), DateTime.Today.Tomorrow()))
+            .GetMovementsLinkingByArrival(DateTime.Today, DateTime.Today.MonthLater()))
             .ToList();
 
         testOutputHelper.WriteLine(result.ToJsonString());
@@ -40,7 +40,7 @@ public class GetMovementsByCreatedDateTests(
         result.Count.Should().Be(1);
 
         result[0].Name.Should().Be("Linked");
-        result[0].Periods[0].Period.Should().BeOnOrBefore(DateTime.Today);
-        result[0].Periods.Count.Should().Be(DateTime.Today.DaysSinceMonthAgo() + 1);
+        result[0].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
+        result[0].Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
     }
 }
