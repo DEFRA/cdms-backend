@@ -113,13 +113,13 @@ public class LinkingAggregationService(IMongoDbContext context, ILogger<LinkingA
             .ToArray();
         
         Expression<Func<ImportNotification, bool>> matchFilter = n =>
-            n.PartOne!.ArrivedOn >= from && n.PartOne!.ArrivedOn < to;
+            n.PartOne!.ArrivesAt >= from && n.PartOne!.ArrivesAt < to;
 
         string CreateDatasetName(BsonDocument b) => $"{b["_id"]["importNotificationType"].ToString()!} {(b["_id"]["linked"].ToBoolean() ? "Linked" : "Not Linked")}";
 
         DateTime AggregateDateCreator(BsonValue b) => b["dateToUse"].ToUniversalTime();
 
-        return GetImportNotificationAggregate(dateRange, CreateDatasetName, matchFilter, AggregateDateCreator, "$partOne.arrivedOn", aggregateBy);
+        return GetImportNotificationAggregate(dateRange, CreateDatasetName, matchFilter, AggregateDateCreator, "$partOne.arrivesAt", aggregateBy);
     }
 
     public Task<PieChartDataset> GetImportNotificationLinkingStatus(DateTime from, DateTime to)

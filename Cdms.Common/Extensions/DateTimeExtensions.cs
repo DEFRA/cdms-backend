@@ -45,4 +45,19 @@ public static class DateTimeExtensions
     {
         return new DateTime(dt.Year, dt.Month, dt.Day, CreateRandomInt(0,23), CreateRandomInt(0, 60), CreateRandomInt(0, 60), dt.Kind);
     }
+    
+    public static DateOnly ToDate(this DateTime val)
+    {
+        return DateOnly.FromDateTime(val);
+    }
+    
+    public static DateOnly ToDate(this DateTime? val)
+    {
+        return val?.ToDate() ?? DateOnly.MinValue;
+    }
+    
+    public static TimeOnly ToTime(this DateTime val)
+    {
+        return TimeOnly.FromDateTime(val);
+    }
 }
