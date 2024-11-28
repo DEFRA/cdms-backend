@@ -3,6 +3,7 @@ using Cdms.Model.Extensions;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace Cdms.Analytics.Tests;
 
