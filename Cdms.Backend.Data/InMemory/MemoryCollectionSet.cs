@@ -39,16 +39,16 @@ public class MemoryCollectionSet<T> : IMongoCollectionSet<T> where T : IDataEnti
 
     public Task Update(T item, string etag, IMongoDbTransaction transaction = default!, CancellationToken cancellationToken = default)
     {
-        item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString()!;
-
         var existingItem = data.Find(x => x.Id == item.Id);
+        if (existingItem == null) return Task.CompletedTask;
 
-        if (existingItem?._Etag != etag)
+        if ((existingItem._Etag ?? "") != etag)
         {
             throw new ConcurrencyException("Concurrency Error, change this to a Concurrency exception");
         }
 
-        data[data.IndexOf(existingItem)] = item;
+        item._Etag = BsonObjectIdGenerator.Instance.GenerateId(null, null).ToString()!;
+        data[data.IndexOf(existingItem!)] = item;
         return Task.CompletedTask;
     }
 
