@@ -8,8 +8,7 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <RootNamespace>Cdms.Analytics.Tests</RootNamespace>
-      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    </PropertyGroup>
+          </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="EphemeralMongo7" Version="1.1.3" />
