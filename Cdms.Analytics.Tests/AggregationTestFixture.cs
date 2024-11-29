@@ -26,24 +26,27 @@ public class AggregationTestFixture : IDisposable
         
         MongoDbContext.ResetCollections().GetAwaiter().GetResult();
 
-        // Ensure we have some data scenarios around 24 hour tests
-        App.PushToConsumers(App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 1, arrivalDateRange: 2), 1)
+        // Ensure we have some data scenarios around 24/48 hour tests
+        App.PushToConsumers(App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 3, arrivalDateRange: 0))
             .GetAwaiter().GetResult();
         
-        App.PushToConsumers(App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(10, 1, arrivalDateRange: 2), 2)
+        App.PushToConsumers(App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(10, 3, arrivalDateRange: 2))
+            .GetAwaiter().GetResult();
+        
+        App.PushToConsumers(App.CreateScenarioConfig<CRNoMatchScenarioGenerator>(10, 3, arrivalDateRange: 0))
             .GetAwaiter().GetResult();
         
         // Create some more variable data over the rest of time
-        App.PushToConsumers(App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 7, arrivalDateRange: 10), 3)
+        App.PushToConsumers(App.CreateScenarioConfig<ChedASimpleMatchScenarioGenerator>(10, 7, arrivalDateRange: 10))
             .GetAwaiter().GetResult();
         
-        App.PushToConsumers(App.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 3, arrivalDateRange: 10), 4)
+        App.PushToConsumers(App.CreateScenarioConfig<ChedANoMatchScenarioGenerator>(5, 3, arrivalDateRange: 10))
             .GetAwaiter().GetResult();
         
-        App.PushToConsumers(App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10), 5)
+        App.PushToConsumers(App.CreateScenarioConfig<ChedPSimpleMatchScenarioGenerator>(1, 3, arrivalDateRange: 10))
             .GetAwaiter().GetResult();
         
-        App.PushToConsumers(App.CreateScenarioConfig<CRNoMatchScenarioGenerator>(1, 3, arrivalDateRange: 10), 6)
+        App.PushToConsumers(App.CreateScenarioConfig<CRNoMatchScenarioGenerator>(1, 3, arrivalDateRange: 10))
             .GetAwaiter().GetResult();
 
     }
