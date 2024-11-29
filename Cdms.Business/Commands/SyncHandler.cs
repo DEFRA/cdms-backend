@@ -61,7 +61,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
 
         public abstract Task Handle(T request, CancellationToken cancellationToken);
 
-        protected async Task SyncBlobPaths<TRequest>(SyncPeriod period, string topic, Guid jobId, params string[] paths)
+        protected async Task SyncBlobPaths<TRequest>(SyncPeriod period, string topic, Guid jobId, CancellationToken cancellationToken, params string[] paths)
         {
             var job = syncJobStore.GetJob(jobId);
             job?.Start();
@@ -112,7 +112,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
         }
 
 
-        protected async Task SyncBlobs<TRequest>(SyncPeriod period, string topic, Guid jobId, params string[] paths)
+        protected async Task SyncBlobs<TRequest>(SyncPeriod period, string topic, Guid jobId, CancellationToken cancellationToken, params string[] paths)
         {
             var job = syncJobStore.GetJob(jobId);
             job?.Start();
@@ -121,7 +121,10 @@ public abstract class SyncCommand() : IRequest, ISyncJob
             {
                 foreach (var path in paths)
                 {
-                    await SyncBlob<TRequest>(path, topic, new CdmsBlobItem() { Name = path }, job!, CancellationToken.None);
+                    if (job?.Status != SyncJobStatus.Cancelled)
+                    {
+                        await SyncBlob<TRequest>(path, topic, new CdmsBlobItem() { Name = path }, job!, cancellationToken);
+                    }
                 }
 
             }
