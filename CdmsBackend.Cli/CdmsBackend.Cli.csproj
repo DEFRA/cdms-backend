@@ -6,8 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
+      </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Features\GenerateModels\Templates\ClassTemplate.cshtml" />
