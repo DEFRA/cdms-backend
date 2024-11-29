@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Cdms.Model.Ipaffs;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
