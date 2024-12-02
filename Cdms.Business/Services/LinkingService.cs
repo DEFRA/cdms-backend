@@ -10,6 +10,13 @@ namespace Cdms.Business.Services;
 
 public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, ILogger<LinkingService> logger) : ILinkingService
 {
+    private const string linkingStartedLogMessage = "Linking Started for {ContextType} - {MatchIdentifier}";
+    private const string linkingFinishedLogMessage = "Linking Finished for {ContextType} - {MatchIdentifier}";
+    private const string linkingFailedLogMessage = "Linking Failed for {ContextType} - {MatchIdentifier}";
+    private const string linkingNotFoundLogMessage = "No Link Found for {ContextType} - {MatchIdentifier}";
+    private const string linkingFoundLogMessage = "Links found for {ContextType} - {MatchIdentifier} - {MovementCount} Movements and {NotificationsCount} Notifications";
+    private const string linkingCriteriaNotMetLogMessage = "Should link criteria was not met for {ContextType} - {MatchIdentifier}";
+
     public async Task<LinkResult> Link(LinkContext linkContext, CancellationToken cancellationToken = default)
     {
         var startedAt = TimeProvider.System.GetTimestamp();
@@ -20,7 +27,7 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
                    new("ContextType", linkContext.GetType().Name),
                }))
         {
-            logger.LogInformation("Linking started");
+            logger.LogInformation(linkingStartedLogMessage, linkContext.GetType().Name, linkContext.GetIdentifiers());
             try
             {
                 switch (linkContext)
@@ -28,7 +35,7 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
                     case MovementLinkContext movementLinkContext:
                         if (!ShouldLink(movementLinkContext))
                         {
-                            logger.LogInformation("Should link criteria was not met");
+                            logger.LogInformation(linkingCriteriaNotMetLogMessage, linkContext.GetType().Name, linkContext.GetIdentifiers());
                             return new LinkResult(LinkState.NotLinked);
                         }
 
@@ -37,7 +44,7 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
                     case ImportNotificationLinkContext notificationLinkContext:
                         if (!ShouldLink(notificationLinkContext))
                         {
-                            logger.LogInformation("Should link criteria was not met");
+                            logger.LogInformation(linkingCriteriaNotMetLogMessage, linkContext.GetType().Name, linkContext.GetIdentifiers());
                             return new LinkResult(LinkState.NotLinked);
                         }
 
@@ -50,11 +57,12 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
 
                 if (result.State == LinkState.NotLinked)
                 {
-                    logger.LogInformation("No link found");
+                    logger.LogInformation(linkingNotFoundLogMessage, linkContext.GetType().Name, linkContext.GetIdentifiers());
                     return result;
                 }
 
-                logger.LogInformation("links found: {MovementCount} Movements and {NotificationsCount} Notifications",
+                logger.LogInformation(linkingFoundLogMessage,
+                    linkContext.GetType().Name, linkContext.GetIdentifiers(),
                     result.Movements.Count, result.Notifications.Count);
 
                 metrics.Linked<Movement>(result.Movements.Count);
@@ -95,7 +103,7 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Linking Failed");
+                logger.LogError(e, linkingFailedLogMessage, linkContext.GetType().Name, linkContext.GetIdentifiers());
                 metrics.Faulted(e);
                 throw new LinkException(e);
             }
@@ -103,7 +111,7 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
             {
                 var e = TimeProvider.System.GetElapsedTime(startedAt);
                 metrics.Completed(e.TotalMilliseconds);
-                logger.LogInformation("Linking finished");
+                logger.LogInformation(linkingFinishedLogMessage, linkContext.GetType().Name, linkContext.GetIdentifiers());
             }
         }
 
@@ -122,17 +130,12 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
         // Diff movements for fields of interest
         var existingDocs = existingItems
             .SelectMany(x => x.Documents ?? [])
-            .Select(d => new
-            {
-                d.DocumentReference
-            }).ToList();
+            .Select(d => d.DocumentReference
+            ).ToList();
 
         var receivedDocs = receivedItems
             .SelectMany(x => x.Documents ?? [])
-            .Select(d => new
-            {
-                d.DocumentReference
-            }).ToList();
+            .Select(d => d.DocumentReference).ToList();
 
         if (existingDocs.Count != receivedDocs.Count ||
             !existingDocs.TrueForAll(receivedDocs.Contains))
