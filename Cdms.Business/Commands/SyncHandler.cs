@@ -74,7 +74,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
                        new("Command", typeof(T).Name),
                    }))
             {
-                logger.SyncStarted(job?.JobId.ToString()!, period.ToString(), maxDegreeOfParallelism, Environment.ProcessorCount, typeof(T).Name);
+                logger.LogInformation("Sync Handler Started");
                 try
                 {
                     await Parallel.ForEachAsync(paths,
@@ -83,7 +83,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
                         {
                             using (logger.BeginScope(new List<KeyValuePair<string, object>> { new("SyncPath", path), }))
                             {
-                                await SyncBlobPath<TRequest>(path, period, topic, job!, token);
+                    await SyncBlobPath<TRequest>(path, period, topic, job!, cancellationToken);
                             }
                         });
 
@@ -95,7 +95,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
                 finally
                 {
                     job?.CompletedReadingBlobs();
-                    logger.LogInformation("Sync Handler Finished");
+                    logger.LogInformation("Sync Handler Started");
                 }
             }
         }
@@ -146,7 +146,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
             {
                 try
                 {
-                    logger.BlobStarted(job.JobId.ToString(), item.Name);
+                    logger.LogInformation("Processing Blob Started");
                     syncMetrics.SyncStarted<T>(path, topic);
                     using (var activity = CdmsDiagnostics.ActivitySource.StartActivity(name: ActivityName,
                                kind: ActivityKind.Client, tags: new TagList() { { "blob.name", item.Name } }))
@@ -172,7 +172,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
                 }
                 catch (Exception ex)
                 {
-                    logger.BlobFailed(ex, job.JobId.ToString(), item.Name);
+                    logger.LogError(ex, "Processing Blob Failed");
 
                     syncMetrics.AddException<T>(ex, path, topic);
                     job.BlobFailed();
@@ -180,7 +180,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
                 finally
                 {
                     syncMetrics.SyncCompleted<T>(path, topic, timer);
-                    logger.BlobFinished(job.JobId.ToString(), item.Name);
+                    logger.LogInformation("Processing Blob Finished");
                 }
             }
         }
