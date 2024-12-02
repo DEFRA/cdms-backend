@@ -97,7 +97,7 @@ public class LinkingService(IMongoDbContext dbContext, LinkingMetrics metrics, I
             {
                 logger.LogError(e, "Linking Failed");
                 metrics.Faulted(e);
-                throw;
+                throw new LinkException(e);
             }
             finally
             {
