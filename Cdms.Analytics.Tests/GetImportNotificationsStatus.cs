@@ -15,25 +15,25 @@ public class GetImportNotificationsStatus(
     public async Task WhenCalledLastWeek_ReturnExpectedAggregation()
     {
         testOutputHelper.WriteLine("Querying for aggregated data");
-        var result = (await aggregationTestFixture.LinkingAggregationService
-            .ImportNotificationsByStatus(DateTime.Today.WeekAgo(), DateTime.Today.Tomorrow()));
+        var result = (await aggregationTestFixture.ImportNotificationsAggregationService
+            .ByStatus(DateTime.Today.WeekAgo(), DateTime.Today.Tomorrow()));
 
         testOutputHelper.WriteLine("{0} aggregated items found", result.Values.Count);
         
         result.Values.Count.Should().Be(3);
-        result.Values.Keys.Order().Should().Equal("Cveda Linked", "Cveda Not Linked", "Cvedp Linked");
+        result.Values.Keys.Order().Should().Equal("CHEDA Linked", "CHEDA Not Linked", "CHEDP Linked");
     }
     
     [Fact]
     public async Task WhenCalledLast48Hours_ReturnExpectedAggregation()
     {
         testOutputHelper.WriteLine("Querying for aggregated data");
-        var result = (await aggregationTestFixture.LinkingAggregationService
-            .ImportNotificationsByStatus(DateTime.Now.NextHour().AddDays(-2), DateTime.Now.NextHour()));
+        var result = (await aggregationTestFixture.ImportNotificationsAggregationService
+            .ByStatus(DateTime.Now.NextHour().AddDays(-2), DateTime.Now.NextHour()));
 
         testOutputHelper.WriteLine($"{result.Values.Count} aggregated items found");
         
         result.Values.Count.Should().Be(3);
-        result.Values.Keys.Order().Should().Equal("Cveda Linked", "Cveda Not Linked", "Cvedp Linked");
+        result.Values.Keys.Order().Should().Equal("CHEDA Linked", "CHEDA Not Linked", "CHEDP Linked");
     }
 }
