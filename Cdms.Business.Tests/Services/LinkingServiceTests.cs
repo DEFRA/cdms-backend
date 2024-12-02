@@ -32,7 +32,7 @@ public class LinkingServiceTests
         var test = () => sut.Link(ctx);
 
         // Assert
-        await test.Should().ThrowAsync<ArgumentException>();
+        await test.Should().ThrowAsync<LinkException>();
     }
     
     [Fact]
