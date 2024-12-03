@@ -75,13 +75,14 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
         var data = context
             .Movements
             .Where(n => n.CreatedSource >= from && n.CreatedSource < to)
-            .GroupBy(m => m.Relationships.Notifications.Data.Count > 0 )
+            .GroupBy(m => m.Relationships.Notifications.Data.Count > 0)
             .Select(g => new { g.Key, Count = g.Count() })
-            .ToList();
-
+            .ToList()
+            .ToDictionary(g => AnalyticsHelpers.GetLinkedName(g.Key), g => g.Count);
+            
         return Task.FromResult(new PieChartDataset()
         {
-            Values = data.ToDictionary(g => AnalyticsHelpers.GetLinkedName(g.Key), g=> g.Count )
+            Values =  new string[] { "Linked", "Not Linked" }.ToDictionary(title => title, title => data.GetValueOrDefault(title, 0))
         });
     }
     
