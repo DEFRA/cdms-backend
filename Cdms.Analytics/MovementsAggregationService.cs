@@ -16,12 +16,6 @@ namespace Cdms.Analytics;
 
 public class MovementsAggregationService(IMongoDbContext context, ILogger<MovementsAggregationService> logger) : IMovementsAggregationService
 {
-    // By creating the dates we care about, we can ensure the arrays have all the dates, 
-    // including any series that don't have data on a given day. We need these to be zero for the chart to render
-    // correctly
-    static DateTime[] CreateDateRange(DateTime from, DateTime to, AggregationPeriod aggregateBy) => Enumerable.Range(0, (to - from).Periods(aggregateBy)).Reverse()
-        .Select(offset => from.Increment(offset, aggregateBy)) // from.AddDays(offset))
-        .ToArray(); 
     
     /// <summary>
     /// Aggregates movements by createdSource and returns counts by date period. Could be refactored to use a generic/interface in time
@@ -32,7 +26,7 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
     /// <returns></returns>
     public Task<Dataset[]> ByCreated(DateTime from, DateTime to, AggregationPeriod aggregateBy = AggregationPeriod.Day)
     {
-        var dateRange = CreateDateRange(from, to, aggregateBy);
+        var dateRange = AnalyticsHelpers.CreateDateRange(from, to, aggregateBy);
         
         Expression<Func<Movement, bool>> matchFilter = n =>
             n.CreatedSource >= from && n.CreatedSource < to;
@@ -51,17 +45,7 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
     /// <returns></returns>
     public Task<Dataset[]> ByArrival(DateTime from, DateTime to, AggregationPeriod aggregateBy = AggregationPeriod.Day)
     {
-        var dateRange = CreateDateRange(from, to, aggregateBy);
-        
-        // int RangeFromPeriod(TimeSpan t) => Convert.ToInt32(aggregateBy == AggregationPeriod.Hour ? t.TotalHours : t.TotalDays);
-        // DateTime IncrementPeriod(DateTime d, int offset) => aggregateBy == AggregationPeriod.Hour ? d.AddHours(offset) : d.AddDays(offset);
-        //
-        // // By creating the dates we care about, we can ensure the arrays have all the dates, 
-        // // including any series that don't have data on a given day. We need these to be zero for the chart to render
-        // // correctly
-        // var dateRange = Enumerable.Range(0, RangeFromPeriod((to - from))).Reverse()
-        //     .Select(offset => IncrementPeriod(from, offset))
-        //     .ToArray(); 
+        var dateRange = AnalyticsHelpers.CreateDateRange(from, to, aggregateBy);
         
         Expression<Func<Movement, bool>> matchFilter = n =>
             n.CreatedSource >= from && n.CreatedSource < to;
