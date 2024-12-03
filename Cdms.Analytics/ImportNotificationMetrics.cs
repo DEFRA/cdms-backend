@@ -8,6 +8,7 @@ using Cdms.Common;
 using Cdms.Metrics;
 using Cdms.Analytics.Extensions;
 using Cdms.Common.Extensions;
+using Cdms.Model;
 using Cdms.Model.Extensions;
 using Cdms.Model.Ipaffs;
 using Microsoft.Extensions.Logging;
@@ -29,10 +30,10 @@ public class ImportNotificationMetrics
         _metrics.Add(i.Name, i);
     }
 
-    private string[] GetChedTypes()
-    {
-        return Enum.GetValues<ImportNotificationTypeEnum>().Select(e => e.AsString()).ToArray();
-    }
+    // private string[] GetChedTypes()
+    // {
+    //     return Enum.GetValues<ImportNotificationTypeEnum>().Select(e => e.AsString()).ToArray();
+    // }
     
     public ImportNotificationMetrics(IMeterFactory meterFactory, IImportNotificationsAggregationService importService, ILogger<ImportNotificationMetrics> logger)
     {
@@ -41,7 +42,7 @@ public class ImportNotificationMetrics
         
         var meter = meterFactory.Create(AnalyticsMetricNames.MeterName);
         
-        foreach (var chedType in GetChedTypes())
+        foreach (var chedType in ModelHelpers.GetChedTypes())
         {
             Add(meter.CreateGauge<int>($"{AnalyticsMetricNames.MetricPrefix}.import-notifications.{chedType.ToLower()}-linked.count", "ea",$"Number of {chedType} Linked Import Notifications")); 
             Add(meter.CreateGauge<int>($"{AnalyticsMetricNames.MetricPrefix}.import-notifications.{chedType.ToLower()}-not-linked.count", "ea",$"Number of {chedType} Not Linked Import Notifications"));  

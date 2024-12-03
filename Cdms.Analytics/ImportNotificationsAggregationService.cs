@@ -89,24 +89,30 @@ public class ImportNotificationsAggregationService(IMongoDbContext context, ILog
             .Project(projection)
             .Group(group)
             .Group(datasetGroup)
-            .ToList();
-            
-        var mongoResult = mongoResult1
-            .Select(b =>
-                {
-                    // Turn the date : count aggregation into a dictionary 
-                    var dates = b["dates"].AsBsonArray
-                        .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32);
+            .ToList()
+            .ToDictionary(createDatasetName, b => b);
 
-                    // Then map it into a list of the dates we want in our range 
-                    return new Dataset(createDatasetName(b))
-                    {
-                        Periods = dateRange.Select(resultDate => new ByDateTimeResult() { Period = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)})
-                            .Order(comparer)
-                            .ToList()
-                    };
-                }
-            )
+        var mongoResult = ModelHelpers.GetChedTypes()
+            .SelectMany(chedType => new string[] { $"{chedType} Linked", $"{chedType} Not Linked" })
+            .Select(title =>
+            {
+                var dates = mongoResult1
+                    .TryGetValue(title, out var b)
+                    ? b["dates"].AsBsonArray
+                        .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32)
+                    : [];
+
+                return new Dataset(title)
+                {
+                    Periods = dateRange.Select(resultDate =>
+                            new ByDateTimeResult()
+                            {
+                                Period = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)
+                            })
+                        .Order(comparer)
+                        .ToList()
+                };
+            })
             .OrderBy(d => d.Name)
             .ToArray();
         

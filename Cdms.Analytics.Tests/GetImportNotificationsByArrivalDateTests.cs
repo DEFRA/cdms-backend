@@ -21,21 +21,17 @@ public class GetImportNotificationsByArrivalDateTests(
             .ToList();
 
         testOutputHelper.WriteLine($"{result.Count} aggregated items found");
-        
-        //// logger.LogInformation(result.ToJsonString());
             
-        result.Count.Should().Be(3);
-
-        result[0].Name.Should().Be("CHEDA Linked");
-        result[0].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
-        result[0].Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
+        result.Count.Should().Be(8);
         
-        result[1].Name.Should().Be("CHEDA Not Linked");
-        result[1].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
-        result[1].Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
-
-        result[2].Name.Should().Be("CHEDP Linked");
-        result[2].Periods[0].Period.Should().BeOnOrAfter(DateTime.Today);
-        result[2].Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
+        result.Should().AllSatisfy(r =>
+        {
+            r.Periods.Should().AllSatisfy(p =>
+            {
+                p.Period.Should().BeOnOrAfter(DateTime.Today);
+                p.Period.Should().BeOnOrBefore(DateTime.Today.MonthLater());
+            });
+            r.Periods.Count.Should().Be(DateTime.Today.DaysUntilMonthLater());
+        });
     }
 }

@@ -40,8 +40,6 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
 
         string CreateDatasetName(BsonDocument b) => AnalyticsHelpers.GetLinkedName(b["_id"]["linked"].ToBoolean());
 
-        // DateTime AggregateDateCreator(BsonValue b) => b["dateToUse"].ToUniversalTime();
-
         return Aggregate(dateRange, CreateDatasetName, matchFilter, "$createdSource", aggregateBy);
     }
 
@@ -108,24 +106,47 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
             .Project(projection)
             .Group(group)
             .Group(datasetGroup)
-            .ToList();
-            
-        var mongoResult = mongoResult1
-            .Select(b =>
-                {
-                    // Turn the date : count aggregation into a dictionary 
-                    var dates = b["dates"].AsBsonArray
-                        .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32);
+            .ToList()
+            .ToDictionary(createDatasetName, b => b);
 
-                    // Then map it into a list of the dates we want in our range 
-                    return new Dataset(createDatasetName(b))
-                    {
-                        Periods = dateRange.Select(resultDate => new ByDateTimeResult() { Period = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)})
-                            .Order(comparer)
-                            .ToList()
-                    };
-                }
-            )
+        var mongoResult = new string[] { "Linked", "Not Linked" }
+            .Select(title =>
+            {
+                var dates = mongoResult1
+                    .TryGetValue(title, out var b)
+                    ? b["dates"].AsBsonArray
+                        .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32)
+                    : [];
+                
+                return new Dataset(title)
+                {
+                    Periods = dateRange.Select(resultDate =>
+                            new ByDateTimeResult()
+                            {
+                                Period = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)
+                            })
+                        .Order(comparer)
+                        .ToList()
+                };
+            })
+        
+        
+        // var mongoResult = mongoResult1
+        //     .Select(b =>
+        //         {
+        //             // Turn the date : count aggregation into a dictionary 
+        //             var dates = b["dates"].AsBsonArray
+        //                 .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32);
+        //
+        //             // Then map it into a list of the dates we want in our range 
+        //             return new Dataset(createDatasetName(b))
+        //             {
+        //                 Periods = dateRange.Select(resultDate => new ByDateTimeResult() { Period = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)})
+        //                     .Order(comparer)
+        //                     .ToList()
+        //             };
+        //         }
+        //     )
             .OrderBy(d => d.Name)
             .ToArray();
         

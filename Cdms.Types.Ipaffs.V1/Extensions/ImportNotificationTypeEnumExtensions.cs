@@ -12,6 +12,7 @@ public static class ImportNotificationTypeEnumExtensions
             ImportNotificationTypeEnum.Cvedp => "CHEDP",
             ImportNotificationTypeEnum.Chedpp => "CHEDPP",
             ImportNotificationTypeEnum.Ced => "CHEDD",
+            ImportNotificationTypeEnum.Imp => "IMP",
             _ => throw new ArgumentOutOfRangeException(nameof(chedType), chedType, null)
         };
     }
