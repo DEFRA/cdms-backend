@@ -1,5 +1,6 @@
 using Cdms.Common.Extensions;
 using Cdms.Model.Extensions;
+using System.Collections.Generic;
 using MongoDB.Bson;
 namespace Cdms.Analytics.Extensions;
 
@@ -36,5 +37,6 @@ public static class AnalyticsHelpers
         .Select(offset => from.Increment(offset, aggregateBy)) // from.AddDays(offset))
         .ToArray(); 
 
+    internal static readonly Comparer<ByDateTimeResult>? byDateTimeResultComparer = Comparer<ByDateTimeResult>.Create((d1, d2) => d1.Period.CompareTo(d2.Period));
     
 }

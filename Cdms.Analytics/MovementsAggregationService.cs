@@ -72,8 +72,6 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
     
     private Task<Dataset[]> Aggregate(DateTime[] dateRange, Func<BsonDocument, string> createDatasetName, Expression<Func<Movement, bool>> filter, string dateField, AggregationPeriod aggregateBy)
     {
-        var comparer = Comparer<ByDateTimeResult>.Create((d1, d2) => d1.Period.CompareTo(d2.Period));
-
         var truncateBy = aggregateBy == AggregationPeriod.Hour ? "hour" : "day";
         
         ProjectionDefinition<Movement> projection = "{linked:{ $ne: [0, { $size: '$relationships.notifications.data'}]}, dateToUse: { $dateTrunc: { date: '" + dateField + "', unit: '" + truncateBy + "'}}}";
@@ -86,36 +84,11 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
 
         var mongoResult = context
             .Movements
-            .Aggregate()
-            .Match(filter)
-            .Project(projection)
-            .Group(group)
-            .Group(datasetGroup)
-            .ToList()
-            .ToDictionary(createDatasetName, b => b);
+            .GetAggregatedRecordsDictionary(filter, projection, group, datasetGroup, createDatasetName);
 
         var output = new string[] { "Linked", "Not Linked" }
-            .Select(title =>
-            {
-                var dates = mongoResult
-                    .TryGetValue(title, out var b)
-                    ? b["dates"].AsBsonArray
-                        .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32)
-                    : [];
-                
-                return new Dataset(title)
-                {
-                    Periods = dateRange.Select(resultDate =>
-                            new ByDateTimeResult()
-                            {
-                                Period = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)
-                            })
-                        .Order(comparer)
-                        .ToList()
-                };
-            })
-            .OrderBy(d => d.Name)
-            .ToArray();
+            .Select(title => mongoResult.AsDataset(dateRange, title))
+            .AsOrderedArray();
         
         logger.LogDebug("Aggregated Data {result}", output.ToList().ToJsonString());
         
