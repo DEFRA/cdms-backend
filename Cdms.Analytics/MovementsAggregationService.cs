@@ -77,7 +77,6 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
             .Where(n => n.CreatedSource >= from && n.CreatedSource < to)
             .GroupBy(m => m.Relationships.Notifications.Data.Count > 0)
             .Select(g => new { g.Key, Count = g.Count() })
-            .ToList()
             .ToDictionary(g => AnalyticsHelpers.GetLinkedName(g.Key), g => g.Count);
             
         return Task.FromResult(new PieChartDataset()

@@ -60,12 +60,20 @@ public class ImportNotificationsAggregationService(IMongoDbContext context, ILog
             .Where(n => n.CreatedSource >= from && n.CreatedSource < to)
             .GroupBy(n => new { n.ImportNotificationType, Linked = n.Relationships.Movements.Data.Count > 0 })
             .Select(g => new { g.Key.Linked, g.Key.ImportNotificationType, Count = g.Count() })
-            .ToList();
+            .ToDictionary(g => AnalyticsHelpers.GetLinkedName(g.Linked, g.ImportNotificationType.AsString()!),
+                g => g.Count);
 
         return Task.FromResult(new PieChartDataset()
         {
-            Values = data.ToDictionary(g => AnalyticsHelpers.GetLinkedName(g.Linked, g.ImportNotificationType.AsString()!), g=> g.Count )
+            Values = GetSegments().ToDictionary(title => title, title => data.GetValueOrDefault(title, 0))
         });
+    }
+
+    private static string[] GetSegments()
+    {
+        return ModelHelpers.GetChedTypes()
+            .SelectMany(chedType => new string[] { $"{chedType} Linked", $"{chedType} Not Linked" })
+            .ToArray();
     }
 
     private Task<Dataset[]> Aggregate(DateTime[] dateRange, Func<BsonDocument, string> createDatasetName, Expression<Func<ImportNotification, bool>> filter, string dateField, AggregationPeriod aggregateBy)
@@ -92,8 +100,7 @@ public class ImportNotificationsAggregationService(IMongoDbContext context, ILog
             .ToList()
             .ToDictionary(createDatasetName, b => b);
 
-        var mongoResult = ModelHelpers.GetChedTypes()
-            .SelectMany(chedType => new string[] { $"{chedType} Linked", $"{chedType} Not Linked" })
+        var mongoResult = GetSegments()
             .Select(title =>
             {
                 var dates = mongoResult1
