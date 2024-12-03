@@ -34,9 +34,13 @@ using Serilog.Core;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text.Json;
 using CdmsBackend.OpenAPI;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using Environment = System.Environment;
 
 using OpenTelemetry.Extensions.Hosting;
@@ -57,13 +61,11 @@ static WebApplication CreateWebApplication(string[] args)
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-
         c.SwaggerDoc("public-v0.1", new OpenApiInfo { Title = "CDMS Public API", Version = "v0.1" });
-
-
-        //c.DocInclusionPredicate((name, api) =>  !name.StartsWith("public"));
         c.DocumentFilter<DocumentFilter>();
         c.SchemaFilter<SchemaFilter>();
+        // c.UseInlineDefinitionsForEnums();
+        c.UseAllOfToExtendReferenceSchemas();
     });
 	ConfigureAuthentication(builder);
 
@@ -79,6 +81,25 @@ static void ConfigureWebApplication(WebApplicationBuilder builder)
 	{
 		options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 	});
+    builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.SerializerOptions.PropertyNameCaseInsensitive = true;
+        options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
+        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+    // This is needed for Swashbuckle and Minimal APIs
+    builder.Services.Configure<JsonOptions>(options =>
+    {
+        options.SerializerOptions.PropertyNameCaseInsensitive = true;
+        options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
+        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+    builder.Services.TryAddTransient<ISerializerDataContractResolver>(sp => new JsonSerializerDataContractResolver(
+        sp.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions
+    ));
+    // /This is needed for Swashbuckle and Minimal APIs
 
 	builder.Services.AddSingleton<ICdmsMediator, CdmsMediator>();
 	builder.Services.AddSyncJob();
@@ -236,12 +257,10 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 {
 	var app = builder.Build();
     app.UseSwagger();
-    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
+    app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/public-v0.1/swagger.json", "public");
     });
-
-
 	app.UseEmfExporter();
 	app.UseAuthentication();
 	app.UseAuthorization();
