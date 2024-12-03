@@ -16,6 +16,13 @@ namespace Cdms.Analytics;
 
 public class MovementsAggregationService(IMongoDbContext context, ILogger<MovementsAggregationService> logger) : IMovementsAggregationService
 {
+    // By creating the dates we care about, we can ensure the arrays have all the dates, 
+    // including any series that don't have data on a given day. We need these to be zero for the chart to render
+    // correctly
+    static DateTime[] CreateDateRange(DateTime from, DateTime to, AggregationPeriod aggregateBy) => Enumerable.Range(0, (to - from).Periods(aggregateBy)).Reverse()
+        .Select(offset => from.Increment(offset, aggregateBy)) // from.AddDays(offset))
+        .ToArray(); 
+    
     /// <summary>
     /// Aggregates movements by createdSource and returns counts by date period. Could be refactored to use a generic/interface in time
     /// </summary>
@@ -25,15 +32,7 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
     /// <returns></returns>
     public Task<Dataset[]> ByCreated(DateTime from, DateTime to, AggregationPeriod aggregateBy = AggregationPeriod.Day)
     {
-        int RangeFromPeriod(TimeSpan t) => Convert.ToInt32(aggregateBy == AggregationPeriod.Hour ? t.TotalHours : t.TotalDays);
-        DateTime IncrementPeriod(DateTime d, int offset) => aggregateBy == AggregationPeriod.Hour ? d.AddHours(offset) : d.AddDays(offset);
-
-        // By creating the dates we care about, we can ensure the arrays have all the dates, 
-        // including any series that don't have data on a given day. We need these to be zero for the chart to render
-        // correctly
-        var dateRange = Enumerable.Range(0, RangeFromPeriod((to - from))).Reverse()
-            .Select(offset => IncrementPeriod(from, offset)) // from.AddDays(offset))
-            .ToArray(); 
+        var dateRange = CreateDateRange(from, to, aggregateBy);
         
         Expression<Func<Movement, bool>> matchFilter = n =>
             n.CreatedSource >= from && n.CreatedSource < to;
@@ -52,15 +51,17 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
     /// <returns></returns>
     public Task<Dataset[]> ByArrival(DateTime from, DateTime to, AggregationPeriod aggregateBy = AggregationPeriod.Day)
     {
-        int RangeFromPeriod(TimeSpan t) => Convert.ToInt32(aggregateBy == AggregationPeriod.Hour ? t.TotalHours : t.TotalDays);
-        DateTime IncrementPeriod(DateTime d, int offset) => aggregateBy == AggregationPeriod.Hour ? d.AddHours(offset) : d.AddDays(offset);
-
-        // By creating the dates we care about, we can ensure the arrays have all the dates, 
-        // including any series that don't have data on a given day. We need these to be zero for the chart to render
-        // correctly
-        var dateRange = Enumerable.Range(0, RangeFromPeriod((to - from))).Reverse()
-            .Select(offset => IncrementPeriod(from, offset)) // from.AddDays(offset))
-            .ToArray(); 
+        var dateRange = CreateDateRange(from, to, aggregateBy);
+        
+        // int RangeFromPeriod(TimeSpan t) => Convert.ToInt32(aggregateBy == AggregationPeriod.Hour ? t.TotalHours : t.TotalDays);
+        // DateTime IncrementPeriod(DateTime d, int offset) => aggregateBy == AggregationPeriod.Hour ? d.AddHours(offset) : d.AddDays(offset);
+        //
+        // // By creating the dates we care about, we can ensure the arrays have all the dates, 
+        // // including any series that don't have data on a given day. We need these to be zero for the chart to render
+        // // correctly
+        // var dateRange = Enumerable.Range(0, RangeFromPeriod((to - from))).Reverse()
+        //     .Select(offset => IncrementPeriod(from, offset))
+        //     .ToArray(); 
         
         Expression<Func<Movement, bool>> matchFilter = n =>
             n.CreatedSource >= from && n.CreatedSource < to;
@@ -99,7 +100,7 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
         // Then further group by whether its matched and get the count to give us the structure we need in our chart
         ProjectionDefinition<BsonDocument> datasetGroup = "{_id: { linked: '$_id.linked'}, dates: { $push: { dateToUse: '$_id.dateToUse', count: '$count' }}}";
 
-        var mongoResult1 = context
+        var mongoResult = context
             .Movements
             .Aggregate()
             .Match(filter)
@@ -109,10 +110,10 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
             .ToList()
             .ToDictionary(createDatasetName, b => b);
 
-        var mongoResult = new string[] { "Linked", "Not Linked" }
+        var output = new string[] { "Linked", "Not Linked" }
             .Select(title =>
             {
-                var dates = mongoResult1
+                var dates = mongoResult
                     .TryGetValue(title, out var b)
                     ? b["dates"].AsBsonArray
                         .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32)
@@ -129,29 +130,11 @@ public class MovementsAggregationService(IMongoDbContext context, ILogger<Moveme
                         .ToList()
                 };
             })
-        
-        
-        // var mongoResult = mongoResult1
-        //     .Select(b =>
-        //         {
-        //             // Turn the date : count aggregation into a dictionary 
-        //             var dates = b["dates"].AsBsonArray
-        //                 .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32);
-        //
-        //             // Then map it into a list of the dates we want in our range 
-        //             return new Dataset(createDatasetName(b))
-        //             {
-        //                 Periods = dateRange.Select(resultDate => new ByDateTimeResult() { Period = resultDate, Value = dates.GetValueOrDefault(resultDate, 0)})
-        //                     .Order(comparer)
-        //                     .ToList()
-        //             };
-        //         }
-        //     )
             .OrderBy(d => d.Name)
             .ToArray();
         
-        logger.LogDebug("Aggregated Data {result}", mongoResult.ToList().ToJsonString());
+        logger.LogDebug("Aggregated Data {result}", output.ToList().ToJsonString());
         
-        return Task.FromResult(mongoResult);
+        return Task.FromResult(output);
     }
 }

@@ -90,7 +90,7 @@ public class ImportNotificationsAggregationService(IMongoDbContext context, ILog
         // Then further group by chedtype & whether its matched to give us the structure we need in our chart
         ProjectionDefinition<BsonDocument> datasetGroup = "{_id: { importNotificationType: '$_id.importNotificationType', linked: '$_id.linked'}, dates: { $push: { dateToUse: '$_id.dateToUse', count: '$count' }}}";
 
-        var mongoResult1 = context
+        var mongoResult = context
             .Notifications
             .Aggregate()
             .Match(filter)
@@ -100,10 +100,10 @@ public class ImportNotificationsAggregationService(IMongoDbContext context, ILog
             .ToList()
             .ToDictionary(createDatasetName, b => b);
 
-        var mongoResult = GetSegments()
+        var output = GetSegments()
             .Select(title =>
             {
-                var dates = mongoResult1
+                var dates = mongoResult
                     .TryGetValue(title, out var b)
                     ? b["dates"].AsBsonArray
                         .ToDictionary(AnalyticsHelpers.AggregateDateCreator, d => d["count"].AsInt32)
@@ -123,8 +123,8 @@ public class ImportNotificationsAggregationService(IMongoDbContext context, ILog
             .OrderBy(d => d.Name)
             .ToArray();
         
-        logger.LogDebug("Aggregated Data {result}", mongoResult.ToList().ToJsonString());
+        logger.LogDebug("Aggregated Data {result}", output.ToList().ToJsonString());
         
-        return Task.FromResult(mongoResult);
+        return Task.FromResult(output);
     }
 }

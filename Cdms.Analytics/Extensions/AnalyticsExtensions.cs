@@ -28,4 +28,9 @@ public static class AnalyticsExtensions
     {
         return ds.Name.Replace(" ", "-").ToLower();
     }
+
+    public static int Periods(this TimeSpan t, AggregationPeriod aggregateBy) => Convert.ToInt32(aggregateBy == AggregationPeriod.Hour ? t.TotalHours : t.TotalDays);
+    
+    public static DateTime Increment(this DateTime d, int offset, AggregationPeriod aggregateBy) => aggregateBy == AggregationPeriod.Hour ? d.AddHours(offset) : d.AddDays(offset);
+
 }

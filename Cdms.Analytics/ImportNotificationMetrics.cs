@@ -29,11 +29,6 @@ public class ImportNotificationMetrics
     {
         _metrics.Add(i.Name, i);
     }
-
-    // private string[] GetChedTypes()
-    // {
-    //     return Enum.GetValues<ImportNotificationTypeEnum>().Select(e => e.AsString()).ToArray();
-    // }
     
     public ImportNotificationMetrics(IMeterFactory meterFactory, IImportNotificationsAggregationService importService, ILogger<ImportNotificationMetrics> logger)
     {
