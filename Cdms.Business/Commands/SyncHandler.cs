@@ -107,7 +107,7 @@ public abstract class SyncCommand() : IRequest, ISyncJob
 
             await Parallel.ForEachAsync(result, new ParallelOptions() { CancellationToken = cancellationToken, MaxDegreeOfParallelism = maxDegreeOfParallelism }, async (item, token) =>
             {
-                await SyncBlob<TRequest>(path, topic, item, job, token);
+                await SyncBlob<TRequest>(path, topic, item, job, cancellationToken);
             });
         }
 
