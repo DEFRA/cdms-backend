@@ -37,7 +37,6 @@ public static class TestContextHelper
             .ConfigureAppConfiguration(c => c.AddInMemoryCollection(configurationValues!))
             .ConfigureServices((hostContext, s) =>
             {
-                s.AddSingleton<IWebHostEnvironment, DummyWebHostEnvironment>();
                 s.AddAnalyticsServices(hostContext.Configuration);
                 s.ConfigureTestGenerationServices();
                 s.AddMongoDbContext(hostContext.Configuration);
