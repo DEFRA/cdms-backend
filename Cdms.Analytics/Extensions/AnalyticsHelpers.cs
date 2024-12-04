@@ -1,8 +1,11 @@
 using Cdms.Common.Extensions;
 using Cdms.Model.Extensions;
 using System.Collections.Generic;
+using Cdms.Model;
 using MongoDB.Bson;
 namespace Cdms.Analytics.Extensions;
+
+public class AnalyticsException(string message, Exception inner) : Exception(message, inner);
 
 public static class AnalyticsMetricNames
 {
@@ -39,4 +42,15 @@ public static class AnalyticsHelpers
 
     internal static readonly Comparer<ByDateTimeResult>? byDateTimeResultComparer = Comparer<ByDateTimeResult>.Create((d1, d2) => d1.Period.CompareTo(d2.Period));
     
+    public static string[] GetImportNotificationSegments()
+    {
+        return ModelHelpers.GetChedTypes()
+            .SelectMany(chedType => new string[] { $"{chedType} Linked", $"{chedType} Not Linked" })
+            .ToArray();
+    }
+
+    public static string[] GetMovementSegments()
+    {
+        return new string[] { "Linked", "Not Linked" };
+    }
 }
