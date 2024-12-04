@@ -3,7 +3,6 @@ using Cdms.Analytics.Extensions;
 using Cdms.Business.Extensions;
 using Cdms.Consumers.Extensions;
 using Cdms.SyncJob.Extensions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
