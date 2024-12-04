@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 using Cdms.SyncJob;
 using Cdms.Types.Alvs;
 using Cdms.Types.Gvms;
+using Microsoft.Extensions.Hosting;
 
 namespace Cdms.Business.Commands;
 
@@ -27,7 +28,7 @@ public class DownloadCommand : IRequest, ISyncJob
     public string Timespan { get; } = null!;
     public string Resource { get; } = null!;
 
-    internal class Handler(IBlobService blobService, ISensitiveDataSerializer sensitiveDataSerializer, IWebHostEnvironment env) : IRequestHandler<DownloadCommand>
+    internal class Handler(IBlobService blobService, ISensitiveDataSerializer sensitiveDataSerializer, IHostEnvironment env) : IRequestHandler<DownloadCommand>
     {
 
         public async Task Handle(DownloadCommand request, CancellationToken cancellationToken)
@@ -47,7 +48,7 @@ public class DownloadCommand : IRequest, ISyncJob
 
             await Download(request, rootFolder, "RAW/DECISIONS", typeof(AlvsClearanceRequest), cancellationToken);
             
-            ZipFile.CreateFromDirectory(rootFolder, $"{env.ContentRootPath}\\{request.JobId}.zip");
+            ZipFile.CreateFromDirectory(rootFolder, $"{env.ContentRootPath}/{request.JobId}.zip");
            
             Directory.Delete(rootFolder, true);
         }
