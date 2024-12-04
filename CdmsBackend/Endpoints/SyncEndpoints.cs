@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using Azure.Core;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Cdms.Business.Commands;
@@ -58,7 +59,7 @@ public static class SyncEndpoints
 
     private static IResult DownloadNotifications([FromServices] IWebHostEnvironment env, string id)
     {
-        var stream = File.OpenRead($"{System.IO.Path.Combine(env.ContentRootPath, id)}.zip");
+        var stream = File.OpenRead($"{env.ContentRootPath}/{id}.zip");
         return Results.File(stream, "application/zip", $"{id}.zip");
     }
 
