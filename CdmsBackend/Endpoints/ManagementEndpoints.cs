@@ -44,36 +44,39 @@ public static class ManagementEndpoints
 
 	private const string Redacted = "--redacted--";
 
-	private static DictionaryEntry Redact(DictionaryEntry d)
+	private static DictionaryEntry Redact(ApiOptions options, DictionaryEntry d)
 	{
 
 		object? value = d.Value;
 
-		try
-		{
-			switch (d.Key)
-			{
-				case "HTTP_PROXY" or "HTTPS_PROXY":
-					// redact the password - doesn't have protocol, ie.
-					// cdms-backend::passC@proxy.perf-test.cdp-int.defra.cloud
-					value = Redacted;
-					break;
-				case "CDP_HTTP_PROXY" or "CDP_HTTPS_PROXY":
-					//  redact the password
-					// https://cdms-backend::passC@proxy.perf-test.cdp-int.defra.cloud
-					value = Redacted;
-					break;
-				case string s when RedactKeys(s):
-					value = Redacted;
-					break;
-				default:
-					break;
-			}
-		}
-		catch (Exception)
-		{
-			value = Redacted;
-		}
+        if (!options.DisplaySecretEnvVars)
+        {
+            try
+            {
+                switch (d.Key)
+                {
+                    case "HTTP_PROXY" or "HTTPS_PROXY":
+                        // redact the password - doesn't have protocol, ie.
+                        // cdms-backend::passC@proxy.perf-test.cdp-int.defra.cloud
+                        value = Redacted;
+                        break;
+                    case "CDP_HTTP_PROXY" or "CDP_HTTPS_PROXY":
+                        //  redact the password
+                        // https://cdms-backend::passC@proxy.perf-test.cdp-int.defra.cloud
+                        value = Redacted;
+                        break;
+                    case string s when RedactKeys(s):
+                        value = Redacted;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                value = Redacted;
+            }
+        }
 
 		return new DictionaryEntry() { Key = d.Key, Value = value };
 	}
@@ -89,10 +92,10 @@ public static class ManagementEndpoints
         return Results.Ok();
     }
 
-    private static IResult GetEnvironment()
+    private static IResult GetEnvironment(IOptions<ApiOptions> options)
 	{
 		var dict = System.Environment.GetEnvironmentVariables();
-		var filtered = dict.Cast<DictionaryEntry>().Select(Redact).ToArray();
+		var filtered = dict.Cast<DictionaryEntry>().Select(d => Redact(options.Value, d)).ToArray();
 		return Results.Ok(filtered);
 	}
 
