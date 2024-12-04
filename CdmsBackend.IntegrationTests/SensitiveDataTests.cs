@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using Cdms.SensitiveData;
 using Cdms.Types.Ipaffs;
 using FluentAssertions;
+using Json.Path;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Xunit;
@@ -38,6 +39,10 @@ public class SensitiveDataTests
 
         JsonNode.DeepEquals(JsonNode.Parse(json), JsonNode.Parse(result)).Should().BeFalse();
         result.Should().Contain("TestRedacted");
+        var jsonPath = JsonPath.Parse("$.partOne.personResponsible.address[0]");
+        var addressResult = jsonPath.Evaluate(JsonNode.Parse(result));
+        addressResult.Matches.Should().HaveCountGreaterOrEqualTo(1);
+        addressResult.Matches[0].Value?.GetValue<string>().Should().Be("TestRedacted");
 
     }
 }
