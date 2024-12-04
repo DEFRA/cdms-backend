@@ -3,6 +3,7 @@ using Cdms.Analytics.Extensions;
 using Cdms.Business.Extensions;
 using Cdms.Consumers.Extensions;
 using Cdms.SyncJob.Extensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,6 +37,7 @@ public static class TestContextHelper
             .ConfigureAppConfiguration(c => c.AddInMemoryCollection(configurationValues!))
             .ConfigureServices((hostContext, s) =>
             {
+                s.AddSingleton<IWebHostEnvironment, DummyWebHostEnvironment>();
                 s.AddAnalyticsServices(hostContext.Configuration);
                 s.ConfigureTestGenerationServices();
                 s.AddMongoDbContext(hostContext.Configuration);
