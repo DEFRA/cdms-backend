@@ -1,11 +1,13 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using JsonFlatten;
+using Cdms.Common.Extensions;
+using Json.Patch;
+using Json.Path;
+using Json.Pointer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace Cdms.SensitiveData;
 
@@ -53,35 +55,42 @@ public class SensitiveDataSerializer(IOptions<SensitiveDataOptions> options, ILo
             return json;
         }
         var sensitiveFields = SensitiveFieldsProvider.Get(type);
-       
-        var jObject = JObject.Parse(json);
 
-        var fields = jObject.Flatten();
+        var rootNode = JsonNode.Parse(json);
 
-        foreach (var field in sensitiveFields)
+        foreach (var sensitiveField in sensitiveFields)
         {
-            if (fields.TryGetValue(field, out var value))
+            var jsonPath = JsonPath.Parse($"$.{sensitiveField}");
+            var result = jsonPath.Evaluate(rootNode);
+
+            foreach (var match in result.Matches)
             {
-                if (!options.Value.Include)
+                JsonPatch patch;
+                if (match.Value is JsonArray jsonArray)
                 {
-                    fields[field] = options.Value.Getter(value.ToString()!);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < fields.Keys.Count; i++)
-                {
-                    var key = fields.Keys.ElementAt(i);
-                    var replaced = Regex.Replace(key, "\\[.*?\\]", "", RegexOptions.NonBacktracking);
-                    if (replaced == field && fields.TryGetValue(key, out var v) && !options.Value.Include)
+                    var redactedList = jsonArray.Select(x =>
                     {
-                        fields[key] = options.Value.Getter(v.ToString()!);
-                    }
+                        var redactedValue = options.Value.Getter(x?.GetValue<string>()!);
+                        return redactedValue;
+                    }).ToJson();
+
+                    patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse($"{match.Location!.AsJsonPointer()}"), JsonNode.Parse(redactedList)));
+                }
+                else
+                {
+                    var redactedValue = options.Value.Getter(match.Value?.GetValue<string>()!);
+                    patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse(match.Location!.AsJsonPointer()), redactedValue));
+                }
+
+
+                var patchResult = patch.Apply(rootNode);
+                if (patchResult.IsSuccess)
+                {
+                    rootNode = patchResult.Result;
                 }
             }
         }
 
-        var redactedString = fields.Unflatten().ToString();
-        return redactedString;
+        return rootNode!.ToJsonString();
     }
 }
