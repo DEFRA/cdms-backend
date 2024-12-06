@@ -7,6 +7,7 @@ using SlimMessageBus;
 using System.Diagnostics.CodeAnalysis;
 using Cdms.Consumers.Extensions;
 using Microsoft.Extensions.Logging;
+using Force.DeepCloner;
 
 namespace Cdms.Consumers
 {
@@ -31,14 +32,15 @@ namespace Cdms.Consumers
                    }))
             {
                 var internalNotification = message.MapWithTransform();
-                
 
+                Model.Ipaffs.ImportNotification persistedNotification = null!;
                 var existingNotification = await dbContext.Notifications.Find(message.ReferenceNumber!);
                 if (existingNotification is not null)
                 {
                     if (internalNotification.UpdatedSource.TrimMicroseconds() >
                         existingNotification.UpdatedSource.TrimMicroseconds())
                     {
+                        persistedNotification = existingNotification.DeepClone();
                         internalNotification.AuditEntries = existingNotification.AuditEntries;
                         internalNotification.CreatedSource = existingNotification.CreatedSource;
                         internalNotification.Update(BuildNormalizedIpaffsPath(auditId!), existingNotification);
@@ -48,15 +50,17 @@ namespace Cdms.Consumers
                     {
                         logger.MessageSkipped(Context.GetJobId()!, auditId!, GetType().Name, message.ReferenceNumber!);
                         Context.Skipped();
+                        return;
                     }
                 }
                 else
                 {
                     internalNotification.Create(BuildNormalizedIpaffsPath(auditId!));
                     await dbContext.Notifications.Insert(internalNotification);
+                    persistedNotification = internalNotification!;
                 }
 
-                var linkContext = new ImportNotificationLinkContext(internalNotification, existingNotification);
+                var linkContext = new ImportNotificationLinkContext(persistedNotification, existingNotification);
                 var linkResult = await linkingService.Link(linkContext, Context.CancellationToken);
             }
         }

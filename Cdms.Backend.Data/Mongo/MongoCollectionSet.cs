@@ -66,7 +66,7 @@ namespace Cdms.Backend.Data.Mongo
 
             if (updateResult.ModifiedCount == 0)
             {
-                throw new ConcurrencyException("Concurrency Error, change this to a Concurrency exception");
+                throw new ConcurrencyException(item.Id!, etag);
             }
         }
 
