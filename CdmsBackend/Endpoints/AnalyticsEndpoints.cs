@@ -54,13 +54,27 @@ public static class AnalyticsEndpoints
         var lastMonthMovementsByStatus = await movementsService
             .ByStatus(DateTime.Today.MonthAgo(), DateTime.Now);
         
+        var lastMonthMovementsByItemCount = await movementsService
+            .ByItemCount(DateTime.Today.MonthAgo(), DateTime.Now);
+        
+        var lastMonthMovementsByUniqueDocumentReferenceCount = await movementsService
+            .ByUniqueDocumentReferenceCount(DateTime.Today.MonthAgo(), DateTime.Now);
+        
+        var lastMonthUniqueDocumentReferenceByMovementCount = await movementsService
+            .UniqueDocumentReferenceByMovementCount(DateTime.Today.MonthAgo(), DateTime.Now);
+        
+        var lastMonthImportNotificationsByCommodityCount = await importService
+            .ByCommodityCount(DateTime.Today.MonthAgo(), DateTime.Now);
+        
         return Results.Ok(new
         {
             importNotificationLinkingByCreated, importNotificationLinkingByArrival,
             last7DaysImportNotificationsLinkingStatus, last24HoursImportNotificationsLinkingStatus,
             last24HoursMovementsLinkingByCreated, last24HoursImportNotificationsLinkingByCreated,
             movementsLinkingByCreated, movementsLinkingByArrival,
-            lastMonthImportNotificationsByTypeAndStatus, lastMonthMovementsByStatus
+            lastMonthImportNotificationsByTypeAndStatus, lastMonthMovementsByStatus,
+            lastMonthMovementsByItemCount, lastMonthImportNotificationsByCommodityCount,
+            lastMonthMovementsByUniqueDocumentReferenceCount, lastMonthUniqueDocumentReferenceByMovementCount
         });
     }
 }
