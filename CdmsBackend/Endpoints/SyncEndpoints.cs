@@ -60,7 +60,7 @@ public static class SyncEndpoints
     private static IResult DownloadNotifications([FromServices] IWebHostEnvironment env, string id)
     {
         var stream = File.OpenRead($"{env.ContentRootPath}/{id}.zip");
-        return Results.File(stream, "application/zip", $"{id}.zip");
+        return Results.File(stream, "application/zip", $"{id}.zip", enableRangeProcessing: true);
     }
 
     private static async Task<IResult> GenerateDownload([FromServices] ICdmsMediator mediator, [FromQuery] SyncPeriod period)
